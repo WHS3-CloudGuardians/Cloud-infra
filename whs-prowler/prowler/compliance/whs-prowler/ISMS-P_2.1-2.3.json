@@ -1,0 +1,96 @@
+[
+  {
+    "Id": "2.1.3",
+    "Name": "정보자산 관리",
+    "Description": "정보자산의 용도와 중요도에 따른 취급 절차 및 보호대책을 수립·이행하고, 자산별 책임소재를 명확히 정의하여 관리하여야 한다.",
+    "Domain": "2. 보호대책 요구사항",
+    "Subdomain": "2.1. 정책, 조직, 자산 관리",
+    "Section": "2.1.3 정보자산 관리",
+    "Checks": [
+      "organizations_tags_policies_enabled_and_attached",
+      "organizations_account_part_of_organizations",
+      "macie_is_enabled",
+      "config_recorder_all_regions_enabled",
+      "resourceexplorer2_indexes_found",
+      "account_maintain_current_contact_details",
+      "account_maintain_different_contact_details_to_security_billing_and_operations",
+      "account_security_questions_are_registered_in_the_aws_account",
+      "account_security_contact_information_is_registered"
+    ],
+    "AuditChecklist": [
+      "정보자산의 보안등급에 따른 취급절차(생성·도입, 저장, 이용, 파기) 및 보호대책을 정의하고 이행하고 있는가?",
+      "식별된 정보자산에 대하여 책임자 및 관리자를 지정하고 있는가?"
+    ],
+    "RelatedRegulations": [],
+    "AuditEvidence": [
+      "정보자산 목록(책임자, 담당자 지정)",
+      "정보자산 취급 절차(문서, 정보시스템 등)",
+      "정보자산 관리 시스템 화면",
+      "정보자산 보안등급 표시 내역"
+    ],
+    "NonComplianceCases": [
+      "사례 1 : 내부 지침에 따라 문서에 보안등급을 표기하도록 되어 있으나, 이를 표시하지 않은 경우",
+      "사례 2 : 정보자산별 담당자 및 책임자를 식별하지 않았거나, 자산목록 현행화가 미흡하여 퇴직, 전보 등 인사이동이 발생하여 주요 정보자산의 담당자 및 책임자가 변경되었음에도 이를 식별하지 않은 경우",
+      "사례 3 : 식별된 정보자산에 대한 중요도 평가를 실시하여 보안등급을 부여하고 정보 자산목록에 기록하고 있으나, 보안등급에 따른 취급절차를 정의하지 않은 경우"
+    ],
+    "대응방안 - 커스토디안과 연계": [
+      "Organizations 수준에서 태그 정책(Tag Policies)이 활성화되어 있으며, 계정/OU에 적용되었는지 확인하고 미적용 시 알림",
+      "계정이 AWS Organizations의 일부인지 확인하고, 독립 계정인 경우 통합 관리 대상 외로 간주하여 알림",
+      "Amazon Macie가 계정 또는 리전에 대해 활성화되어 민감 정보 탐지가 가능하도록 설정되었는지 확인",
+      "AWS Config가 모든 리전에서 리소스를 기록하도록 활성화되어 있는지 확인 (글로벌 보안 모니터링 목적)",
+      "Resource Explorer v2 인덱스가 구성되어 계정 내 리소스 탐색 기능이 활성화되었는지 점검",
+      "AWS 계정의 기본 연락처 정보가 최신인지 확인하고 오래된 연락처 또는 미기입 시 경고",
+      "보안, 청구, 운영 연락처가 동일한 경우 분리 관리 원칙에 따라 개별 지정이 되었는지 점검",
+      "계정에 보안 질문(Security Questions)이 설정되어 있어 비정상 접근 시 복구 기능이 활성화되어 있는지 확인",
+      "보안 위협 발생 시 AWS가 빠르게 연락할 수 있도록 Security Contact 정보가 등록되어 있는지 점검."
+    ],
+    "조항 핵심 목적": [
+      "조직 전체에 **태그 정책(Tag Policies)**이 활성화되고, OU나 계정에 실제로 적용되어 있는지 확인. 태그 기반 리소스 관리 및 비용 추적을 일관성 있게 유지하기 위함.",
+      "AWS 계정이 Organizations 소속인지 확인하여 중앙 집중형 관리 및 통제 구조 안에 있는지 검증. 독립 계정은 보안 정책 일관성이 낮음.",
+      "Amazon Macie가 활성화되어 민감 정보(예: 개인정보, 신용카드) 탐지가 가능한지 확인. 데이터 보안 및 규제 준수 목적.",
+      "AWS Config가 모든 리전에서 활성화되어 리소스 변경 이력을 수집하고 있는지 점검. 보안 분석 및 컴플라이언스 보고의 기반.",
+      "Resource Explorer v2 인덱스가 생성되어 리전/계정 내 리소스 검색 기능이 활성화되어 있는지 확인. 자산 가시성 확보 목적.",
+      "계정의 기본 연락처(이메일, 전화번호)가 최신인지 확인하여 보안 사고나 청구 문제 발생 시 AWS의 연락이 가능하도록 보장.",
+      "보안, 청구, 운영 연락처가 각기 다른 부서 또는 담당자에게 분리되어 등록되어 있는지 확인. 실무 대응력을 높이기 위함.",
+      "비밀번호 분실/계정 접근 문제 발생 시 계정 복구를 위한 보안 질문(Security Questions)이 설정되어 있는지 확인.",
+      "보안 위협 발생 시 AWS가 빠르게 연락할 수 있도록 Security Contact 정보가 등록되어 있는지 점검."
+    ]
+  },
+  {
+    "Id": "2.2.2",
+    "Name": "직무 분리",
+    "Description": "권한 오·남용 등으로 인한 잠재적인 피해 예방을 위하여 직무 분리 기준을 수립하고 적용하여야 한다. 다만 불가피하게 직무 분리가 어려운 경우 별도의 보완대책을 마련하여 이행하여야 한다",
+    "Domain": "2. 보호대책 요구사항",
+    "Subdomain": "2.2. 인적 보안",
+    "Section": "2.2.2 직무 분리",
+    "Checks": [
+      "organizations_delegated_administrators",
+      "account_security_contact_information_is_registered",
+      "iam_support_role_created"
+    ],
+    "AuditChecklist": [
+      "권한 오·남용 등으로 인한 잠재적인 피해 예방을 위하여 직무 분리 기준을 수립하여 적용하고 있는가?",
+      "직무 분리가 어려운 경우 직무자 간 상호 검토, 상위관리자 정기 모니터링 및 변경사항 승인, 책임추적성 확보 방안 등의 보완통제를 마련하고 있는가?"
+    ],
+    "RelatedRegulations": [],
+    "AuditEvidence": [
+      "직무 분리 관련 지침(인적 보안 지침 등)",
+      "직무기술서(시스템 운영·관리, 개발·운영 등)",
+      "직무 미분리 시 보완통제 현황"
+    ],
+    "NonComplianceCases": [
+      "사례 1 : 조직의 규모와 인원이 담당자별 직무 분리가 충분히 가능한 조직임에도 업무 편의성만을 사유로 내부 규정으로 정한 직무 분리 기준을 준수하고 있지 않은 경우",
+      "사례 2 : 조직의 특성상 경영진의 승인을 받은 후 개발과 운영 직무를 병행하고 있으나, 직무자 간 상호 검토, 상위관리자의 주기적인 직무수행 모니터링 및 변경 사항 검토·승인, 직무자의 책임추적성 확보 등의 보완통제 절차가 마련되어 있지 않은 경우"
+    ],
+    "대응방안 - 커스토디안과 연계": [
+      "조직 계정 내 서비스별 위임 관리자(Delegated Administrator)가 설정되어 있는지 점검하고, 미지정 시 알림. 예를 들어, Security Hub, Config, GuardDuty 등 서비스마다 운영 OU의 계정을 위임자로 설정해야 관리 효율과 보안 통제를 강화할 수 있음. Custodian으로 organizations 리소스를 조회하고 list-delegated-administrators API를 통해 확인 가능.",
+      "계정의 보안 연락처(Security contact)가 등록되어 있는지 탐지. AWS는 침해 징후 발생 시 이 연락처를 통해 긴급 대응 안내를 보냄. Custodian은 account 리소스에서 get-contact-information API로 security 항목 유무를 점검하고 누락 시 알림. 자동 수정을 위해 관리 콘솔 접근이 필요하므로 notify + tag 조치가 적합.",
+      "AWS 계정에 AWS Support 액세스를 위한 AWSServiceRoleForSupport 역할 또는 사용자 정의 support 역할이 생성되어 있는지 점검. 없을 경우 AWS 지원 요청이 제한될 수 있으므로, IAM Role 이름, Description, Trust Policy 등을 기준으로 존재 여부를 확인. Custodian의 iam-role 필터를 활용하여 role-name: support* 또는 TrustPolicy에 support.amazonaws.com 포함 여부 확인 가능. 존재하지 않으면 Slack 알림 또는 생성 권고 조치 수행."
+    ],
+    "조항 핵심 목적": [
+      "GuardDuty, Config, Security Hub 등 서비스의 위임 관리자 계정(Delegated Administrator)이 지정되어 중앙 통제가 가능한지 확인.",
+      "보안 위협 발생 시 AWS가 빠르게 연락할 수 있도록 Security Contact 정보가 등록되어 있는지 점검.",
+      "AWS 지원이 계정 문제에 접근할 수 있도록 필수 IAM 역할 (예: AWSServiceRoleForSupport)이 존재하는지 확인."
+    ]
+  }
+]
