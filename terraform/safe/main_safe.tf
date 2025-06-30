@@ -559,7 +559,7 @@ resource "aws_db_instance" "safe_rds_db" {
   multi_az                = true
   publicly_accessible     = false
   deletion_protection     = false
-
+  skip_final_snapshot = true
   db_name                 = "safe_database"
   username                = "admin"
   password = aws_secretsmanager_secret_version.rds_master_version.secret_string
@@ -1712,5 +1712,204 @@ resource "aws_route53_record" "www_alias_to_cloudfront" {
     name                   = aws_cloudfront_distribution.safe_cloudfront_alb.domain_name
     zone_id                = "Z2FDTNDATAQYW2" # CloudFront 고정 Hosted Zone ID
     evaluate_target_health = false
+  }
+}
+
+resource "aws_backup_vault" "main" {
+  name        = "safe-backup-vault"
+  kms_key_arn = aws_kms_key.safe_efs_key.arn
+
+  tags = {
+    Name = "safe-backup-vault"
+  }
+}
+
+resource "aws_backup_plan" "main" {
+  name = "safe-backup-plan"
+
+  rule {
+    rule_name         = "daily-rds-backup"
+    target_vault_name = aws_backup_vault.main.name
+    schedule          = "cron(0 5 * * ? *)" # 매일 오전 5시 (UTC)
+    start_window      = 60
+    completion_window = 120
+    lifecycle {
+      delete_after = 7
+    }
+    recovery_point_tags = {
+      Type = "RDS-Daily"
+    }
+  }
+
+  rule {
+    rule_name         = "biweekly-ec2-backup"
+    target_vault_name = aws_backup_vault.main.name
+    schedule          = "cron(0 5 ? * 1,3 *)" # 격주 월/수
+    start_window      = 60
+    completion_window = 120
+    lifecycle {
+      delete_after = 30
+    }
+    recovery_point_tags = {
+      Type = "EC2-Biweekly"
+    }
+  }
+
+  rule {
+    rule_name         = "weekly-efs-backup"
+    target_vault_name = aws_backup_vault.main.name
+    schedule          = "cron(0 4 ? * SUN *)" # 매주 일요일 오전 4시 (UTC)
+    start_window      = 60
+    completion_window = 180
+    lifecycle {
+      delete_after = 30
+    }
+    recovery_point_tags = {
+      Type = "EFS-Weekly"
+    }
+  }
+}
+
+resource "aws_backup_selection" "rds" {
+  iam_role_arn = aws_iam_role.backup_role.arn
+  name         = "rds-backup-selection"
+  plan_id      = aws_backup_plan.main.id
+
+  resources = [aws_db_instance.safe_rds_db.arn]
+}
+
+resource "aws_backup_selection" "ec2" {
+  name         = "ec2-backup-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.main.id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "Name"
+    value = "safe-web-server"
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "Name"
+    value = "safe-app-server"
+  }
+}
+
+
+resource "aws_backup_selection" "efs" {
+  iam_role_arn = aws_iam_role.backup_role.arn
+  name         = "efs-backup-selection"
+  plan_id      = aws_backup_plan.main.id
+
+  resources = [aws_efs_file_system.safe_efs.arn]
+}
+
+resource "aws_iam_role" "backup_role" {
+  name = "safe-backup-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect    = "Allow",
+        Principal = {
+          Service = "backup.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "backup_role_attach" {
+  role       = aws_iam_role.backup_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
+}
+
+# ---------------- AWS Backup: 사용자 업로드 파일(S3), CloudTrail Logs, CloudWatch Logs, Config 기록 백업 설정 ----------------
+
+# CloudTrail Logs와 CloudWatch Logs는 기존 설정으로 S3에 자동 수집되므로 AWS Backup 대상 아님
+
+# 사용자 업로드 파일: safe_s3_webresource → S3 수명주기 정책 적용 필요
+resource "aws_s3_bucket_lifecycle_configuration" "safe_s3_webresource_lifecycle" {
+  bucket = aws_s3_bucket.safe_s3_webresource.id
+
+  rule {
+    id     = "transition-old-versions-to-glacier"
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    noncurrent_version_transition {
+      noncurrent_days = 30
+      storage_class    = "GLACIER"
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 365
+    }
+  }
+}
+
+# CloudTrail 로그 수명주기 정책 (90일 후 Glacier, 1년 후 삭제)
+resource "aws_s3_bucket_lifecycle_configuration" "safe_s3_monitor_lifecycle" {
+  bucket = aws_s3_bucket.safe_s3_monitor.id
+
+  rule {
+    id     = "cloudtrail-log-archive"
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    transition {
+      days          = 90
+      storage_class = "GLACIER"
+    }
+
+    expiration {
+      days = 365
+    }
+  }
+}
+
+# Config 기록 수명주기 정책 (1년 이상 보관)
+resource "aws_s3_bucket_lifecycle_configuration" "config_logs_lifecycle" {
+  bucket = aws_s3_bucket.config_logs.id
+
+  rule {
+    id     = "config-log-retention"
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    expiration {
+      days = 365
+    }
+  }
+}
+
+# 장기보존 콘텐츠 (예: cloudfront_logs) → Deep Archive로 전환
+resource "aws_s3_bucket_lifecycle_configuration" "cloudfront_logs_lifecycle" {
+  bucket = aws_s3_bucket.cloudfront_logs.id
+
+  rule {
+    id     = "long-term-archive"
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    transition {
+      days          = 30
+      storage_class = "DEEP_ARCHIVE"
+    }
   }
 }

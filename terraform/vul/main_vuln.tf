@@ -534,6 +534,7 @@ resource "aws_db_instance" "vuln_rds_db" {
   publicly_accessible     = true  # 공용 접근 허용
   multi_az                = false # 단일 AZ
   deletion_protection     = false
+  skip_final_snapshot = true
 
   db_name                 = "vulndb"
   username                = "admin"
