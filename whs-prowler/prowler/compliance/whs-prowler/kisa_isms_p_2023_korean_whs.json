@@ -1457,7 +1457,9 @@
         "apigatewayv2_api_authorizers_enabled",
         "rds_cluster_iam_authentication_enabled",
         "rds_instance_iam_authentication_enabled",
-        "apigateway_restapi_authorizers_enabled"
+        "apigateway_restapi_authorizers_enabled",
+        "iam_user_hardware_mfa_enabled",
+        "iam_check_saml_providers_sts"
       ],
       "Attributes": [
         {
@@ -1487,7 +1489,9 @@
             "API Gateway V2에 Authorizer(권한 부여 기능)가 설정되어 있는지 확인합니다.",
             "RDS 클러스터에 IAM 데이터베이스 인증이 활성화되어 있는지 확인합니다.",
             "RDS 인스턴스에 IAM 데이터베이스 인증이 활성화되어 있는지 확인합니다.",
-            "API Gateway REST API에 Authorizer(권한 부여 기능)가 설정되어 있는지 확인합니다."
+            "API Gateway REST API에 Authorizer(권한 부여 기능)가 설정되어 있는지 확인합니다.",
+            "IAM 사용자 계정에 하드웨어 MFA를 적용하지 않은 상태를 방지해 비인가 로그인 시도를 차단하고 계정 보안을 강화",
+            "SAML 인증 공급자의 연동 상태를 점검해 외부 인증 시스템의 유효성과 신뢰성을 유지하고 인증 경로의 무결성을 확보"
           ],
           "ActionPlan": [
             "콘솔 인증 실패 이벤트 발생 시 경보를 보내도록 CloudWatch 경보가 설정되어 있는지 확인",
@@ -1512,7 +1516,9 @@
             "API Gateway V2의 모든 라우팅에 Lambda Authorizer, JWT Authorizer 등 권한 부여자가 설정되어 있는지 확인",
             "RDS 클러스터 설정에서 IAM 데이터베이스 인증이 활성화되어 있지 않은 경우 탐지하여 알림",
             "RDS 인스턴스 설정에서 IAM 데이터베이스 인증이 활성화되어 있지 않은 경우 탐지하여 알림",
-            "API Gateway REST API의 모든 메소드에 Lambda Authorizer, JWT Authorizer 등 권한 부여자가 설정되어 있는지 확인"
+            "API Gateway REST API의 모든 메소드에 Lambda Authorizer, JWT Authorizer 등 권한 부여자가 설정되어 있는지 확인",
+            "사용자 계정에 MFA가 적용되지 않은 상태를 탐지하고 관리자에게 알림을 전송하거나 MFA 등록을 유도",
+            "SAML 인증 공급자의 연동 상태를 감지하고 만료 또는 오류 상태일 경우 관리자에게 알림을 전송해 조치하도록 유도"
           ],
           "AuditChecklist": [
             "정보시스템 및 개인정보처리시스템에 대한 접근은 사용자 인증, 로그인 횟수 제한, 불법 로그인 시도 경고 등 안전한 사용자 인증 절차에 따라 통제하고 있는가?",
@@ -1623,7 +1629,9 @@
         "iam_no_root_access_key",
         "rds_instance_default_admin",
         "rds_cluster_default_admin",
-        "ec2_instance_profile_attached"
+        "ec2_instance_profile_attached",
+        "iam_root_hardware_mfa_enabled",
+        "sagemaker_notebook_instance_root_access_disabled"
       ],
       "Attributes": [
         {
@@ -1639,7 +1647,9 @@
             "루트 계정에 액세스 키가 존재하지 않는지 확인합니다.",
             "RDS 인스턴스가 기본 마스터 사용자 이름을 사용하고 있지 않은지 확인합니다.",
             "RDS 클러스터가 기본 마스터 사용자 이름을 사용하고 있지 않은지 확인합니다.",
-            "인스턴스에서 AWS 리소스에 접근하기 위해 IAM 인스턴스 역할이 사용되는지 확인합니다."
+            "인스턴스에서 AWS 리소스에 접근하기 위해 IAM 인스턴스 역할이 사용되는지 확인합니다.",
+            "사용자 루트 계정에 하드웨어 MFA를 적용해 계정 탈취나 중요 자원에 대한 무단 접근을 방지하고 계정 보안을 강화",
+            "SageMaker 노트북 인스턴스에서 루트 권한 사용을 제한해 고위험 명령 실행이나 시스템 설정 변경으로 인한 보안 위협을 차단"
           ],
           "ActionPlan": [
             "AWS Organizations의 위임된 관리자 계정을 주기적으로 검토하고, 신뢰할 수 없는 계정은 제거하도록 알림",
@@ -1650,7 +1660,9 @@
             "루트 계정의 액세스 키가 존재하는 경우 즉시 삭제하고 운영자 알림",
             "RDS 인스턴스의 마스터 사용자 이름이 'admin', 'postgres' 등 추측하기 쉬운 기본값인 경우 탐지하고 변경하도록 알림",
             "RDS 클러스터의 마스터 사용자 이름이 'admin', 'postgres' 등 추측하기 쉬운 기본값인 경우 탐지하고 변경하도록 알림",
-            "EC2 인스턴스가 IAM 인스턴스 역할없이 실행되는 경우를 탐지하고 역할 기반으로 권한을 관리하도록 알림"
+            "EC2 인스턴스가 IAM 인스턴스 역할없이 실행되는 경우를 탐지하고 역할 기반으로 권한을 관리하도록 알림",
+            "하드웨어 MFA가 적용되지 않은 루트 계정을 탐지하고 관리자에게 알림을 전송하거나 등록을 유도",
+            "루트 접근이 허용된 SageMaker 노트북 인스턴스를 식별하고 관리자에게 알림하거나 재배포를 통해 설정을 변경"
           ],
           "AuditChecklist": [
             "관리자 권한 등 특수권한은 최소한의 인원에게만 부여될 수 있도록 공식적인 권한 신청 및 승인 절차를 수립·이행하고 있는가?",
@@ -1695,7 +1707,9 @@
         "cloudtrail_multi_region_enabled_logging_management_events",
         "cloudtrail_cloudwatch_logging_enabled",
         "cloudwatch_log_group_retention_policy_specific_days_enabled",
-        "s3_bucket_lifecycle_enabled"
+        "s3_bucket_lifecycle_enabled",
+        "eventbridge_bus_cross_account_access",
+        "eventbridge_schema_registry_cross_account_access"
       ],
       "Attributes": [
         {
@@ -1718,7 +1732,9 @@
             "모든 리전에서 CloudTrail 관리 이벤트 로깅이 활성화되어 있는지 확인합니다.",
             "CloudTrail 추적이 CloudWatch Logs와 통합되어 있는지 확인합니다.",
             "CloudWatch 로그 그룹에 보존 기간 정책이 설정되어 있는지 확인합니다.",
-            "CloudTrail 로그가 저장된 S3 버킷에 수명 주기 정책을 설정하여 장기 보관 요구사항을 충족하는지 확인합니다."
+            "CloudTrail 로그가 저장된 S3 버킷에 수명 주기 정책을 설정하여 장기 보관 요구사항을 충족하는지 확인합니다.",
+            "EventBridge 버스가 외부 AWS 계정에 노출되지 않도록 해 이벤트 데이터의 무단 수신 및 조작을 방지",
+            "EventBridge의 스키마 레지스트리에 외부 계정이 접근하지 못하도록 해 내부 시스템 구조의 노출을 차단"
           ],
           "ActionPlan": [
             "승인되지 않은 API 호출 이벤트 발생 시 경보를 보내도록 CloudWatch 경보가 설정되어 있는지 확인",
@@ -1736,7 +1752,9 @@
             "모든 리전의 활동을 기록하는 CloudTrail이 활성화되어 있는지 확인하고, 비활성화된 경우 생성하도록 알림",
             "CloudTrail 로그가 실시간 분석 및 경보 설정을 위해 CloudWatch Logs로 전송되도록 설정되었는지 확인",
             "CloudWatch 로그 그룹에 보존 기간이 설정되지 않은 경우 탐지하여 알림",
-            "CloudTrail 로그 버킷 등 장기 보관이 필요한 S3 버킷에 수명 정책이 없는 경우 탐지하여 알림"
+            "CloudTrail 로그 버킷 등 장기 보관이 필요한 S3 버킷에 수명 정책이 없는 경우 탐지하여 알림",
+            "EventBridge 버스에 크로스 계정 접근이 허용된 구성을 탐지하고 관리자에게 알림을 전송하거나 위험 리소스로 태깅",
+            "스키마 레지스트리에 대한 외부 계정 접근 여부는 Cloud Custodian에서 직접 확인할 수 없으므로 AWS Config 또는 CloudTrail 기반 감시 체계를 구축하여 별도로 관리"
           ],
           "AuditChecklist": [
             "정보시스템과 개인정보 및 중요정보에 대한 사용자 계정 및 접근권한 생성·등록·부여 및 이용·변경·말소 등의 이력을 남기고 있는가?",
@@ -1866,7 +1884,13 @@
       "ec2_instance_port_mongodb_exposed_to_internet",
       "ec2_securitygroup_allow_ingress_from_internet_to_all_ports",
       "ec2_securitygroup_allow_ingress_from_internet_to_high_risk_tcp_ports",
-      "ec2_instance_port_telnet_exposed_to_internet"
+      "ec2_instance_port_telnet_exposed_to_internet",
+      "kafka_cluster_is_public",
+      "kafka_cluster_unrestricted_access_disabled",
+      "emr_cluster_account_public_block_enabled", 
+      "emr_cluster_master_nodes_no_public_ip",
+      "emr_cluster_publicly_accesible",
+      "glacier_vaults_policy_public_access"
     ],
     "Attributes": [
       {
@@ -1975,7 +1999,13 @@
           "MongoDB 포트가 퍼블릭하게 열려 있으면 인증 없이 데이터 조작 및 삭제가 가능하므로, 반드시 사설망에 위치시켜야 합니다.",
           "모든 포트에 대한 접근을 허용하는 설정은 전체 시스템을 외부에 무방비로 노출시켜 해킹 및 랜섬웨어 피해를 유발할 수 있습니다.",
           "고위험 TCP 포트(예: 22, 3389, 3306 등)에 대한 외부 접근 허용은 취약점 스캐닝 및 익스플로잇 위험을 증가시킵니다.",
-          "Telnet(포트 23)은 암호화되지 않은 통신을 사용하므로 외부에 노출될 경우 인증 정보가 쉽게 탈취당할 수 있습니다."
+          "Telnet(포트 23)은 암호화되지 않은 통신을 사용하므로 외부에 노출될 경우 인증 정보가 쉽게 탈취당할 수 있습니다.",
+          "Kafka 클러스터가 인터넷에 공개되지 않도록 설정해 외부의 무단 접근과 데이터 유출을 방지",
+          "Kafka 클러스터에 포트·IP 제한 없이 접근하는 설정을 차단해 외부 공격이나 내부 오남용을 방지",
+          "EMR 계정의 퍼블릭 액세스를 차단해 외부 네트워크를 통한 무단 접근 가능성을 방지",
+          "EMR 마스터 노드에 공인 IP가 할당되지 않도록 해 외부 접근 경로를 사전에 차단",
+          "EMR 클러스터 전체가 퍼블릭으로 노출되지 않도록 설정해 데이터 및 자원 보호를 강화",
+          "Glacier 보관소가 외부에서 접근되지 않도록 정책을 설정해 장기 보관 데이터의 무단 접근을 차단"
         ],
         "ActionPlan": [
           "퍼블릭 Access Point를 탐지하여 'blockPublicAccess' 설정이 true가 아닌 경우 수정 또는 태깅/알림",
@@ -2079,7 +2109,13 @@
           "MongoDB 포트(27017 등)가 퍼블릭으로 노출된 인스턴스를 탐지",
           "모든 포트를 0.0.0.0/0에 대해 허용한 보안 그룹 탐지",
           "고위험 포트 목록(Telnet, Redis, RDP 등)을 인터넷에 허용한 보안 그룹 탐지",
-          "Telnet 포트(23)가 퍼블릭으로 노출된 인스턴스를 탐지"
+          "Telnet 포트(23)가 퍼블릭으로 노출된 인스턴스를 탐지",
+          "AWS Config 또는 CloudTrail 기반 탐지와 수동 조치를 병행",
+          "Kafka 클러스터에 적용된 보안 그룹 또는 네트워크 ACL을 별도로 분석해 포트·IP 제한 여부를 확인하고 수동으로 수정",
+          "퍼블릭 액세스가 설정된 EMR 클러스터를 필터링하여 관리자에게 알림을 전송하거나 태깅 조치를 수행",
+          "공인 IP가 설정된 EMR 마스터 노드를 식별하고, 사설 IP만 허용되도록 구성 상태를 점검해 보고",
+          "퍼블릭으로 접근 가능한 EMR 클러스터를 식별하고, 보안 그룹 설정을 제한하거나 담당자에게 경고 전달",
+          "Glacier 볼트에 퍼블릭 접근 정책이 설정된 경우 이를 식별하고, 해당 정책을 자동으로 제거하거나 최소 권한으로 재구성"
         ],
         "AuditChecklist": [
           "조직의 네트워크에 접근할 수 있는 모든 경로를 식별하고 접근통제 정책에 따라 내부 네트워크는 인가된 사용자만이 접근할 수 있도록 통제하고 있는가?",
@@ -2135,7 +2171,17 @@
       "ec2_networkacl_allow_ingress_tcp_port_22",
       "ec2_securitygroup_allow_ingress_from_internet_to_all_ports",
       "ec2_securitygroup_allow_ingress_from_internet_to_high_risk_tcp_ports",
-      "ec2_instance_port_telnet_exposed_to_internet"
+      "ec2_instance_port_telnet_exposed_to_internet",
+      "kafka_cluster_is_public",
+      "kafka_cluster_unrestricted_access_disabled",
+      "ssm_documents_set_as_public",
+      "organizations_scp_check_deny_regions",
+      "emr_cluster_account_public_block_enabled",
+      "emr_cluster_master_nodes_no_public_ip",
+      "emr_cluster_publicly_accesible",
+      "eventbridge_bus_exposed",
+      "sns_topics_not_publicly_accessible",
+      "glacier_vaults_policy_public_access"
     ],
     "Attributes": [
       {
@@ -2166,7 +2212,17 @@
           "SSH 포트에 대해 ACL에서 허용한 경우, 보안 그룹과 병행해서 외부에서 시스템 접근이 가능해져 추가적인 보호가 필요합니다.",
           "모든 포트에 대한 외부 접근을 허용하면 시스템 전체가 무방비로 노출되어 악성 스캐닝, 해킹 시도, 자동화 공격에 취약해집니다.",
           "SSH, RDP, DB 등 주요 서비스 포트가 외부에 노출되면 보안 리스크가 급증하므로 접근 제한과 로그 분석이 병행되어야 합니다.",
-          "Telnet은 암호화되지 않은 통신 방식으로 인가되지 않은 접근자가 손쉽게 내부 시스템을 탐색하거나 명령을 실행할 수 있어 비활성화가 권장됩니다."
+          "Telnet은 암호화되지 않은 통신 방식으로 인가되지 않은 접근자가 손쉽게 내부 시스템을 탐색하거나 명령을 실행할 수 있어 비활성화가 권장됩니다.",
+          "Kafka 클러스터가 외부 네트워크에 노출되지 않도록 구성해 무단 접근과 데이터 유출을 방지",
+          "Kafka 클러스터에 포트·IP 제한 없이 접근하지 못하도록 설정해 네트워크 공격을 사전에 차단",
+          "SSM 문서가 외부에 공개되지 않도록 설정해 내부 운영 자동화 스크립트의 유출을 방지",
+          "조직 서비스 제어 정책(SCP)에 허용되지 않은 리전 접근을 차단해 리소스 오남용 및 통제를 강화",
+          "EMR 클러스터의 퍼블릭 접근을 차단해 외부 네트워크를 통한 무단 접속을 방지",
+          "EMR 마스터 노드에 공인 IP가 할당되지 않도록 구성해 직접적인 외부 접속 경로를 제거",
+          "EMR 클러스터 전체가 퍼블릭으로 노출되지 않도록 구성해 내부 데이터와 연산 환경을 보호",
+          "EventBridge 버스가 외부에 노출되지 않도록 설정해 이벤트 메시지 수신 및 전달에 대한 무단 접근을 차단",
+          "SNS 주제가 퍼블릭하게 노출되지 않도록 설정해 민감한 알림 메시지의 외부 노출을 방지",
+          "Glacier 보관소가 외부에서 접근되지 않도록 정책을 적용해 장기 보관 데이터의 무단 유출을 차단"
         ],
         "ActionPlan": [
           "퍼블릭 IP가 설정된 Lightsail 인스턴스를 탐지하고, 태깅 또는 운영자 알림을 통해 비공개 전환을 유도",
@@ -2192,7 +2248,17 @@
           "SSH 포트(22)가 허용된 Network ACL 엔트리를 탐지",
           "모든 포트를 외부에 허용한 보안 그룹 탐지 (보통 잘못된 설정)",
           "Telnet, Redis, RDP, Mongo 등 고위험 포트가 개방된 보안 그룹 탐지",
-          "Telnet 포트(23)가 EC2 인스턴스에서 퍼블릭하게 노출된 경우 탐지"
+          "Telnet 포트(23)가 EC2 인스턴스에서 퍼블릭하게 노출된 경우 탐지",
+          "Kafka 클러스터 리소스는 Cloud Custodian에서 직접 제어가 불가하므로 AWS Config 또는 보안 그룹 정책을 통해 퍼블릭 노출 여부를 점검하고 수동 조치",
+          "Kafka 클러스터 접근 제어는 보안 그룹을 통해 포트 및 IP 제한 여부를 감시하고 필요 시 수동으로 설정 변경",
+          "퍼블릭으로 설정된 SSM 문서를 탐지하고 관리자에게 알림을 발송하거나 접근 정책을 제한하도록 안내",
+          "SCP에 의해 허용되지 않은 리전에 리소스가 생성되지 않도록 구성 상태를 감지하고 관리자에게 알림을 전송",
+          "퍼블릭 액세스가 설정된 EMR 클러스터를 탐지하고 관리자 알림 또는 태깅으로 조치를 유도",
+          "공인 IP가 설정된 EMR 마스터 노드를 감지하고 사설 IP 전용 구성을 적용하도록 권고",
+          "퍼블릭하게 설정된 EMR 클러스터를 탐지하고 보안 그룹 및 접근 권한 재구성을 안내",
+          "크로스 계정이나 외부 노출이 가능한 EventBridge 버스를 탐지하고 경고 또는 접근 정책 점검을 유도",
+          "퍼블릭하게 노출된 SNS 토픽을 탐지하고 외부 접근을 차단하거나 접근 정책을 수정하도록 경고",
+          "퍼블릭 접근 정책이 적용된 Glacier 보관소를 탐지하고 해당 정책을 제거하거나 최소 권한으로 재구성"
         ],
         "AuditChecklist": [
           "서버, 네트워크시스템, 보안시스템 등 정보시스템별 운영체제(OS)에 접근이 허용되는 사용자, 접근 가능 위치, 접근 수단 등을 정의하여 통제하고 있는가?",
@@ -2736,7 +2802,11 @@
         "sqs_queues_server_side_encryption_enabled",
         "ssm_document_secrets",
         "storagegateway_fileshare_encryption_enabled",
-        "workspaces_volume_encryption_enabled"
+        "workspaces_volume_encryption_enabled",
+        "elasticache_redis_cluster_rest_encryption_enabled",
+        "iam_no_expired_server_certificates_stored",
+        "rds_instance_certificate_expiration",
+        "rds_instance_storage_encrypted"
       ],
       "Attributes": [
         {
@@ -2802,7 +2872,11 @@
             "SageMaker 훈련 결과 및 볼륨 암호화 설정 점검",
             "Storage Gateway 파일 공유 암호화 설정 확인",
             "WorkSpaces 볼륨 암호화 적용 여부 점검",
-            "백업 볼트 암호화 설정 여부 확인"
+            "백업 볼트 암호화 설정 여부 확인",
+            "ElastiCache Redis 데이터의 암호화를 통해 저장 중 기밀성 보호",
+            "IAM 인증서의 유효 기간 관리를 통해 암호화 통신의 안정성 확보",
+            "RDS 인증서 만료 확인을 통해 데이터 전송의 무결성과 신뢰성 유지",
+            "RDS 저장소 암호화를 통해 저장 데이터의 유출 및 무단 접근 방지"
           ],
           "ActionPlan": [
             "ACM 인증서의 키 알고리즘이 안전하지 않으면 경고",
@@ -2863,7 +2937,11 @@
             "WorkSpaces 볼륨 암호화 미적용 시 설정 적용",
             "개발 엔드포인트 Bookmark 암호화 설정 여부 확인",
             "노트북 인스턴스 암호화 설정 누락 시 경고 및 설정",
-            "환경변수 또는 설정값에 secrets 문자열이 포함되어 있는 경우 필터링 후 알림 및 태그 적용"
+            "환경변수 또는 설정값에 secrets 문자열이 포함되어 있는 경우 필터링 후 알림 및 태그 적용",
+            "REST 암호화가 비활성화된 ElastiCache Redis 클러스터를 식별하고 암호화를 지원하는 구성으로 재배포하도록 안내",
+            "만료된 서버 인증서를 보관 중인 IAM 계정을 식별하고 해당 인증서를 삭제하거나 갱신을 유도",
+            "RDS 인스턴스에서 인증서 만료 시점을 감지하고 사전에 갱신 일정을 수립해 관리자에게 알림 전송",
+            "암호화되지 않은 RDS 인스턴스를 탐지하고 암호화를 활성화한 신규 인스턴스로의 마이그레이션을 유도"
           ],
           "AuditChecklist": [
             "개인정보 및 주요정보의 보호를 위하여 법적 요구사항을 반영한 암호화 대상, 암호강도, 암호사용 등이 포함된 암호정책을 수립하고 있는가?",
@@ -3013,7 +3091,10 @@
         "inspector2_is_enabled",
         "macie_is_enabled",
         "wafv2_webacl_logging_enabled",
-        "wellarchitected_workload_no_high_or_medium_risks"
+        "wellarchitected_workload_no_high_or_medium_risks",
+        "route53_domains_transferlock_enabled",
+        "athena_workgroup_enforce_configuration",
+        "eks_cluster_uses_a_supported_version"
       ],
       "Attributes": [
         {
@@ -3029,7 +3110,10 @@
             "WAF 접근 제어 로그가 활성화되어 추적 가능한지 점검",
             "아키텍처 설계 시 중간 이상 수준의 보안 리스크가 존재하지 않는지 점검",
             "취약점 진단 도구(AWS Inspector)가 활성화되어 있는지 확인",
-            "활성화된 보안 취약점이 존재하는지 여부 점검"
+            "활성화된 보안 취약점이 존재하는지 여부 점검",
+            "도메인 이전 잠금 설정을 통해 Route 53 도메인의 무단 이전 방지",
+            "Athena Workgroup 강제 설정을 통해 쿼리 저장 및 암호화 정책의 일관성 유지",
+            "EKS 클러스터의 지원 종료 버전 사용을 방지해 보안 취약점 사전 차단"
           ],
           "ActionPlan": [
             "CloudTrail 로그가 CloudWatch로 전송되지 않을 경우 경고 또는 정책 위반 태깅 적용",
@@ -3040,7 +3124,10 @@
             "Inspector2의 활성 보안 이슈 존재 시 태깅 또는 관리자 알림 적용",
             "Macie 비활성 계정 탐지 후 개인정보 보호 강화를 위해 자동 활성화 적용",
             "WAF WebACL 로그 미설정 리소스 탐지 후 로그 활성화 태깅 적용",
-            "Well-Architected에서 High 또는 Medium 리스크가 존재하는 워크로드 태깅 및 검토 자동화 적용"
+            "Well-Architected에서 High 또는 Medium 리스크가 존재하는 워크로드 태깅 및 검토 자동화 적용",
+            "Transfer Lock이 설정되지 않은 Route 53 도메인을 탐지하고 관리자에게 설정 적용을 안내",
+            "강제 설정이 비활성화된 Athena Workgroup을 탐지하고 암호화 및 쿼리 저장 경로 등의 보안 정책이 일관되게 적용되도록 설정 변경을 유도",
+            "지원이 종료되었거나 오래된 버전을 사용하는 EKS 클러스터를 식별하고 최신 Kubernetes 버전으로 업그레이드할 수 있도록 안내"
           ],
           "AuditChecklist": [
             "공공기관은 관련 법령에 따라 개인정보처리시스템 신규 개발 및 변경 시 분석·설계 단계에서 영향평가기관을 통하여 영향평가를 수행하고 그 결과를 개발 및 변경 시 반영하고 있는가?",
@@ -3466,7 +3553,8 @@
         "s3_bucket_policy_public_write_access",
         "s3_bucket_public_access",
         "s3_bucket_public_list_acl",
-        "s3_bucket_public_write_acl"
+        "s3_bucket_public_write_acl",
+        "glacier_vaults_policy_public_access"
       ],
       "Attributes": [
         {
@@ -3510,7 +3598,8 @@
             "디렉터리 서비스 스냅샷 수 제한 설정 여부 점검 (과도한 저장 방지)",
             "백업 볼트 암호화 설정으로 백업 데이터 보호 여부 확인",
             "백업 볼트 존재 여부 확인으로 백업 저장소 정상 운영 점검",
-            "백업 플랜 존재 여부로 백업 대상과 주기 정의 여부 점검"
+            "백업 플랜 존재 여부로 백업 대상과 주기 정의 여부 점검",
+            "Glacier 보관소의 퍼블릭 접근을 차단해 장기 보관 데이터의 무단 유출 방지"
           ],
           "ActionPlan": [
             "AWS Backup 계획을 수립하여 백업 일정 및 대상 자동화",
@@ -3549,7 +3638,8 @@
             "S3 버킷에 라이프사이클 정책을 설정하여 백업 파일의 주기적 삭제 또는 전환 자동화",
             "S3 버킷에 쓰기 권한 공개 ACL 제거로 무단 백업 데이터 덮어쓰기 방지",
             "S3 액세스 포인트에 공개 접근 차단을 적용하여 민감 백업 데이터 보호",
-            "퍼블릭 AMI 공유를 제한하여 이미지 유출 방지"
+            "퍼블릭 AMI 공유를 제한하여 이미지 유출 방지",
+            "퍼블릭 접근 정책이 설정된 Glacier 보관소를 탐지하고 해당 정책을 제거하거나 최소 권한 원칙에 따라 접근 제어 정책을 재구성"
           ],
           "AuditChecklist": [
             "백업 대상, 주기, 방법, 절차 등이 포함된 백업 및 복구절차를 수립·이행하고 있는가?",
@@ -4094,7 +4184,12 @@
       "ec2_instance_port_mongodb_exposed_to_internet",
       "ec2_securitygroup_allow_ingress_from_internet_to_all_ports",
       "ec2_securitygroup_allow_ingress_from_internet_to_high_risk_tcp_ports",
-      "ec2_instance_port_telnet_exposed_to_internet"
+      "ec2_instance_port_telnet_exposed_to_internet",
+      "athena_workgroup_enforce_configuration",
+      "networkfirewall_deletion_protection",
+      "organizations_scp_check_deny_regions",
+      "eventbridge_bus_exposed",
+      "route53_domains_transferlock_enabled"
     ],
     "Attributes": [
       {
@@ -4173,7 +4268,12 @@
           "개인정보 등 민감 정보 탐지 및 분류를 위한 Macie 활성화 여부 확인",
           "조직 내 보안 시스템의 책임자 위임 설정 여부 확인 (운영 책임 명확화)",
           "보안 이벤트 통합 플랫폼(Security Hub)이 활성화되어 종합 모니터링이 이루어지는지 확인",
-          "Trusted Advisor에서 보안 취약사항을 감지하고 있는지 확인"
+          "Trusted Advisor에서 보안 취약사항을 감지하고 있는지 확인",
+          "Athena Workgroup 설정을 강제해 쿼리 저장 위치 및 암호화 정책의 일관성 유지",
+          "Network Firewall 삭제 보호를 활성화해 핵심 네트워크 방어체계의 무단 변경 방지",
+          "SCP를 통해 허용되지 않은 리전의 리소스 생성을 제한해 관리 범위의 일관성 유지",
+          "EventBridge 버스의 외부 노출을 차단해 이벤트 데이터의 무단 접근 및 오용 방지",
+          "Route 53 도메인에 이전 잠금을 설정해 도메인의 무단 이전 및 탈취 방지"
         ],
         "ActionPlan": [
           "CloudFront 배포에 AWS WAF를 연결하여 웹 공격 차단 정책 적용",
@@ -4247,7 +4347,12 @@
           "Macie를 활성화하여 S3 내 개인정보 탐지 정책 설정",
           "Organizations에서 필요한 서비스 위임 관리자를 정의하는 정책 구성",
           "Security Hub를 활성화하고 계정 및 리전에 일관되게 적용",
-          "Trusted Advisor 주요 보안 항목에서 경고/오류 발생 시 경고 알람 생성"
+          "Trusted Advisor 주요 보안 항목에서 경고/오류 발생 시 경고 알람 생성",
+          "Athena Workgroup 설정 중 enforce configuration이 비활성화된 항목을 탐지하고 정책 강제 설정을 유도하거나 관리자에게 알림을 전송",
+          "Network Firewall에서 삭제 보호가 꺼져 있는 리소스를 탐지하고 관리자에게 알림하거나 보호 설정을 적용하도록 안내",
+          "SCP 정책에서 허용되지 않은 리전에 리소스 생성이 가능한 상태를 탐지하고 관리자에게 정책 수정 또는 리소스 재구성을 요청",
+          "외부 계정이 접근 가능한 EventBridge 버스를 탐지하고 접근 권한을 검토하거나 제거하도록 정책 점검을 유도",
+          "Transfer Lock이 설정되지 않은 도메인을 탐지하고 도메인 이전 방지를 위해 잠금 설정을 적용하거나 관리자에게 알림을 전송"
         ],
         "AuditChecklist": [
           "조직에서 운영하고 있는 보안시스템에 대한 운영절차를 수립·이행하고 있는가?",
@@ -4805,7 +4910,8 @@
       "dms_instance_minor_version_upgrade_enabled",
       "kafka_cluster_uses_latest_version",
       "opensearch_service_domains_updated_to_the_latest_service_software_version",
-      "redshift_cluster_automatic_upgrades"
+      "redshift_cluster_automatic_upgrades",
+      "eks_cluster_uses_a_supported_version"
     ],
     "Attributes": [
       {
@@ -4825,7 +4931,8 @@
           "DMS 인스턴스의 마이너 버전 자동 업데이트를 활성화하여 전송 중단 및 취약점 방지",
           "Kafka 클러스터가 최신 버전으로 유지되도록 하여 보안 패치 및 기능 향상을 적용",
           "OpenSearch 서비스 도메인이 최신 서비스 소프트웨어 버전을 사용하여 보안 취약점 및 버그 방지",
-          "Redshift 클러스터가 자동 업그레이드를 통해 보안 취약점에 신속히 대응 가능하도록 구성"
+          "Redshift 클러스터가 자동 업그레이드를 통해 보안 취약점에 신속히 대응 가능하도록 구성",
+          "EKS 클러스터의 지원 종료 버전 사용을 방지해 보안 취약점과 운영 오류 예방"
         ],
         "ActionPlan": [
           "CloudFront 배포에서 지원 중단된 SSL 프로토콜을 제거하고 TLS 1.2 이상으로 설정",
@@ -4840,7 +4947,8 @@
           "DMS 인스턴스에서 마이너 버전 자동 업데이트 설정을 활성화",
           "Kafka 클러스터가 최신 버전을 사용하도록 설정 및 수동/자동 업그레이드 관리",
           "OpenSearch 도메인이 최신 서비스 소프트웨어를 사용하도록 자동 업데이트 설정 또는 알림",
-          "Redshift 클러스터에 대해 자동 업그레이드 기능을 활성화하여 보안 패치 자동 적용"
+          "Redshift 클러스터에 대해 자동 업그레이드 기능을 활성화하여 보안 패치 자동 적용",
+          "지원이 종료되었거나 오래된 Kubernetes 버전을 사용하는 EKS 클러스터를 탐지하고 관리자에게 업그레이드 필요성을 알리거나 태깅해 추적 관리"
         ],
         "AuditChecklist": [
           "서버, 네트워크시스템, 보안시스템, PC 등 자산별 특성 및 중요도에 따라 운영체제(OS)와 소프트웨어의 패치관리 정책 및 절차를 수립·이행하고 있는가?",
