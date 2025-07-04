@@ -250,8 +250,7 @@ def print_compliance_requirements(
                 for requirement in requirements:
                     checks = ""
                     for check in requirement.Checks:
-                        check_id = check.Id if hasattr(check, "Id") else check
-                        checks += f" {Fore.YELLOW}\t\t{check_id}\n{Style.RESET_ALL}"
+                        checks += f" {Fore.YELLOW}\t\t{check}\n{Style.RESET_ALL}"
                     print(
                         f"Requirement Id: {Fore.MAGENTA}{requirement.Id}{Style.RESET_ALL}\n\t- Description: {requirement.Description}\n\t- Checks:\n{checks}"
                     )
