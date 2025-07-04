@@ -3554,7 +3554,8 @@
         "s3_bucket_public_access",
         "s3_bucket_public_list_acl",
         "s3_bucket_public_write_acl",
-        "glacier_vaults_policy_public_access"
+        "glacier_vaults_policy_public_access",
+        "documentdb_cluster_deletion_protection"
       ],
       "Attributes": [
         {
@@ -3599,7 +3600,8 @@
             "백업 볼트 암호화 설정으로 백업 데이터 보호 여부 확인",
             "백업 볼트 존재 여부 확인으로 백업 저장소 정상 운영 점검",
             "백업 플랜 존재 여부로 백업 대상과 주기 정의 여부 점검",
-            "Glacier 보관소의 퍼블릭 접근을 차단해 장기 보관 데이터의 무단 유출 방지"
+            "Glacier 보관소의 퍼블릭 접근을 차단해 장기 보관 데이터의 무단 유출 방지",
+            "DocumentDB 클러스터에 삭제 보호를 설정해 핵심 데이터의 무단 삭제 방지 및 안정성 확보"
           ],
           "ActionPlan": [
             "AWS Backup 계획을 수립하여 백업 일정 및 대상 자동화",
@@ -3639,7 +3641,8 @@
             "S3 버킷에 쓰기 권한 공개 ACL 제거로 무단 백업 데이터 덮어쓰기 방지",
             "S3 액세스 포인트에 공개 접근 차단을 적용하여 민감 백업 데이터 보호",
             "퍼블릭 AMI 공유를 제한하여 이미지 유출 방지",
-            "퍼블릭 접근 정책이 설정된 Glacier 보관소를 탐지하고 해당 정책을 제거하거나 최소 권한 원칙에 따라 접근 제어 정책을 재구성"
+            "퍼블릭 접근 정책이 설정된 Glacier 보관소를 탐지하고 해당 정책을 제거하거나 최소 권한 원칙에 따라 접근 제어 정책을 재구성",
+            "삭제 보호가 비활성화된 DocumentDB 클러스터를 탐지하고 관리자에게 알림을 전송하거나 삭제 보호 설정을 적용하도록 안내"
           ],
           "AuditChecklist": [
             "백업 대상, 주기, 방법, 절차 등이 포함된 백업 및 복구절차를 수립·이행하고 있는가?",
