@@ -5,10 +5,9 @@ import sys
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, is_dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, Set
 
-from checkov.common.output.record import Record
-from pydantic.v1 import BaseModel, ValidationError, validator
+from pydantic import BaseModel, ValidationError, validator
 
 from prowler.config.config import Provider
 from prowler.lib.check.compliance_models import Compliance
@@ -97,7 +96,6 @@ class CheckMetadata(BaseModel):
         severity_to_lower(severity): Validator function to convert the severity to lowercase.
         valid_severity(severity): Validator function to validate the severity of the check.
         valid_cli_command(remediation): Validator function to validate the CLI command is not an URL.
-        valid_resource_type(resource_type): Validator function to validate the resource type is not empty.
     """
 
     Provider: str
@@ -120,7 +118,7 @@ class CheckMetadata(BaseModel):
     Notes: str
     # We set the compliance to None to
     # store the compliance later if supplied
-    Compliance: Optional[list[Any]] = []
+    Compliance: list = None
 
     @validator("Categories", each_item=True, pre=True, always=True)
     def valid_category(value):
@@ -142,12 +140,6 @@ class CheckMetadata(BaseModel):
         if re.match(r"^https?://", remediation.Code.CLI):
             raise ValueError("CLI command cannot be an URL")
         return remediation
-
-    @validator("ResourceType", pre=True, always=True)
-    def valid_resource_type(resource_type):
-        if not resource_type or not isinstance(resource_type, str):
-            raise ValueError("ResourceType must be a non-empty string")
-        return resource_type
 
     @staticmethod
     def get_bulk(provider: str) -> dict[str, "CheckMetadata"]:
@@ -366,15 +358,16 @@ class CheckMetadata(BaseModel):
         if compliance_framework:
             try:
                 checks_from_framework_list = [
-                    requirement.Checks
+                    [c.Id if hasattr(c, "Id") else c for c in requirement.Checks]
                     for requirement in bulk_compliance_frameworks[
                         compliance_framework
                     ].Requirements
                 ]
                 # Reduce nested list into a list
-                # Pythonic functional magic
                 checks_from_framework = functools.reduce(
-                    lambda x, y: x + y, checks_from_framework_list
+                    lambda x, y: x + y,
+                    checks_from_framework_list,
+                    [],
                 )
                 # Then union this list of checks with the initial one
                 checks = checks.union(checks_from_framework)
@@ -442,8 +435,6 @@ class Check_Report:
             self.resource = resource.to_dict()
         elif is_dataclass(resource):
             self.resource = asdict(resource)
-        elif hasattr(resource, "__dict__"):
-            self.resource = resource.__dict__
         else:
             logger.error(
                 f"Resource metadata {type(resource)} in {self.check_metadata.CheckID} could not be converted to dict"
@@ -522,11 +513,7 @@ class Check_Report_GCP(Check_Report):
             or getattr(resource, "name", None)
             or ""
         )
-        self.resource_name = (
-            resource_name
-            or getattr(resource, "name", "")
-            or getattr(resource, "id", "")
-        )
+        self.resource_name = resource_name or getattr(resource, "name", "")
         self.project_id = project_id or getattr(resource, "project_id", "")
         self.location = (
             location
@@ -622,28 +609,6 @@ class CheckReportM365(Check_Report):
 
 
 @dataclass
-class CheckReportIAC(Check_Report):
-    """Contains the IAC Check's finding information using Checkov."""
-
-    resource_name: str
-    resource_path: str
-    resource_line_range: str
-
-    def __init__(self, metadata: dict = {}, resource: Record = None) -> None:
-        """
-        Initialize the IAC Check's finding information from a Checkov failed_check dict.
-
-        Args:
-            metadata (Dict): Optional check metadata (can be None).
-            failed_check (dict): A single failed_check result from Checkov's JSON output.
-        """
-        super().__init__(metadata, resource)
-        self.resource_name = resource.resource
-        self.resource_path = resource.file_path
-        self.resource_line_range = resource.file_line_range
-
-
-@dataclass
 class CheckReportNHN(Check_Report):
     """Contains the NHN Check's finding information."""
 
@@ -682,6 +647,7 @@ def load_check_metadata(metadata_file: str) -> CheckMetadata:
         check_metadata = CheckMetadata.parse_file(metadata_file)
     except ValidationError as error:
         logger.critical(f"Metadata from {metadata_file} is not valid: {error}")
-        raise error
+        # TODO: remove this exit and raise an exception
+        sys.exit(1)
     else:
         return check_metadata
