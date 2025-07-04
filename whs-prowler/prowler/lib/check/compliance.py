@@ -22,8 +22,12 @@ def update_checks_metadata_with_compliance(
             for framework in bulk_compliance_frameworks.values():
                 for requirement in framework.Requirements:
                     compliance_requirements = []
+                    # Build list of check IDs for the requirement
+                    requirement_check_ids = [
+                        c.Id if hasattr(c, "Id") else c for c in requirement.Checks
+                    ]
                     # Verify if check is in the requirement
-                    if check in requirement.Checks:
+                    if check in requirement_check_ids:
                         # Include the requirement into the check's framework requirements
                         compliance_requirements.append(requirement)
                         # Create the Compliance
