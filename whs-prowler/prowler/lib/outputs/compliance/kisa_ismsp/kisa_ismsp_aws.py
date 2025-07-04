@@ -1,3 +1,4 @@
+from prowler.config.config import timestamp
 from prowler.lib.check.compliance_models import Compliance
 from prowler.lib.outputs.compliance.compliance_output import ComplianceOutput
 from prowler.lib.outputs.compliance.kisa_ismsp.models import AWSKISAISMSPModel
@@ -38,30 +39,19 @@ class AWSKISAISMSP(ComplianceOutput):
             finding_requirements = finding.compliance.get(compliance_name, [])
             for requirement in compliance.Requirements:
                 if requirement.Id in finding_requirements:
-                    # Retrieve check context if available
-                    check_context = next(
-                        (
-                            c
-                            for c in requirement.Checks
-                            if (getattr(c, "Id", c) == finding.check_id)
-                        ),
-                        None,
-                    )
                     for attribute in requirement.Attributes:
                         compliance_row = AWSKISAISMSPModel(
                             Provider=finding.provider,
                             Description=compliance.Description,
                             AccountId=finding.account_uid,
                             Region=finding.region,
-                            AssessmentDate=str(finding.timestamp),
+                            AssessmentDate=str(timestamp),
                             Requirements_Id=requirement.Id,
                             Requirements_Name=requirement.Name,
                             Requirements_Description=requirement.Description,
                             Requirements_Attributes_Domain=attribute.Domain,
                             Requirements_Attributes_Subdomain=attribute.Subdomain,
                             Requirements_Attributes_Section=attribute.Section,
-                            Requirements_Attributes_Purpose=attribute.Purpose,
-                            Requirements_Attributes_ActionPlan=attribute.ActionPlan,
                             Requirements_Attributes_AuditChecklist=attribute.AuditChecklist,
                             Requirements_Attributes_RelatedRegulations=attribute.RelatedRegulations,
                             Requirements_Attributes_AuditEvidence=attribute.AuditEvidence,
@@ -83,15 +73,13 @@ class AWSKISAISMSP(ComplianceOutput):
                         Description=compliance.Description,
                         AccountId="",
                         Region="",
-                        AssessmentDate=str(finding.timestamp),
+                        AssessmentDate=str(timestamp),
                         Requirements_Id=requirement.Id,
                         Requirements_Name=requirement.Name,
                         Requirements_Description=requirement.Description,
                         Requirements_Attributes_Domain=attribute.Domain,
                         Requirements_Attributes_Subdomain=attribute.Subdomain,
                         Requirements_Attributes_Section=attribute.Section,
-                        Requirements_Attributes_Purpose=attribute.Purpose,
-                        Requirements_Attributes_ActionPlan=attribute.ActionPlan,
                         Requirements_Attributes_AuditChecklist=attribute.AuditChecklist,
                         Requirements_Attributes_RelatedRegulations=attribute.RelatedRegulations,
                         Requirements_Attributes_AuditEvidence=attribute.AuditEvidence,
