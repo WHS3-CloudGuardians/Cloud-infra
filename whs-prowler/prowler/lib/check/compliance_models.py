@@ -171,7 +171,7 @@ class Mitre_Requirement(BaseModel):
         list[Mitre_Requirement_Attribute_Azure],
         list[Mitre_Requirement_Attribute_GCP],
     ]
-    Checks: list[str]
+    Checks: list[Union[Check, str]]
 
 
 # KISA-ISMS-P Requirement Attribute
@@ -200,6 +200,15 @@ class Prowler_ThreatScore_Requirement_Attribute(BaseModel):
     Weight: int
 
 
+# Compliance Check model
+class Check(BaseModel):
+    """Compliance Check representation"""
+
+    Id: str
+    Purpose: str
+    ActionPlan: str
+
+
 # Base Compliance Model
 # TODO: move this to compliance folder
 class Compliance_Requirement(BaseModel):
@@ -220,7 +229,7 @@ class Compliance_Requirement(BaseModel):
             Generic_Compliance_Requirement_Attribute,
         ]
     ]
-    Checks: list[str]
+    Checks: list[Union[Check, str]]
 
 
 class Compliance(BaseModel):

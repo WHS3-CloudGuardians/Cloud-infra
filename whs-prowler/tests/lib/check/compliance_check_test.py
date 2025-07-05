@@ -6,6 +6,7 @@ from prowler.lib.check.compliance_models import (
     CIS_Requirement_Attribute_AssessmentStatus,
     CIS_Requirement_Attribute_Profile,
     Compliance,
+    Check,
     Compliance_Requirement,
 )
 from prowler.lib.check.models import CheckMetadata
@@ -290,6 +291,31 @@ class TestCompliance:
         assert accessanalyzer_enabled_attribute.AuditProcedure == "Audit"
         assert accessanalyzer_enabled_attribute.AdditionalInformation == "Additional"
         assert accessanalyzer_enabled_attribute.References == "References"
+
+    def test_update_checks_metadata_check_model(self):
+        bulk_compliance_frameworks = {
+            "framework_obj": Compliance(
+                Framework="FrameworkObj",
+                Provider="aws",
+                Version="1.0",
+                Description="desc",
+                Requirements=[
+                    Compliance_Requirement(
+                        Id="1.1.1",
+                        Description="desc",
+                        Attributes=[],
+                        Checks=[Check(Id="accessanalyzer_enabled", Purpose="p", ActionPlan="a")],
+                    )
+                ],
+            )
+        }
+        bulk_checks_metadata = self.get_custom_check_metadata()
+
+        updated_metadata = update_checks_metadata_with_compliance(
+            bulk_compliance_frameworks, bulk_checks_metadata
+        )
+
+        assert len(updated_metadata["accessanalyzer_enabled"].Compliance) == 1
 
     def test_list_no_provider(self):
         bulk_compliance_frameworks = custom_compliance_metadata

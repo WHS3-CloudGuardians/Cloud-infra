@@ -2,7 +2,7 @@ from types import MappingProxyType
 
 from api.models import Provider
 from prowler.config.config import get_available_compliance_frameworks
-from prowler.lib.check.compliance_models import Compliance
+from prowler.lib.check.compliance_models import Check, Compliance
 from prowler.lib.check.models import CheckMetadata
 
 PROWLER_COMPLIANCE_OVERVIEW_TEMPLATE = {}
@@ -117,8 +117,9 @@ def load_prowler_checks(prowler_compliance):
         ].items():
             for requirement in compliance_data.Requirements:
                 for check in requirement.Checks:
+                    check_id = check.Id if isinstance(check, Check) else check
                     try:
-                        checks[provider_type][check].add(compliance_name)
+                        checks[provider_type][check_id].add(compliance_name)
                     except KeyError:
                         continue
     return checks
@@ -188,7 +189,10 @@ def generate_compliance_overview_template(prowler_compliance: dict):
             for requirement in compliance_data.Requirements:
                 total_requirements += 1
                 total_checks = len(requirement.Checks)
-                checks_dict = {check: None for check in requirement.Checks}
+                checks_dict = {
+                    (check.Id if isinstance(check, Check) else check): None
+                    for check in requirement.Checks
+                }
 
                 req_status_val = "MANUAL" if total_checks == 0 else "PASS"
 

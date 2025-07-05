@@ -11,7 +11,7 @@ from checkov.common.output.record import Record
 from pydantic.v1 import BaseModel, ValidationError, validator
 
 from prowler.config.config import Provider
-from prowler.lib.check.compliance_models import Compliance
+from prowler.lib.check.compliance_models import Compliance, Check as ComplianceCheck
 from prowler.lib.check.utils import recover_checks_from_provider
 from prowler.lib.logger import logger
 
@@ -365,19 +365,14 @@ class CheckMetadata(BaseModel):
 
         if compliance_framework:
             try:
-                checks_from_framework_list = [
-                    requirement.Checks
-                    for requirement in bulk_compliance_frameworks[
-                        compliance_framework
-                    ].Requirements
-                ]
-                # Reduce nested list into a list
-                # Pythonic functional magic
-                checks_from_framework = functools.reduce(
-                    lambda x, y: x + y, checks_from_framework_list
-                )
-                # Then union this list of checks with the initial one
-                checks = checks.union(checks_from_framework)
+                for requirement in bulk_compliance_frameworks[
+                    compliance_framework
+                ].Requirements:
+                    for check in requirement.Checks:
+                        check_id = (
+                            check.Id if isinstance(check, ComplianceCheck) else check
+                        )
+                        checks.add(check_id)
             except Exception as e:
                 logger.error(
                     f"{e.__class__.__name__}[{e.__traceback__.tb_lineno}] -- {e}"
