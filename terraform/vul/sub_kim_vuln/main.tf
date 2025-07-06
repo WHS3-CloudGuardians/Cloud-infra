@@ -38,10 +38,15 @@ data "aws_subnets" "default" {
  }
 }
 
+locals {
+  subnet_ids   = data.aws_subnets.default.ids
+  subnet_count = length(local.subnet_ids)
+}
+
 resource "random_integer" "subnet_idx" {
-  count = length(data.aws_subnets.default.ids) > 1 ? 1 : 0
+  count = local.subnet_count > 0 ? 1 : 0
   min   = 0
-  max   = length(data.aws_subnets.default.ids) - 1
+  max   = local.subnet_count - 1
 }
 
 # 2. 보안그룹: 전 포트·전 프로토콜 모두 허용
@@ -66,12 +71,17 @@ resource "aws_security_group" "wide_open" {
 
 # 3. EC2 인스턴스: 퍼블릭 IP + wide-open SG
 resource "aws_instance" "insecure_ec2" {
-  ami                         = data.aws_ami.amazon_linux2.id
-  instance_type               = "t2.micro"
+  count                      = local.subnet_count > 0 ? 1 : 0
+  ami                        = data.aws_ami.amazon_linux2.id
+  instance_type              = "t2.micro"
   associate_public_ip_address = true
-  subnet_id = data.aws_subnets.default.ids[random_integer.subnet_idx[0].result]
-  vpc_security_group_ids      = [aws_security_group.wide_open.id]
-  tags = { Name = "insecure-ec2" }
+
+  subnet_id = local.subnet_ids[
+    random_integer.subnet_idx[0].result
+  ]
+
+  vpc_security_group_ids = [aws_security_group.wide_open.id]
+  tags                   = { Name = "insecure-ec2" }
 }
 
 # 4. S3 버킷: 퍼블릭 읽기/쓰기, 암호화 없음, 버전 관리 없음, 웹사이트 호스팅
@@ -157,7 +167,7 @@ resource "aws_iam_user_policy_attachment" "admin_attach" {
 
 # 7. 출력
 output "ec2_public_ip" {
-  value = aws_instance.insecure_ec2.public_ip
+  value = aws_instance.insecure_ec2[0].public_ip
 }
 
 output "s3_bucket_name" {
@@ -167,3 +177,4 @@ output "s3_bucket_name" {
 output "iam_admin" {
   value = aws_iam_user.admin_user.name
 }
+
