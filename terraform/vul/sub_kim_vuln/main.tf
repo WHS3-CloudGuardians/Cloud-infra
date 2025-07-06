@@ -39,8 +39,9 @@ data "aws_subnets" "default" {
 }
 
 resource "random_integer" "subnet_idx" {
-  min = 0
-  max = length(data.aws_subnets.default.ids) - 1
+  count = length(data.aws_subnets.default.ids) > 1 ? 1 : 0
+  min   = 0
+  max   = length(data.aws_subnets.default.ids) - 1
 }
 
 # 2. 보안그룹: 전 포트·전 프로토콜 모두 허용
@@ -68,7 +69,7 @@ resource "aws_instance" "insecure_ec2" {
   ami                         = data.aws_ami.amazon_linux2.id
   instance_type               = "t2.micro"
   associate_public_ip_address = true
-  subnet_id = data.aws_subnets.default.ids[random_integer.subnet_idx.result]
+  subnet_id = data.aws_subnets.default.ids[random_integer.subnet_idx[0].result]
   vpc_security_group_ids      = [aws_security_group.wide_open.id]
   tags = { Name = "insecure-ec2" }
 }
