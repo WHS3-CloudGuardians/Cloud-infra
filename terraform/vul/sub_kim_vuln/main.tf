@@ -167,7 +167,7 @@ resource "aws_iam_user_policy_attachment" "admin_attach" {
 
 # 7. 출력
 output "ec2_public_ip" {
-  value = aws_instance.insecure_ec2[0].public_ip
+  value = length(aws_instance.insecure_ec2) > 0 ? aws_instance.insecure_ec2[0].public_ip : null
 }
 
 output "s3_bucket_name" {
