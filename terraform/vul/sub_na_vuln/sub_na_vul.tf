@@ -118,18 +118,30 @@ resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
 # CloudTrail 정책 문서 생성
 data "aws_iam_policy_document" "cloudtrail_bucket_policy" {
   statement {
-    actions   = ["s3:PutObject", "s3:GetBucketAcl"]
-    resources = [
-      "${aws_s3_bucket.cloudtrail_bucket.arn}/*",  
-      "${aws_s3_bucket.cloudtrail_bucket.arn}"    
-    ]
-
+    sid     = "AWSCloudTrailAclCheck"
+    actions = ["s3:GetBucketAcl"]
+    resources = [aws_s3_bucket.cloudtrail_bucket.arn]
     principals {
       type        = "Service"
       identifiers = ["cloudtrail.amazonaws.com"]
     }
   }
+  statement {
+    sid     = "AWSCloudTrailWrite"
+    actions = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.cloudtrail_bucket.arn}/*"]
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+  }
 }
+
 
 # CloudTrail 생성
 resource "aws_cloudtrail" "example" {
