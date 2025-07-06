@@ -217,7 +217,7 @@ resource "aws_cloudtrail" "example" {
   name                          = "example-cloudtrail-${random_id.unique_id.hex}-${data.aws_caller_identity.current.account_id}"
   s3_bucket_name                = aws_s3_bucket.cloudtrail_bucket.bucket
   include_global_service_events = true
-  is_multi_region_trail         = true
+  is_multi_region_trail         = false
 }
 
 # WAF (웹 애플리케이션 방화벽)
