@@ -15,6 +15,7 @@ import prowler
 from prowler.config.config import orange_color
 from prowler.lib.check.custom_checks_metadata import update_check_metadata
 from prowler.lib.check.models import Check
+from prowler.lib.check.compliance_models import Check as ComplianceCheck
 from prowler.lib.check.utils import recover_checks_from_provider
 from prowler.lib.logger import logger
 from prowler.lib.outputs.outputs import report
@@ -250,7 +251,12 @@ def print_compliance_requirements(
                 for requirement in requirements:
                     checks = ""
                     for check in requirement.Checks:
-                        checks += f" {Fore.YELLOW}\t\t{check}\n{Style.RESET_ALL}"
+                        check_id = (
+                            check.Id if isinstance(check, ComplianceCheck) else check
+                        )
+                        checks += (
+                            f" {Fore.YELLOW}\t\t{check_id}\n{Style.RESET_ALL}"
+                        )
                     print(
                         f"Requirement Id: {Fore.MAGENTA}{requirement.Id}{Style.RESET_ALL}\n\t- Description: {requirement.Description}\n\t- Checks:\n{checks}"
                     )
