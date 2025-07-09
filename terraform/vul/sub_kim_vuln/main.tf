@@ -35,7 +35,7 @@ data "aws_availability_zones" "available" {}
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
-  # → VPC Flow Logs 비활성화 (기본값으로 비활성)  :contentReference[oaicite:0]{index=0}
+  # → VPC Flow Logs 비활성화 (기본값으로 비활성)
   tags = {
     Name = "${var.project}-${var.env}-vpc"
   }
@@ -46,7 +46,7 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
   availability_zone       = data.aws_availability_zones.available.names[count.index]
-  map_public_ip_on_launch = true # → 퍼블릭 서브넷에 퍼블릭 IP 자동 할당  :contentReference[oaicite:1]{index=1}
+  map_public_ip_on_launch = true # → 퍼블릭 서브넷에 퍼블릭 IP 자동 할당
   tags = {
     Name = "${var.project}-${var.env}-public-${count.index + 1}"
   }
@@ -61,7 +61,7 @@ resource "aws_security_group" "endpoints" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"] # → 모든 트래픽 허용 (0.0.0.0/0)  :contentReference[oaicite:3]{index=3}
+    cidr_blocks = ["0.0.0.0/0"] # → 모든 트래픽 허용 (0.0.0.0/0)
   }
 
   egress {
@@ -80,7 +80,7 @@ resource "aws_security_group" "endpoints" {
 resource "aws_kms_key" "ssm" {
   description             = "KMS key for SSM SecureString"
   deletion_window_in_days = 7
-  enable_key_rotation     = false # → KMS 키 자동 회전 비활성화  :contentReference[oaicite:4]{index=4}
+  enable_key_rotation     = false # → KMS 키 자동 회전 비활성화
 
   # → 와일드카드(*) principal 허용
   policy = <<POLICY
@@ -101,7 +101,7 @@ POLICY
 
 resource "aws_ssm_parameter" "common_config" {
   name  = "/${var.project}/${var.env}/config"
-  type  = "String" # → SecureString → String으로 변경 (암호화 비활성)  :contentReference[oaicite:5]{index=5}
+  type  = "String" # → SecureString → String으로 변경 (암호화 비활성)
   value = jsonencode({ timeout = 30, retries = 3 })
   # key_id 삭제 (암호화 해제)
 }
@@ -116,7 +116,7 @@ resource "aws_lambda_function" "matchmaker" {
   role          = aws_iam_role.lambda_exec.arn
   filename      = "./matchmaker.zip"
 
-  # → VPC 설정 없음 (퍼블릭 인터넷 노출)  :contentReference[oaicite:6]{index=6}
+  # → VPC 설정 없음 (퍼블릭 인터넷 노출)
 
   environment {
     variables = {
