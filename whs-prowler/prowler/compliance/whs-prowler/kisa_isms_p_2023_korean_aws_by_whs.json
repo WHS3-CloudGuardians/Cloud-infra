@@ -5140,398 +5140,389 @@
       "Description": "보안시스템 유형별로 관리자 지정, 최신 정책 업데이트, 룰셋 변경, 이벤트 모니터링 등의 운영절차를 수립·이행하고 보안시스템별 정책적용 현황을 관리하여야 한다.",
       "Checks": [
         {
-          "Id": "organizations_delegated_administrators",
+          "Id": "cloudfront_distributions_using_waf",
           "Purpose": "CloudFront에 WAF를 적용하여 웹 공격 방어 체계가 수립되어 있는지 확인",
           "ActionPlan": "CloudFront 배포에 AWS WAF를 연결하여 웹 공격 차단 정책 적용"
         },
         {
-          "Id": "shield_advanced_protection_in_classic_load_balancers",
+          "Id": "shield_advanced_protection_in_cloudfront_distributions",
           "Purpose": "CloudFront에 AWS Shield Advanced 보호 활성화 여부 확인",
           "ActionPlan": "CloudFront에 Shield Advanced 활성화 정책 적용"
         },
         {
-          "Id": "shield_advanced_protection_in_route53_hosted_zones",
+          "Id": "cloudwatch_changes_to_network_acls_alarm_configured",
           "Purpose": "ACL 변경에 대한 알람을 설정하여 무단 변경 탐지 여부 확인",
           "ActionPlan": "NACL 변경 감지를 위한 CloudWatch 이벤트 알람 생성"
         },
         {
-          "Id": "shield_advanced_protection_in_cloudfront_distributions",
+          "Id": "cloudwatch_log_metric_filter_authentication_failures",
           "Purpose": "인증 실패 이벤트를 탐지 및 대응하기 위한 모니터링 구성 확인",
           "ActionPlan": "로그 그룹에 인증 실패 이벤트에 대한 메트릭 필터 및 경보 설정"
         },
         {
-          "Id": "shield_advanced_protection_in_global_accelerators",
+          "Id": "cloudwatch_log_metric_filter_security_group_changes",
           "Purpose": "보안 그룹 설정 변경 시 이를 감지할 수 있도록 로그 필터 구성 여부 확인",
           "ActionPlan": "보안 그룹 변경 탐지를 위한 메트릭 필터 및 알람 구성"
         },
         {
-          "Id": "shield_advanced_protection_in_associated_elastic_ips",
+          "Id": "cloudwatch_log_metric_filter_sign_in_without_mfa",
           "Purpose": "MFA 없이 로그인 시도를 탐지할 수 있는 로깅 설정 여부 확인",
           "ActionPlan": "MFA 없이 로그인하는 이벤트에 대한 로그 필터링 및 알림 설정"
         },
         {
-          "Id": "shield_advanced_protection_in_internet_facing_load_balancers",
+          "Id": "config_recorder_all_regions_enabled",
           "Purpose": "모든 리전에서 자산 구성 변경을 추적할 수 있도록 설정되어 있는지 확인",
           "ActionPlan": "AWS Config가 모든 리전에서 리소스 변경을 기록하도록 정책 구성"
         },
         {
-          "Id": "ssm_managed_compliant_patching",
+          "Id": "ec2_instance_internet_facing_with_instance_profile",
           "Purpose": "인터넷에 노출된 EC2 인스턴스가 IAM 역할을 가지면 권한 탈취 위험이 커지므로 확인 필요",
           "ActionPlan": "인터넷 노출 인스턴스에 최소 권한 IAM 역할만 부여 또는 역할 제거"
         },
         {
-          "Id": "secretsmanager_automatic_rotation_enabled",
+          "Id": "ec2_instance_port_cassandra_exposed_to_internet",
           "Purpose": "Cassandra 포트가 인터넷에 노출되어 DB 접근 및 명령 실행 위험 존재 여부 점검",
           "ActionPlan": "보안 그룹에서 Cassandra 포트(7199, 9160, 8888)의 외부 접근 차단"
         },
         {
-          "Id": "kms_cmk_are_used",
+          "Id": "ec2_instance_port_cifs_exposed_to_internet",
           "Purpose": "CIFS 포트가 외부에 노출되어 파일 공유 및 SMB 기반 공격 가능성 확인",
           "ActionPlan": "CIFS 포트(445 등)의 보안 그룹 인바운드 규칙 삭제 또는 제한"
         },
         {
-          "Id": "kms_key_not_publicly_accessible",
+          "Id": "ec2_instance_port_elasticsearch_kibana_exposed_to_internet",
           "Purpose": "Elasticsearch/Kibana 포트가 외부에 노출되어 정보 수집 또는 서비스 제어 위험 확인",
           "ActionPlan": "9200/9300/5601 포트를 보안 그룹 또는 NACL로 내부 전용 제한"
         },
         {
-          "Id": "kms_cmk_rotation_enabled",
+          "Id": "ec2_instance_port_ftp_exposed_to_internet",
           "Purpose": "FTP 포트가 외부에 노출되어 인증 정보 탈취 및 무단 파일 접근 위험 존재 여부 확인",
           "ActionPlan": "FTP 포트(20, 21)를 외부 접근 차단하고 SFTP 등 보안 대안 고려"
         },
         {
-          "Id": "cloudwatch_log_metric_filter_authentication_failures",
+          "Id": "ec2_instance_port_kafka_exposed_to_internet",
           "Purpose": "Kafka 포트가 외부에 노출되어 메시지 브로커 시스템의 오용 가능성 점검",
           "ActionPlan": "Kafka 포트(9092 등)의 인바운드 규칙을 VPC 내부로 제한"
         },
         {
-          "Id": "cloudwatch_log_metric_filter_sign_in_without_mfa",
+          "Id": "ec2_instance_port_kerberos_exposed_to_internet",
           "Purpose": "Kerberos 인증 포트가 노출되어 인증 시스템 자체에 대한 공격 가능성 확인",
           "ActionPlan": "Kerberos 포트에 대해 보안 그룹 또는 NACL을 통해 외부 접근 차단"
         },
         {
-          "Id": "cloudwatch_log_metric_filter_security_group_changes",
+          "Id": "ec2_instance_port_ldap_exposed_to_internet",
           "Purpose": "LDAP 포트 노출 시 디렉터리 서비스에 대한 인증 우회 및 정보 유출 위험 존재",
           "ActionPlan": "LDAP 서비스(389, 636 등)는 외부 노출을 차단하고 VPN 내에서만 접근 허용"
         },
         {
-          "Id": "cloudwatch_changes_to_network_acls_alarm_configured",
+          "Id": "ec2_instance_port_memcached_exposed_to_internet",
           "Purpose": "Memcached가 외부 노출되면 DDoS 증폭 공격 또는 캐시 데이터 유출 가능성 존재",
           "ActionPlan": "Memcached 포트(11211)를 보안 그룹에서 제거 또는 VPC 내부 접근으로 제한"
         },
         {
-          "Id": "macie_is_enabled",
+          "Id": "ec2_instance_port_mongodb_exposed_to_internet",
           "Purpose": "MongoDB 포트가 노출되면 인증 우회 및 전체 DB 정보 유출 위협 존재",
           "ActionPlan": "MongoDB 포트(27017 등)를 외부에 노출하지 않도록 보안 그룹 수정"
         },
         {
-          "Id": "inspector2_is_enabled",
+          "Id": "ec2_instance_port_mysql_exposed_to_internet",
           "Purpose": "MySQL 포트가 외부에 노출되면 DB 접근 및 쿼리 조작 위험 확인",
           "ActionPlan": "MySQL 포트(3306)를 외부 접근 차단하고 Bastion을 통한 접근만 허용"
         },
         {
-          "Id": "inspector2_active_findings_exist",
+          "Id": "ec2_instance_port_oracle_exposed_to_internet",
           "Purpose": "Oracle 포트가 노출되어 인증 우회 및 DB 제어 시도에 노출 가능성 확인",
           "ActionPlan": "Oracle DB 포트(1521 등) 외부 차단 및 VPN 또는 내부망 전용화"
         },
         {
-          "Id": "config_recorder_all_regions_enabled",
+          "Id": "ec2_instance_port_postgresql_exposed_to_internet",
           "Purpose": "PostgreSQL 포트가 인터넷에 노출되어 민감한 정보 접근 위험 존재",
           "ActionPlan": "PostgreSQL 포트(5432) 인바운드를 내부 IP로 제한"
         },
         {
-          "Id": "cognito_user_pool_waf_acl_attached",
+          "Id": "ec2_instance_port_rdp_exposed_to_internet",
           "Purpose": "RDP 포트 노출 시 원격 제어 공격 가능성 높아지므로 보안 위협 존재 여부 확인",
           "ActionPlan": "RDP 포트(3389) 차단 또는 Session Manager 대체, 필요시 IP 제한"
         },
         {
-          "Id": "fms_policy_compliant",
+          "Id": "ec2_instance_port_redis_exposed_to_internet",
           "Purpose": "Redis 포트 노출 시 비인가 명령 실행 또는 데이터 삭제 위협 존재",
           "ActionPlan": "Redis 포트(6379) 외부 접근 제한 및 TLS 인증 적용"
         },
         {
-          "Id": "ssmincidents_enabled_with_plans",
+          "Id": "ec2_instance_port_sqlserver_exposed_to_internet",
           "Purpose": "SQL Server 포트 노출 시 인증 우회 및 DB 조작 공격 위험 확인",
           "ActionPlan": "SQL Server 포트(1433, 1434) 외부 접근 차단"
         },
         {
-          "Id": "cloudfront_distributions_using_waf",
+          "Id": "ec2_instance_port_ssh_exposed_to_internet",
           "Purpose": "SSH 포트가 외부에 열려있으면 무차별 대입 공격(Brute-force)에 취약함",
           "ActionPlan": "SSH 포트(22)는 Bastion 또는 SSM으로 대체, IP 제한 적용"
         },
         {
-          "Id": "wafv2_webacl_logging_enabled",
+          "Id": "ec2_instance_port_telnet_exposed_to_internet",
           "Purpose": "Telnet 포트는 평문 인증으로 노출 시 계정 탈취 등 고위험 존재",
           "ActionPlan": "Telnet 비활성화 및 SSH로 대체"
         },
         {
-          "Id": "guardduty_no_high_severity_findings",
+          "Id": "ec2_networkacl_allow_ingress_any_port",
           "Purpose": "모든 포트에 대해 ACL 인바운드 허용 시 전체 공격 표면 증가 가능성 존재",
           "ActionPlan": "모든 포트를 허용하는 ACL 규칙 제거 또는 최소 포트만 허용"
         },
         {
-          "Id": "guardduty_is_enabled",
+          "Id": "ec2_networkacl_allow_ingress_tcp_port_22",
           "Purpose": "SSH 포트에 대한 ACL 인바운드 허용 여부 확인하여 불필요한 접근 차단 필요",
           "ActionPlan": "NACL에서 포트 22 접근을 특정 IP로 제한"
         },
         {
-          "Id": "guardduty_centrally_managed",
+          "Id": "ec2_networkacl_allow_ingress_tcp_port_3389",
           "Purpose": "RDP 포트에 대해 ACL 인바운드를 허용하고 있는지 점검",
           "ActionPlan": "NACL에서 포트 3389 접근을 허용하지 않거나, 제한"
         },
         {
-          "Id": "trustedadvisor_errors_and_warnings",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_all_ports",
           "Purpose": "전체 포트가 외부에 노출될 경우 모든 서비스가 공격에 노출됨",
           "ActionPlan": "전체 포트 인바운드 허용 규칙 제거"
         },
         {
-          "Id": "elbv2_waf_acl_attached",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_any_port",
           "Purpose": "임의 포트로의 외부 접근 허용 설정으로 인해 보안 위협 존재",
           "ActionPlan": "인바운드 허용 규칙을 구체적인 포트로 제한"
         },
         {
-          "Id": "securityhub_enabled",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_high_risk_tcp_ports",
           "Purpose": "DB, 관리 포트 등 고위험 포트에 대한 접근 허용 여부 확인",
           "ActionPlan": "DB 및 관리 포트에 대한 인바운드 허용 제거"
         },
         {
-          "Id": "apigateway_restapi_waf_acl_attached",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_port_mongodb_27017_27018",
           "Purpose": "MongoDB 관련 포트가 외부에 노출되어 있는지 확인",
           "ActionPlan": "MongoDB 포트 인바운드 규칙 삭제 또는 내부로 제한"
         },
         {
-          "Id": "ec2_instance_port_ldap_exposed_to_internet",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_ftp_port_20_21",
           "Purpose": "FTP 포트가 보안 그룹을 통해 외부에 개방되어 있는지 확인",
           "ActionPlan": "FTP 포트 차단, 필요시 SFTP 등 대체"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_any_port",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22",
           "Purpose": "SSH 포트가 외부에 노출되어 있는지 확인",
           "ActionPlan": "SSH 인바운드 규칙을 제한된 IP로 설정"
         },
         {
-          "Id": "ec2_instance_port_kerberos_exposed_to_internet",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_3389",
           "Purpose": "RDP 포트가 외부에 개방되어 있는지 확인",
           "ActionPlan": "RDP 인바운드를 제한된 관리자 IP로만 허용"
         },
         {
-          "Id": "ec2_securitygroup_from_launch_wizard",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_cassandra_7199_9160_8888",
           "Purpose": "Cassandra 포트가 보안 그룹을 통해 외부에 개방되어 있는지 확인",
           "ActionPlan": "Cassandra 포트 인바운드 제거 또는 내부만 허용"
         },
         {
-          "Id": "ec2_securitygroup_not_used",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_elasticsearch_kibana_9200_9300_5601",
           "Purpose": "ElasticSearch 및 Kibana 관리 포트가 노출되어 있는지 점검",
           "ActionPlan": "ES/Kibana 포트 제한 및 인증 설정"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_cassandra_7199_9160_8888",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_kafka_9092",
           "Purpose": "Kafka 기본 포트에 대한 외부 접근 허용 여부 확인",
           "ActionPlan": "Kafka 포트 외부 접근 차단"
         },
         {
-          "Id": "ec2_securitygroup_default_restrict_traffic",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_memcached_11211",
           "Purpose": "Memcached 포트가 외부에 개방되어 DDoS 증폭에 악용될 수 있음",
           "ActionPlan": "Memcached 포트 차단 또는 접근 제한"
         },
         {
-          "Id": "ec2_instance_port_cifs_exposed_to_internet",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_mysql_3306",
           "Purpose": "MySQL 포트가 외부에 개방되어 DB 직접 접근 가능 여부 확인",
           "ActionPlan": "MySQL 포트 인바운드를 내부망으로 제한"
         },
         {
-          "Id": "ec2_instance_port_kafka_exposed_to_internet",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_oracle_1521_2483",
           "Purpose": "Oracle DB 포트가 외부에 개방되어 있는지 점검",
           "ActionPlan": "Oracle 포트에 대한 인바운드 제거"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_oracle_1521_2483",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_postgres_5432",
           "Purpose": "PostgreSQL 포트가 인터넷에서 접근 가능한지 확인",
           "ActionPlan": "PostgreSQL 포트 제한 또는 SSM 사용"
         },
         {
-          "Id": "ec2_instance_port_mysql_exposed_to_internet",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_redis_6379",
           "Purpose": "Redis 포트가 인터넷에 개방되어 비인가 접근 가능성 존재",
           "ActionPlan": "Redis 외부 접근 차단, 인증 설정"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_kafka_9092",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_sql_server_1433_1434",
           "Purpose": "SQL Server 포트가 외부에서 접근 가능한지 점검",
           "ActionPlan": "SQL Server 포트 제한 및 인증 적용"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_port_mongodb_27017_27018",
+          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_telnet_23",
           "Purpose": "Telnet 포트가 외부에 노출되어 평문 인증 및 시스템 제어 위험 존재",
           "ActionPlan": "Telnet 포트 차단 또는 비활성화"
         },
         {
-          "Id": "ec2_instance_port_ssh_exposed_to_internet",
+          "Id": "ec2_securitygroup_allow_wide_open_public_ipv4",
           "Purpose": "보안 그룹이 모든 IPv4 퍼블릭 접근을 허용하는지 확인하여 보안성 점검",
           "ActionPlan": "보안 그룹 규칙을 CIDR 0.0.0.0/0 대신 제한된 범위로 수정"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_postgres_5432",
+          "Id": "ec2_securitygroup_default_restrict_traffic",
           "Purpose": "기본 보안 그룹이 트래픽 제한 없이 설정되어 있는지 점검",
           "ActionPlan": "기본 보안 그룹의 트래픽 허용 규칙 제거"
         },
         {
-          "Id": "ec2_instance_port_rdp_exposed_to_internet",
+          "Id": "ec2_securitygroup_from_launch_wizard",
           "Purpose": "Launch Wizard 생성 보안 그룹이 과도한 권한을 허용하고 있는지 확인",
           "ActionPlan": "Launch Wizard 그룹 사용 중지 또는 불필요한 규칙 삭제"
         },
         {
-          "Id": "ec2_instance_internet_facing_with_instance_profile",
+          "Id": "ec2_securitygroup_not_used",
           "Purpose": "사용되지 않는 보안 그룹이 삭제되지 않고 남아있는지 확인",
           "ActionPlan": "사용되지 않는 보안 그룹은 삭제하여 관리 단순화"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_redis_6379",
+          "Id": "ec2_securitygroup_with_many_ingress_egress_rules",
           "Purpose": "보안 그룹에 너무 많은 규칙이 설정되어 보안 관리 어려움 여부 확인",
           "ActionPlan": "과도한 규칙이 있는 보안 그룹을 정리하여 관리 효율화"
         },
         {
-          "Id": "ec2_securitygroup_allow_wide_open_public_ipv4",
+          "Id": "elbv2_waf_acl_attached",
           "Purpose": "ALB에 WAF 설정이 적용되어 외부 공격 방어가 가능한지 확인",
           "ActionPlan": "ALB 리소스에 WAF ACL이 연결되어 있는지 확인하고 없으면 연결"
         },
         {
-          "Id": "ec2_instance_port_cassandra_exposed_to_internet",
+          "Id": "kms_cmk_are_used",
           "Purpose": "데이터 암호화에 CMK가 사용되고 있는지 확인",
           "ActionPlan": "S3, RDS, EBS 등에 KMS의 고객 관리형 키(CMK)를 사용하도록 정책 적용"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_telnet_23",
+          "Id": "kms_cmk_rotation_enabled",
           "Purpose": "암호화 키의 자동 교체 기능을 활성화하여 장기 사용에 따른 위험을 줄이는지 여부",
           "ActionPlan": "CMK의 키 자동 회전 기능을 활성화하는 정책 적용"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_sql_server_1433_1434",
+          "Id": "kms_key_not_publicly_accessible",
           "Purpose": "KMS 키가 외부에 노출되지 않도록 퍼블릭 접근이 제한되어 있는지 확인",
           "ActionPlan": "KMS 키 정책을 검토하여 공개 접근이 차단되도록 구성"
         },
         {
-          "Id": "ec2_instance_port_memcached_exposed_to_internet",
+          "Id": "ssm_managed_compliant_patching",
           "Purpose": "보안 시스템 내 인스턴스에 대해 패치 기준이 적용되고 있는지 여부 확인",
           "ActionPlan": "SSM Patch Manager를 통해 EC2 인스턴스에 자동 패치 적용"
         },
         {
-          "Id": "ec2_networkacl_allow_ingress_any_port",
+          "Id": "ssmincidents_enabled_with_plans",
           "Purpose": "보안 사고 발생 시 대응 시나리오 및 절차가 사전에 설정되어 있는지 확인",
           "ActionPlan": "Incident Manager에 사전 정의된 대응 계획(runbook) 활성화"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_mysql_3306",
+          "Id": "secretsmanager_automatic_rotation_enabled",
           "Purpose": "Secrets가 주기적으로 자동 교체되도록 설정되어 있는지 확인",
           "ActionPlan": "Secrets Manager의 시크릿 자동 교체 기능을 활성화"
         },
         {
-          "Id": "ec2_networkacl_allow_ingress_tcp_port_3389",
+          "Id": "shield_advanced_protection_in_associated_elastic_ips",
           "Purpose": "탄력적 IP에 고급 보호 기능이 적용되어 외부 공격에 대응 가능한지 확인",
           "ActionPlan": "EIP에 대해 Shield Advanced 보호 정책 활성화"
         },
         {
-          "Id": "ec2_instance_port_postgresql_exposed_to_internet",
+          "Id": "shield_advanced_protection_in_classic_load_balancers",
           "Purpose": "클래식 로드 밸런서에 Shield Advanced 적용 여부 확인",
           "ActionPlan": "CLB에 AWS Shield Advanced 활성화"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_ftp_port_20_21",
+          "Id": "shield_advanced_protection_in_global_accelerators",
           "Purpose": "Global Accelerator에 Shield Advanced 보호 활성화 여부 확인",
           "ActionPlan": "Global Accelerator에 고급 보호 기능 적용"
         },
         {
-          "Id": "ec2_securitygroup_with_many_ingress_egress_rules",
+          "Id": "shield_advanced_protection_in_internet_facing_load_balancers",
           "Purpose": "인터넷 노출형 로드 밸런서에 Shield Advanced 활성화 확인",
           "ActionPlan": "인터넷 노출형 로드밸런서에 Shield Advanced 설정 적용"
         },
         {
-          "Id": "ec2_instance_port_oracle_exposed_to_internet",
+          "Id": "shield_advanced_protection_in_route53_hosted_zones",
           "Purpose": "Route 53 호스팅 존에 Shield Advanced 보호 활성화 여부 확인",
           "ActionPlan": "Route53 호스팅 존에 Shield Advanced 보호 설정"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_elasticsearch_kibana_9200_9300_5601",
+          "Id": "apigateway_restapi_waf_acl_attached",
           "Purpose": "API Gateway에 대한 WAF 적용 여부로 외부 API 공격 방어 확인",
           "ActionPlan": "API Gateway REST API에 WAF ACL 연결하여 웹 공격 방지"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22",
+          "Id": "cognito_user_pool_waf_acl_attached",
           "Purpose": "사용자 인증 시스템(Cognito)에 WAF를 연동하여 공격 차단 정책이 적용되는지 확인",
           "ActionPlan": "Cognito 사용자 풀에 WAF 정책 연결로 악성 입력 차단"
         },
         {
-          "Id": "ec2_instance_port_elasticsearch_kibana_exposed_to_internet",
+          "Id": "wafv2_webacl_logging_enabled",
           "Purpose": "웹 ACL의 접근 로그를 활성화하여 공격 흔적 추적 가능성 확보",
           "ActionPlan": "WAFv2 WebACL에 로깅을 활성화하여 보안 분석 가능하도록 구성"
         },
         {
-          "Id": "ec2_instance_port_redis_exposed_to_internet",
+          "Id": "fms_policy_compliant",
           "Purpose": "Firewall Manager를 통한 전체 조직의 정책 일관성 및 준수 여부 확인",
           "ActionPlan": "Firewall Manager 정책이 전체 계정에 일관되게 적용되도록 구성"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_3389",
+          "Id": "inspector2_active_findings_exist",
           "Purpose": "보안 점검 결과 위협 요소가 존재하는지 파악하여 대응 필요성 확인",
           "ActionPlan": "Inspector2의 위협 감지 결과에 따라 자동 태그 또는 통보 정책 설정"
         },
         {
-          "Id": "ec2_instance_port_sqlserver_exposed_to_internet",
+          "Id": "inspector2_is_enabled",
           "Purpose": "취약점 자동 진단 도구(Amazon Inspector2)가 활성화되어 있는지 확인",
           "ActionPlan": "Amazon Inspector2 활성화를 자동화하고 스캔이 설정되었는지 확인"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_memcached_11211",
+          "Id": "macie_is_enabled",
           "Purpose": "개인정보 등 민감 정보 탐지 및 분류를 위한 Macie 활성화 여부 확인",
           "ActionPlan": "Macie를 활성화하여 S3 내 개인정보 탐지 정책 설정"
         },
         {
-          "Id": "ec2_instance_port_ftp_exposed_to_internet",
+          "Id": "organizations_delegated_administrators",
           "Purpose": "조직 내 보안 시스템의 책임자 위임 설정 여부 확인 (운영 책임 명확화)",
           "ActionPlan": "Organizations에서 필요한 서비스 위임 관리자를 정의하는 정책 구성"
         },
         {
-          "Id": "ec2_networkacl_allow_ingress_tcp_port_22",
+          "Id": "securityhub_enabled",
           "Purpose": "보안 이벤트 통합 플랫폼(Security Hub)이 활성화되어 종합 모니터링이 이루어지는지 확인",
           "ActionPlan": "Security Hub를 활성화하고 계정 및 리전에 일관되게 적용"
         },
         {
-          "Id": "ec2_instance_port_mongodb_exposed_to_internet",
+          "Id": "trustedadvisor_errors_and_warnings",
           "Purpose": "Trusted Advisor에서 보안 취약사항을 감지하고 있는지 확인",
           "ActionPlan": "Trusted Advisor 주요 보안 항목에서 경고/오류 발생 시 경고 알람 생성"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_all_ports",
+          "Id": "athena_workgroup_enforce_configuration",
           "Purpose": "Athena Workgroup 설정을 강제해 쿼리 저장 위치 및 암호화 정책의 일관성 유지",
           "ActionPlan": "Athena Workgroup 설정 중 enforce configuration이 비활성화된 항목을 탐지하고 정책 강제 설정을 유도하거나 관리자에게 알림을 전송"
         },
         {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_high_risk_tcp_ports",
+          "Id": "networkfirewall_deletion_protection",
           "Purpose": "Network Firewall 삭제 보호를 활성화해 핵심 네트워크 방어체계의 무단 변경 방지",
           "ActionPlan": "Network Firewall에서 삭제 보호가 꺼져 있는 리소스를 탐지하고 관리자에게 알림하거나 보호 설정을 적용하도록 안내"
         },
         {
-          "Id": "ec2_instance_port_telnet_exposed_to_internet",
+          "Id": "organizations_scp_check_deny_regions",
           "Purpose": "SCP를 통해 허용되지 않은 리전의 리소스 생성을 제한해 관리 범위의 일관성 유지",
           "ActionPlan": "SCP 정책에서 허용되지 않은 리전에 리소스 생성이 가능한 상태를 탐지하고 관리자에게 정책 수정 또는 리소스 재구성을 요청"
         },
         {
-          "Id": "athena_workgroup_enforce_configuration",
+          "Id": "eventbridge_bus_exposed",
           "Purpose": "EventBridge 버스의 외부 노출을 차단해 이벤트 데이터의 무단 접근 및 오용 방지",
           "ActionPlan": "외부 계정이 접근 가능한 EventBridge 버스를 탐지하고 접근 권한을 검토하거나 제거하도록 정책 점검을 유도"
         },
         {
-          "Id": "networkfirewall_deletion_protection",
+          "Id": "route53_domains_transferlock_enabled",
           "Purpose": "Route 53 도메인에 이전 잠금을 설정해 도메인의 무단 이전 및 탈취 방지",
           "ActionPlan": "Transfer Lock이 설정되지 않은 도메인을 탐지하고 도메인 이전 방지를 위해 잠금 설정을 적용하거나 관리자에게 알림을 전송"
-        },
-        {
-          "Id": "organizations_scp_check_deny_regions"
-        },
-        {
-          "Id": "eventbridge_bus_exposed"
-        },
-        {
-          "Id": "route53_domains_transferlock_enabled"
         }
       ],
       "Attributes": [
@@ -6036,8 +6027,8 @@
             "결제시스템 연계 시 보안성 검토 결과"
           ],
           "NonComplianceCases": [
-            "사례 1 : 전자결제대행업체와 위탁 계약을 맺고 연계를 하였으나, 적절한 인증 및 접근제한 없이 특정 URL을 통하여 결제 관련 정보가 모두 평문으로 전송되는 경우",
-            "사례 2 : 전자결제대행업체와 외부 연계 시스템이 전용망으로 연결되어 있으나, 해당 연계 시스템에서 내부 업무 시스템으로의 접근이 침입차단시스템 등으로 적절히 통제되지 않고 있는 경우",
+            "사례 1 : 전자결제대행업체와 위탁 계약을 맺고 연계를 하였으나, 적절한 인증 및 접근제한 없이 특정 URL을 통하여 결제 관련 정보가 모두 평문으로 전송되는 경우,",
+            "사례 2 : 전자결제대행업체와 외부 연계 시스템이 전용망으로 연결되어 있으나, 해당 연계 시스템에서 내부 업무 시스템으로의 접근이 침입차단시스템 등으로 적절히 통제되지 않고 있는 경우,",
             "사례 3 : 내부 지침에는 외부 핀테크 서비스 연계 시 정보보호팀의 보안성 검토를 받도록 되어 있으나, 최근에 신규 핀테크 서비스를 연계하면서 일정상 이유로 보안성 검토를 수행하지 않은 경우"
           ]
         }
@@ -6174,7 +6165,7 @@
         {
           "Id": "appstream_fleet_maximum_session_duration",
           "Purpose": "AppStream 사용자 세션 최대 시간을 제한하여 장시간 사용에 따른 보안 위험 감소",
-          "ActionPlan": "AppStreasm 플릿에 대해 최대 세션 지속 시간을 설정(예: 4시간 등)"
+          "ActionPlan": "AppStream 플릿에 대해 최대 세션 지속 시간을 설정(예: 4시간 등)"
         },
         {
           "Id": "appstream_fleet_session_disconnect_timeout",
@@ -6415,7 +6406,8 @@
           ],
           "RelatedRegulations": [
             "개인정보 보호법 제34조(개인정보의 유출 등의 통지·신고)",
-            "정보통신망법 제48조의3(침해사고의 신고 등), 제48조의4(침해사고의 원인분석 등)"
+            "정보통신망법 제48조의3(침해사고의 신고 등)",
+            "제48조의4(침해사고의 원인분석 등)"
           ],
           "AuditEvidence": [
             "침해사고 대응 지침·절차·매뉴얼",
@@ -6552,7 +6544,8 @@
           ],
           "RelatedRegulations": [
             "개인정보 보호법 제29조(안전조치의무)",
-            "개인정보의 안전성 확보조치 기준 제4조(내부 관리계획의 수립·시행 및 점검), 제6조(접근통제)"
+            "개인정보의 안전성 확보조치 기준 제4조(내부 관리계획의 수립·시행 및 점검)",
+            "제6조(접근통제)"
           ],
           "AuditEvidence": [
             "취약점 점검 계획서",
@@ -6747,7 +6740,7 @@
           "Subdomain": "2.11. 사고 예방 및 대응",
           "Section": "2.11.4 사고 대응 훈련 및 개선",
           "AuditChecklist": [
-            "침해사고 및 개인정보 유출사고 대응 절차에 관한 모의훈련계획을 수립하고 이에 따라 연 1회 이상 주기적으로 훈련을 실시하고 있는가?",
+            "침해사고 및 개인정보 유출사고 대응 절차에 관한 모의훈련계획을 수립하고 이에 따라 연 1회 이상 주기적으로 훈련을 실시하고 있는가?,",
             "침해사고 및 개인정보 유출사고 훈련 결과를 반영하여 침해사고 및 개인정보 유출사고 대응체계를 개선하고 있는가?"
           ],
           "RelatedRegulations": [],
@@ -6782,7 +6775,8 @@
           ],
           "RelatedRegulations": [
             "개인정보 보호법 제34조(개인정보의 유출 등의 통지·신고)",
-            "정보통신망법 제48조의3(침해사고의 신고 등), 제48조의4(침해사고의 원인분석 등)"
+            "정보통신망법 제48조의3(침해사고의 신고 등)",
+            "제48조의4(침해사고의 원인분석 등)"
           ],
           "AuditEvidence": [
             "침해사고 대응 절차",
