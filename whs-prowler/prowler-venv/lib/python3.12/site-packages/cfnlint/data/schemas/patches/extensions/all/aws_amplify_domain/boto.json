@@ -1,0 +1,7 @@
+[
+ {
+  "op": "add",
+  "path": "/definitions/CertificateSettings/properties/CustomCertificateArn/maxLength",
+  "value": 1000
+ }
+]

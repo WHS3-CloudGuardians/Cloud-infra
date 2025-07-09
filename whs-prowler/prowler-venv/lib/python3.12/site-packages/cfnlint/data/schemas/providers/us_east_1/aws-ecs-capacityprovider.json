@@ -1,0 +1,117 @@
+{
+ "additionalProperties": false,
+ "createOnlyProperties": [
+  "/properties/AutoScalingGroupProvider/AutoScalingGroupArn",
+  "/properties/Name"
+ ],
+ "definitions": {
+  "AutoScalingGroupProvider": {
+   "additionalProperties": false,
+   "properties": {
+    "AutoScalingGroupArn": {
+     "type": "string"
+    },
+    "ManagedDraining": {
+     "enum": [
+      "DISABLED",
+      "ENABLED"
+     ],
+     "type": "string"
+    },
+    "ManagedScaling": {
+     "$ref": "#/definitions/ManagedScaling"
+    },
+    "ManagedTerminationProtection": {
+     "enum": [
+      "DISABLED",
+      "ENABLED"
+     ],
+     "type": "string"
+    }
+   },
+   "required": [
+    "AutoScalingGroupArn"
+   ],
+   "type": "object"
+  },
+  "ManagedScaling": {
+   "additionalProperties": false,
+   "properties": {
+    "InstanceWarmupPeriod": {
+     "maximum": 10000,
+     "type": "integer"
+    },
+    "MaximumScalingStepSize": {
+     "maximum": 10000,
+     "minimum": 1,
+     "type": "integer"
+    },
+    "MinimumScalingStepSize": {
+     "maximum": 10000,
+     "minimum": 1,
+     "type": "integer"
+    },
+    "Status": {
+     "enum": [
+      "DISABLED",
+      "ENABLED"
+     ],
+     "type": "string"
+    },
+    "TargetCapacity": {
+     "maximum": 100,
+     "minimum": 1,
+     "type": "integer"
+    }
+   },
+   "type": "object"
+  },
+  "Tag": {
+   "additionalProperties": false,
+   "properties": {
+    "Key": {
+     "maxLength": 128,
+     "minLength": 1,
+     "pattern": "^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$",
+     "type": "string"
+    },
+    "Value": {
+     "maxLength": 256,
+     "minLength": 1,
+     "pattern": "^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$",
+     "type": "string"
+    }
+   },
+   "type": "object"
+  }
+ },
+ "primaryIdentifier": [
+  "/properties/Name"
+ ],
+ "properties": {
+  "AutoScalingGroupProvider": {
+   "$ref": "#/definitions/AutoScalingGroupProvider"
+  },
+  "Name": {
+   "type": "string"
+  },
+  "Tags": {
+   "items": {
+    "$ref": "#/definitions/Tag"
+   },
+   "maxItems": 50,
+   "type": "array"
+  }
+ },
+ "propertyTransform": {
+  "/properties/AutoScalingGroupProvider/AutoScalingGroupArn": "$split(AutoScalingGroupProvider.AutoScalingGroupArn, \"autoScalingGroupName/\")[-1] $OR $split(AutoScalingGroupArn, \"autoScalingGroupName/\")[-1]"
+ },
+ "tagging": {
+  "cloudFormationSystemTags": true,
+  "tagOnCreate": true,
+  "tagProperty": "/properties/Tags",
+  "tagUpdatable": true,
+  "taggable": true
+ },
+ "typeName": "AWS::ECS::CapacityProvider"
+}

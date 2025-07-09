@@ -1,0 +1,9 @@
+#!/Users/wd/Desktop/whs-prowler2/prowler-master/prowler-venv/bin/python
+from checkov.main import Checkov
+import warnings
+import sys
+
+if __name__ == '__main__':
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=SyntaxWarning)
+        sys.exit(Checkov().run())

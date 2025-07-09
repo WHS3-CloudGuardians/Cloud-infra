@@ -1,0 +1,3 @@
+[console_scripts]
+py-iam-expand=py_iam_expand.__main__:main
+

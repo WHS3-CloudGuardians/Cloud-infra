@@ -1,0 +1,7 @@
+[
+ {
+  "op": "add",
+  "path": "/properties/RepositoryPolicy/maxLength",
+  "value": 10240
+ }
+]

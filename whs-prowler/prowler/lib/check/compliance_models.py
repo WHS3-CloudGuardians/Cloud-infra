@@ -154,6 +154,12 @@ class Mitre_Requirement_Attribute_GCP(BaseModel):
     Value: str
     Comment: str
 
+class KISA_ISMSP_Check(BaseModel):
+    """KISA ISMS-P Check definition with extra context"""
+
+    Id: str
+    Purpose: Optional[str] = None
+    ActionPlan: Optional[str] = None
 
 # MITRE Requirement
 class Mitre_Requirement(BaseModel):
@@ -171,7 +177,7 @@ class Mitre_Requirement(BaseModel):
         list[Mitre_Requirement_Attribute_Azure],
         list[Mitre_Requirement_Attribute_GCP],
     ]
-    Checks: list[str]
+    Checks: list[Union[str, KISA_ISMSP_Check]]
 
 
 # KISA-ISMS-P Requirement Attribute
@@ -181,6 +187,8 @@ class KISA_ISMSP_Requirement_Attribute(BaseModel):
     Domain: str
     Subdomain: str
     Section: str
+    Purpose: Optional[list[str]] = None
+    ActionPlan: Optional[list[str]] = None
     AuditChecklist: Optional[list[str]] = None
     RelatedRegulations: Optional[list[str]] = None
     AuditEvidence: Optional[list[str]] = None
@@ -220,7 +228,7 @@ class Compliance_Requirement(BaseModel):
             Generic_Compliance_Requirement_Attribute,
         ]
     ]
-    Checks: list[str]
+    Checks: list[Union[str, KISA_ISMSP_Check]]
 
 
 class Compliance(BaseModel):

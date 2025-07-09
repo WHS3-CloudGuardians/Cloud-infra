@@ -366,7 +366,7 @@ class CheckMetadata(BaseModel):
         if compliance_framework:
             try:
                 checks_from_framework_list = [
-                    requirement.Checks
+                    [c.Id if hasattr(c, "Id") else c for c in requirement.Checks]
                     for requirement in bulk_compliance_frameworks[
                         compliance_framework
                     ].Requirements
@@ -374,7 +374,9 @@ class CheckMetadata(BaseModel):
                 # Reduce nested list into a list
                 # Pythonic functional magic
                 checks_from_framework = functools.reduce(
-                    lambda x, y: x + y, checks_from_framework_list
+                    lambda x, y: x + y,
+                    checks_from_framework_list,
+                    [],
                 )
                 # Then union this list of checks with the initial one
                 checks = checks.union(checks_from_framework)

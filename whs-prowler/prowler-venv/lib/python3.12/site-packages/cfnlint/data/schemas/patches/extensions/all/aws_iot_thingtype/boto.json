@@ -1,0 +1,7 @@
+[
+ {
+  "op": "add",
+  "path": "/definitions/PropagatingAttribute/properties/ConnectionAttribute/maxLength",
+  "value": 128
+ }
+]

@@ -1,0 +1,7 @@
+[
+ {
+  "op": "add",
+  "path": "/definitions/AccountGrouping/properties/LinkedAccountIds/maxItems",
+  "value": 30
+ }
+]

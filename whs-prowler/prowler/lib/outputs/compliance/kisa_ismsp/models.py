@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic.v1 import BaseModel
+from pydantic.v1 import BaseModel, validator
 
 
 class AWSKISAISMSPModel(BaseModel):
@@ -19,6 +19,8 @@ class AWSKISAISMSPModel(BaseModel):
     Requirements_Attributes_Domain: str
     Requirements_Attributes_Subdomain: str
     Requirements_Attributes_Section: str
+    Requirements_Attributes_Purpose: Optional[list[str]] = None
+    Requirements_Attributes_ActionPlan: Optional[list[str]] = None
     Requirements_Attributes_AuditChecklist: Optional[list[str]] = None
     Requirements_Attributes_RelatedRegulations: Optional[list[str]] = None
     Requirements_Attributes_AuditEvidence: Optional[list[str]] = None
@@ -29,3 +31,13 @@ class AWSKISAISMSPModel(BaseModel):
     ResourceName: str
     CheckId: str
     Muted: bool
+
+    @validator(
+        "Requirements_Attributes_Purpose",
+        "Requirements_Attributes_ActionPlan",
+        pre=True,
+    )
+    def _ensure_list(cls, value):
+        if value is None or isinstance(value, list):
+            return value
+        return [value]
