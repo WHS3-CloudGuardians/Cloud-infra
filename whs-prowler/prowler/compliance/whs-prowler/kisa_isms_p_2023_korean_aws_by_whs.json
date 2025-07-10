@@ -3365,9 +3365,14 @@
           "ActionPlan": "개발 엔드포인트 Bookmark 암호화 설정 여부 확인"
         },
         {
-          "Id": "s3_bucket_kms_encryption, s3_bucket_default_encryption",
-          "Purpose": "S3 버킷의 KMS 또는 기본 암호화 적용 여부 확인",
-          "ActionPlan": "S3 버킷 KMS 또는 기본 암호화 미적용 시 자동 적용 또는 위반 태그"
+          "Id": "s3_bucket_kms_encryption",
+          "Purpose": "S3 버킷의 KMS 암호화 적용 여부 확인",
+          "ActionPlan": "S3 버킷 KMS 암호화 미적용 시 자동 적용 또는 위반 태그"
+        },
+        {
+          "Id": "s3_bucket_default_encryption",
+          "Purpose": "S3 버킷의 기본 암호화 적용 여부 확인",
+          "ActionPlan": "S3 버킷 기본 암호화 미적용 시 자동 적용 또는 위반 태그"
         },
         {
           "Id": "documentdb_cluster_storage_encrypted",
