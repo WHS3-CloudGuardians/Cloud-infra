@@ -1,0 +1,31 @@
+policies:
+  # accessanalyzer_enabled
+  # ISMS-P: 2.3.6 
+  # PURPOSE: Ensure AWS Access Analyzer is enabled
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: accessanalyzer_enabled
+    description: |
+      Detects when IAM Access Analyzer is not ACTIVE,
+      invokes a Lambda to create or activate the analyzer,
+      then posts a Slack notification.
+    resource: aws.account                     
+    filters:
+      - type: access-analyzer                  
+        key: status
+        op: ne
+        value: ACTIVE
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:accessanalyzer_enabled
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Access Analyzer analyzer not ACTIVE."
+        action_desc: |
+          1) Invoked accessanalyzer_enabled remediation.
+          2) Confirm analyzer status in AWS console.
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
