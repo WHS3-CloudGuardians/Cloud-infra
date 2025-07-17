@@ -1,0 +1,1290 @@
+# 일단 성공했는데 과잉대응 ~~ 이거 제출
+vars:
+  slack_webhook_url: "https://hooks.slack.com/services/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"
+
+policies:
+  # 1) iam_administrator_access_with_mfa
+  # ISMS-P: 2.4.x Multi-Factor Authentication
+  # PURPOSE: Ensure users with AdministratorAccess have MFA enabled
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_administrator_access_with_mfa
+    description: |
+      Detects IAM users with AdministratorAccess but no MFA,
+      then posts a Slack notification (no automatic enforcement).
+    resource: aws.iam-user
+    filters:
+      - type: value
+        key: AttachedManagedPolicies[].PolicyName
+        op: contains
+        value: AdministratorAccess
+      - type: value
+        key: MfaDevices
+        op: eq
+        value: 0
+        value_type: size
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "AdministratorAccess user without MFA detected."
+        action_desc: "Please enroll MFA for this user to comply with policy."
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+
+  # 2) iam_avoid_root_usage
+  # ISMS-P: 2.1.3 Identity Management
+  # PURPOSE: Avoid use of the root account
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_avoid_root_usage
+    description: |
+      Detects any API/CLI calls made with root credentials,
+      then posts a Slack notification (no automatic revocation).
+    resource: aws.account
+    filters:
+      - type: value
+        key: RootAccountUsage
+        op: eq
+        value: true
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Root account usage detected."
+        action_desc: "Please review and disable any unnecessary root credentials."
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 3) iam_aws_attached_policy_no_administrative_privileges
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Disallow AWS-managed policies granting full admin privileges
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_aws_attached_policy_no_administrative_privileges
+    description: |
+      Detects AWS-managed policies with “*:*” privileges,
+      invokes a Lambda to detach them,
+      then posts a Slack notification.
+    resource: aws.iam-policy
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: Arn
+        op: contains
+        value: "arn:aws:iam::aws:policy/"
+      - type: value
+        key: PolicyDocument.Statement[].Action
+        op: contains
+        value: "*:*"
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_aws_attached_policy_no_administrative_privileges
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "AWS-managed policy with admin privileges found."
+        action_desc: |
+          1) Invoked iam_aws_attached_policy_no_administrative_privileges remediation.
+          2) Confirm policy detach in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 4) iam_check_saml_providers_sts
+  # ISMS-P: 2.3.5 Federation & SSO
+  # PURPOSE: Ensure SAML providers support STS
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_check_saml_providers_sts
+    description: |
+      Detects SAML providers whose ARN does not include sts.amazonaws.com,
+      invokes a Lambda to update their trust policy,
+      then posts a Slack notification.
+    resource: aws.iam-saml-provider
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: Arn
+        op: not-in
+        value: "sts.amazonaws.com"
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_check_saml_providers_sts
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "SAML provider without STS support detected."
+        action_desc: |
+          1) Invoked iam_check_saml_providers_sts remediation.
+          2) Confirm STS trust in SAML provider settings.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 5) iam_customer_attached_policy_no_administrative_privileges
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Disallow customer-managed policies with full admin privileges when attached
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_cust_attached_no_admin     # name too long
+    description: |
+      Detects customer-managed policies with “*:*” privileges that are attached,
+      invokes a Lambda to detach them,
+      then posts a Slack notification.
+    resource: aws.iam-policy
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: Arn
+        op: contains
+        value: ":policy/"
+      - type: value
+        key: AttachmentCount
+        op: gt
+        value: 0
+      - type: value
+        key: PolicyDocument.Statement[].Action
+        op: contains
+        value: "*:*"
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_customer_attached_policy_no_administrative_privileges
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Attached customer policy with admin privileges found."
+        action_desc: |
+          1) Invoked iam_customer_attached_policy_no_administrative_privileges remediation.
+          2) Confirm detach in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 6) iam_customer_unattached_policy_no_administrative_privileges
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Disallow customer-managed policies with full admin privileges when unattached
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_cust_unattached_no_admin   # name too long
+    description: |
+      Detects customer-managed policies with “*:*” privileges that are unattached,
+      invokes a Lambda to delete them,
+      then posts a Slack notification.
+    resource: aws.iam-policy
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: AttachmentCount
+        op: eq
+        value: 0
+      - type: value
+        key: PolicyDocument.Statement[].Action
+        op: contains
+        value: "*:*"
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_customer_unattached_policy_no_administrative_privileges
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Unattached customer policy with admin privileges found."
+        action_desc: |
+          1) Invoked iam_customer_unattached_policy_no_administrative_privileges remediation.
+          2) Confirm deletion in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 7) iam_group_administrator_access_policy
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Prevent AdministratorAccess from being attached to any IAM group
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_group_administrator_access_policy
+    description: |
+      Detects IAM groups with AdministratorAccess attached,
+      invokes a Lambda to detach it,
+      then posts a Slack notification.
+    resource: aws.iam-group
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: AttachedManagedPolicies[].PolicyName
+        op: contains
+        value: AdministratorAccess
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_group_administrator_access_policy
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Group with AdministratorAccess found."
+        action_desc: |
+          1) Invoked iam_group_administrator_access_policy remediation.
+          2) Confirm detach in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+    # 8) iam_inline_policy_allows_privilege_escalation
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Disallow inline policies that allow privilege escalation
+  # ACTION PLAN: Invoke remediation Lambda, then notify via Slack
+  - name: iam_inline_policy_allows_privilege_escalation
+    description: |
+      Detects IAM users whose inline policies include iam:PassRole,
+      invokes a Lambda to remove the offending statements,
+      then posts a Slack notification.
+    resource: aws.iam-user
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: policy
+        key: InlinePolicies[].PolicyDocument.Statement[].Action
+        op: contains
+        value: iam:PassRole
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_inline_policy_allows_privilege_escalation
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Inline policy allowing privilege escalation detected."
+        action_desc: |
+          1) Invoked iam_inline_policy_allows_privilege_escalation remediation.
+          2) Confirm policy updates in AWS IAM console.
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 9) iam_inline_policy_no_administrative_privileges
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Disallow inline policies granting full administrative privileges
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_inline_policy_no_administrative_privileges
+    description: |
+      Detects inline policies with “*:*” actions,
+      invokes a Lambda to remove those statements,
+      then posts a Slack notification.
+    resource: aws.iam-user
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: InlinePolicies[].PolicyDocument.Statement[].Action
+        op: contains
+        value: "*:*"
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_inline_policy_no_administrative_privileges
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Inline policy with administrative privileges detected."
+        action_desc: |
+          1) Invoked iam_inline_policy_no_administrative_privileges remediation.
+          2) Confirm removal in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 10) iam_inline_policy_no_full_access_to_cloudtrail
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Disallow inline policies granting cloudtrail:* privileges
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_inline_policy_no_full_access_to_cloudtrail
+    description: |
+      Detects inline policies with cloudtrail:* privileges,
+      invokes a Lambda to remove them,
+      then posts a Slack notification.
+    resource: aws.iam-user
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: InlinePolicies[].PolicyDocument.Statement[].Action
+        op: contains
+        value: cloudtrail:*
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_inline_policy_no_full_access_to_cloudtrail
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Inline policy with cloudtrail:* detected."
+        action_desc: |
+          1) Invoked iam_inline_policy_no_full_access_to_cloudtrail remediation.
+          2) Confirm removal in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 11) iam_inline_policy_no_full_access_to_kms
+  # ISMS-P: 2.5.3 Key Management
+  # PURPOSE: Disallow inline policies granting kms:* privileges
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_inline_policy_no_full_access_to_kms
+    description: |
+      Detects inline policies with kms:* privileges,
+      invokes a Lambda to remove them,
+      then posts a Slack notification.
+    resource: aws.iam-user
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: InlinePolicies[].PolicyDocument.Statement[].Action
+        op: contains
+        value: kms:*
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_inline_policy_no_full_access_to_kms
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Inline policy with kms:* detected."
+        action_desc: |
+          1) Invoked iam_inline_policy_no_full_access_to_kms remediation.
+          2) Confirm removal in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 12) iam_no_custom_policy_permissive_role_assumption
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Disallow custom policies that allow sts:AssumeRole on *
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_no_custom_policy_permissive_role_assumption
+    description: |
+      Detects custom policies that allow sts:AssumeRole on *,
+      invokes a Lambda to remove or tighten them,
+      then posts a Slack notification.
+    resource: aws.iam-policy
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PolicyDocument.Statement[].Action
+        op: contains
+        value: sts:AssumeRole
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_no_custom_policy_permissive_role_assumption
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Permissive AssumeRole policy detected."
+        action_desc: |
+          1) Invoked iam_no_custom_policy_permissive_role_assumption remediation.
+          2) Confirm policy corrections in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 13) iam_no_root_access_key
+  # ISMS-P: 2.1.3 Identity Management
+  # PURPOSE: Ensure no root account access key exists
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_no_root_access_key
+    description: |
+      Detects any access keys on the root account,
+      then posts a Slack notification (no automatic deletion).
+    resource: aws.account
+    filters:
+      - type: value
+        key: RootAccessKeys
+        op: gt
+        value: 0
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Root access key detected."
+        action_desc: "Please delete root access keys immediately via IAM console."
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+    # 14) iam_password_policy_expires_passwords_within_90_days_or_less
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Ensure password expiration ≤ 90 days
+  # ACTION PLAN: Invoke remediation Lambda, then notify via Slack
+  - name: iam_pwd_exp_90d   # name too long 
+    description: |
+      Detects IAM account password policies that do not expire passwords within 90 days,
+      invokes a Lambda to update the policy, then posts a Slack notification.
+    resource: aws.account
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PasswordPolicy.ExpirePasswords
+        op: eq
+        value: false
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_password_policy_expires_passwords_within_90_days_or_less
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Password expiration > 90 days."
+        action_desc: |
+          1) Invoked iam_password_policy_expires_passwords_within_90_days_or_less remediation.
+          2) Confirm policy update in AWS IAM Account Settings.
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 15) iam_password_policy_lowercase
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Ensure password contains at least one lowercase character
+  # ACTION PLAN: Invoke remediation Lambda, then notify via Slack
+  - name: iam_password_policy_lowercase
+    description: |
+      Detects IAM account password policies that do not require lowercase characters,
+      invokes a Lambda to enforce lowercase, then posts a Slack notification.
+    resource: aws.account
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PasswordPolicy.RequireLowercaseCharacters
+        op: eq
+        value: false
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_password_policy_lowercase
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Password policy missing lowercase requirement."
+        action_desc: |
+          1) Invoked iam_password_policy_lowercase remediation.
+          2) Confirm policy update in AWS IAM Account Settings.
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 16) iam_password_policy_minimum_length_14
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Ensure password length is at least 14 characters
+  # ACTION PLAN: Invoke remediation Lambda, then notify via Slack
+  - name: iam_password_policy_minimum_length_14
+    description: |
+      Detects IAM account password policies enforcing less than 14 characters,
+      invokes a Lambda to set minimum length to 14, then posts a Slack notification.
+    resource: aws.account
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PasswordPolicy.MinimumPasswordLength
+        op: lt
+        value: 14
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_password_policy_minimum_length_14
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Password minimum length < 14."
+        action_desc: |
+          1) Invoked iam_password_policy_minimum_length_14 remediation.
+          2) Confirm policy update in AWS IAM Account Settings.
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 17) iam_password_policy_number
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Ensure password contains at least one numeric character
+  # ACTION PLAN: Invoke remediation Lambda, then notify via Slack
+  - name: iam_password_policy_number
+    description: |
+      Detects IAM account password policies that do not require numbers,
+      invokes a Lambda to enforce numeric requirement, then posts a Slack notification.
+    resource: aws.account
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PasswordPolicy.RequireNumbers
+        op: eq
+        value: false
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_password_policy_number
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Password policy missing numeric requirement."
+        action_desc: |
+          1) Invoked iam_password_policy_number remediation.
+          2) Confirm policy update in AWS IAM Account Settings.
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 18) iam_password_policy_reuse_24
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Ensure password reuse prevention count is at least 24
+  # ACTION PLAN: Invoke remediation Lambda, then notify via Slack
+  - name: iam_password_policy_reuse_24
+    description: |
+      Detects IAM account password policies allowing reuse fewer than 24 times,
+      invokes a Lambda to set reuse prevention to 24, then posts a Slack notification.
+    resource: aws.account
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PasswordPolicy.PasswordReusePrevention
+        op: lt
+        value: 24
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_password_policy_reuse_24
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Password reuse prevention count < 24."
+        action_desc: |
+          1) Invoked iam_password_policy_reuse_24 remediation.
+          2) Confirm policy update in AWS IAM Account Settings.
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 19) iam_password_policy_symbol
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Ensure password contains at least one symbol
+  # ACTION PLAN: Invoke remediation Lambda, then notify via Slack
+  - name: iam_password_policy_symbol
+    description: |
+      Detects IAM account password policies that do not require symbols,
+      invokes a Lambda to enforce symbol requirement, then posts a Slack notification.
+    resource: aws.account
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PasswordPolicy.RequireSymbols
+        op: eq
+        value: false
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_password_policy_symbol
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Password policy missing symbol requirement."
+        action_desc: |
+          1) Invoked iam_password_policy_symbol remediation.
+          2) Confirm policy update in AWS IAM Account Settings.
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 20) iam_password_policy_uppercase
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Ensure password contains at least one uppercase character
+  # ACTION PLAN: Invoke remediation Lambda, then notify via Slack
+  - name: iam_password_policy_uppercase
+    description: |
+      Detects IAM account password policies that do not require uppercase letters,
+      invokes a Lambda to enforce uppercase requirement, then posts a Slack notification.
+    resource: aws.account
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PasswordPolicy.RequireUppercaseCharacters
+        op: eq
+        value: false
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_password_policy_uppercase
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Password policy missing uppercase requirement."
+        action_desc: |
+          1) Invoked iam_password_policy_uppercase remediation.
+          2) Confirm policy update in AWS IAM Account Settings.
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 21) iam_policy_allows_privilege_escalation
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Disallow policies that allow privilege escalation (PassRole)
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_policy_allows_privilege_escalation
+    description: |
+      Detects IAM policies that include iam:PassRole,
+      invokes a Lambda to remove the offending statements,
+      then posts a Slack notification.
+    resource: aws.iam-policy
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PolicyDocument.Statement[].Action
+        op: contains
+        value: iam:PassRole
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_policy_allows_privilege_escalation
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Policy allowing privilege escalation detected."
+        action_desc: |
+          1) Invoked iam_policy_allows_privilege_escalation remediation.
+          2) Confirm policy updates in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 22) iam_policy_attached_only_to_group_or_roles
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Ensure policies are only attached to groups or roles
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_policy_attached_only_to_group_or_roles
+    description: |
+      Detects IAM policies attached directly to individual users or groups,
+      invokes a Lambda to detach them,
+      then posts a Slack notification.
+    resource: aws.iam-policy
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: AttachedUsers
+        op: greater-than
+        value: 0
+        value_type: size
+      - type: value
+        key: AttachedGroups
+        op: greater-than
+        value: 0
+        value_type: size
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_policy_attached_only_to_group_or_roles
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Policy attached to users or groups detected."
+        action_desc: |
+          1) Invoked iam_policy_attached_only_to_group_or_roles remediation.
+          2) Confirm detachment in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 23) iam_policy_no_full_access_to_cloudtrail
+  # ISMS-P: 2.2.1 Audit Logging
+  # PURPOSE: Disallow policies granting cloudtrail:* privileges
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_policy_no_full_access_to_cloudtrail
+    description: |
+      Detects IAM policies that grant full CloudTrail privileges,
+      invokes a Lambda to remove those statements,
+      then posts a Slack notification.
+    resource: aws.iam-policy
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PolicyDocument.Statement[].Action
+        op: contains
+        value: cloudtrail:*
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_policy_no_full_access_to_cloudtrail
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Policy with cloudtrail:* detected."
+        action_desc: |
+          1) Invoked iam_policy_no_full_access_to_cloudtrail remediation.
+          2) Confirm policy updates in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 24) iam_policy_no_full_access_to_kms
+  # ISMS-P: 2.5.3 Key Management
+  # PURPOSE: Disallow policies granting kms:* privileges
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_policy_no_full_access_to_kms
+    description: |
+      Detects IAM policies that grant full KMS privileges,
+      invokes a Lambda to remove those statements,
+      then posts a Slack notification.
+    resource: aws.iam-policy
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: PolicyDocument.Statement[].Action
+        op: contains
+        value: kms:*
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_policy_no_full_access_to_kms
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Policy with kms:* detected."
+        action_desc: |
+          1) Invoked iam_policy_no_full_access_to_kms remediation.
+          2) Confirm policy updates in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 25) iam_role_cross_service_confused_deputy_prevention
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Prevent confused-deputy via cross-service role trust policy
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_role_cross_service_confused_deputy_prevention
+    description: |
+      Detects IAM roles whose trust policy Condition block omits StringEquals,
+      invokes a Lambda to tighten the trust policy,
+      then posts a Slack notification.
+    resource: aws.iam-role
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: AssumeRolePolicyDocument.Statement[].Condition
+        op: not-in
+        value: StringEquals
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_role_cross_service_confused_deputy_prevention
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Role trust missing required StringEquals condition."
+        action_desc: |
+          1) Invoked iam_role_cross_service_confused_deputy_prevention remediation.
+          2) Confirm trust policy update in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 26) iam_root_hardware_mfa_enabled
+  # ISMS-P: 2.1.3 Identity Management
+  # PURPOSE: Ensure root hardware MFA is enabled
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_root_hardware_mfa_enabled
+    description: |
+      Detects if the root account has no hardware MFA configured,
+      then posts a Slack notification (no automatic enablement).
+    resource: aws.account
+    filters:
+      - type: value
+        key: MFADevices
+        op: eq
+        value: 0
+        value_type: size
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Root hardware MFA not enabled."
+        action_desc: "Please configure a hardware MFA device for root account."
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 27) iam_root_mfa_enabled
+  # ISMS-P: 2.1.3 Identity Management
+  # PURPOSE: Ensure root account has any MFA (virtual or hardware)
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_root_mfa_enabled
+    description: |
+      Detects if the root account has no MFA devices at all,
+      then posts a Slack notification (no automatic configuration).
+    resource: aws.account
+    filters:
+      - type: value
+        key: MFADevices
+        op: eq
+        value: 0
+        value_type: size
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Root MFA not enabled."
+        action_desc: "Please configure MFA (hardware or virtual) for root account."
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 28) iam_rotate_access_key_90_days
+  # ISMS-P: 2.1.3 Identity Management
+  # PURPOSE: Ensure access keys are rotated every 90 days
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_rotate_access_key_90_days
+    description: |
+      Detects IAM user access keys last rotated over 90 days ago,
+      invokes a Lambda to rotate the keys,
+      then posts a Slack notification.
+    resource: aws.iam-user
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: credential
+        key: access_keys.last_rotated
+        op: gt
+        value: 90
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_rotate_access_key_90_days
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Access key last rotated over 90 days ago detected."
+        action_desc: |
+          1) Invoked iam_rotate_access_key_90_days remediation.
+          2) Confirm new key rotation in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 29) iam_securityaudit_role_created
+  # ISMS-P: 2.1.3 Identity Management
+  # PURPOSE: Ensure SecurityAudit role exists
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_securityaudit_role_created
+    description: |
+      Detects absence of the SecurityAudit role,
+      invokes a Lambda to create it,
+      then posts a Slack notification.
+    resource: aws.iam-role
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: RoleName
+        op: ne
+        value: SecurityAudit
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_securityaudit_role_created
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "SecurityAudit role missing."
+        action_desc: |
+          1) Invoked iam_securityaudit_role_created remediation.
+          2) Confirm role in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 30) iam_support_role_created
+  # ISMS-P: 2.1.3 Identity Management
+  # PURPOSE: Ensure Support role exists
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_support_role_created
+    description: |
+      Detects absence of the IAM Support role,
+      invokes a Lambda to create it,
+      then posts a Slack notification.
+    resource: aws.iam-role
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: RoleName
+        op: ne
+        value: Support
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_support_role_created
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Support role not found."
+        action_desc: |
+          1) Invoked iam_support_role_created remediation.
+          2) Confirm role creation in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 31) iam_user_accesskey_unused
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Ensure access keys are used regularly
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_user_accesskey_unused
+    description: |
+      Detects IAM users whose access keys have not been used for over 90 days,
+      then posts a Slack notification (no automatic deactivation).
+    resource: aws.iam-user
+    filters:
+      - type: credential
+        key: access_keys.last_used_date
+        op: lt
+        value: 90
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Access key unused for > 90 days."
+        action_desc: "Please review and deactivate unused access keys."
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 32) iam_user_administrator_access_policy
+  # ISMS-P: 2.4.3 Access Management
+  # PURPOSE: Ensure no IAM user has AdministratorAccess
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_user_administrator_access_policy
+    description: |
+      Detects IAM users with the AdministratorAccess policy,
+      invokes a Lambda to detach it,
+      then posts a Slack notification.
+    resource: aws.iam-user
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: AttachedManagedPolicies[].PolicyName
+        op: contains
+        value: AdministratorAccess
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_user_administrator_access_policy
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "User with AdministratorAccess detected."
+        action_desc: |
+          1) Invoked iam_user_administrator_access_policy remediation.
+          2) Confirm detach in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 33) iam_user_hardware_mfa_enabled
+  # ISMS-P: 2.4.2 Multi-Factor Authentication
+  # PURPOSE: Ensure IAM users have hardware MFA
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_user_hardware_mfa_enabled
+    description: |
+      Detects IAM users without any hardware MFA device,
+      then posts a Slack notification (no automatic enforcement).
+    resource: aws.iam-user
+    filters:
+      - type: value
+        key: MfaDevices
+        op: eq
+        value: 0
+        value_type: size
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "User without hardware MFA detected."
+        action_desc: "Please enroll a hardware MFA device for this user."
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 34) iam_user_mfa_enabled_console_access
+  # ISMS-P: 2.4.2 Multi-Factor Authentication
+  # PURPOSE: Enforce MFA for console access
+  # ACTION PLAN: Send Slack notification
+  - name: iam_user_mfa_enabled_console_access
+    description: |
+      Detects IAM users without any active MFA devices,
+      then posts a Slack notification.
+    resource: aws.iam-user
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: credential
+        key: mfa_active
+        op: equal
+        value: false
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Console user without MFA detected."
+        action_desc: "Please enable MFA for this user."
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+    # 35) iam_user_no_setup_initial_access_key
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Prevent initial access key setup for console users
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_user_no_setup_initial_access_key
+    description: |
+      Detects IAM users created with initial access keys,
+      invokes a Lambda to remove them,
+      then posts a Slack notification.
+    resource: aws.iam-user
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      # AccessKeyMetadata 
+      - type: value
+        key: AccessKeyMetadata
+        op: gt
+        value: 0
+        value_type: size
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_user_no_setup_initial_access_key
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Initial access key detected on new user."
+        action_desc: |
+          1) Invoked iam_user_no_setup_initial_access_key remediation.
+          2) Confirm key removal in IAM console.
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+
+  # 36) iam_user_two_active_access_key
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Prevent users from having two active access keys
+  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+  - name: iam_user_two_active_access_key
+    description: |
+      Detects IAM users with two active access keys,
+      invokes a Lambda to deactivate the older one,
+      then posts a Slack notification.
+    resource: aws.iam-user
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: credential
+        key: access_keys.active
+        op: gt
+        value: 1
+        value_type: size
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_user_two_active_access_key
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "User with two active access keys detected."
+        action_desc: |
+          1) Invoked iam_user_two_active_access_key remediation.
+          2) Confirm key removal in IAM console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 37) iam_user_console_access_unused
+  # ISMS-P: 2.4.1 Identity Management
+  # PURPOSE: Flag IAM users who have console access but have never used their access keys
+  # ACTION PLAN: Send a Slack notification for manual review
+  - name: iam_user_console_access_unused
+    description: |
+      Detects IAM users who have console access but have never used their access keys,
+      then posts a Slack notification (no automatic flagging).
+    resource: aws.iam-user
+    filters:
+      - type: credential
+        key: access_keys.last_used_date
+        op: eq
+        value: null
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "Console-only user detected (no access key usage)."
+        action_desc: "Please review console-only users for possible cleanup."
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 38) iam_user_with_temporary_credentials
+  # ISMS-P: 2.4.2 Multi-Factor Authentication & Temporary Credentials
+  # PURPOSE: Identify IAM users with active temporary (STS) credentials
+  # ACTION PLAN: Send a Slack notification for manual audit or revocation
+  - name: iam_user_with_temporary_credentials
+    description: |
+      Detects IAM users who have active temporary credentials (STS),
+      then posts a Slack notification (no automatic revocation).
+    resource: aws.iam-user
+    filters:
+      - type: credential
+        key: access_keys.last_used_service
+        op: contains
+        value: sts.amazonaws.com
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "User with temporary STS credentials detected."
+        action_desc: "Please audit or revoke temporary credentials as needed."
+        to:
+          - slack
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
+
+  # 39) rds_instance_iam_authentication_enabled
+  # ISMS-P: 2.7.2 Database Access Control
+  # PURPOSE: Ensure RDS instances enforce IAM authentication
+  # ACTION PLAN: Invoke a remediation Lambda to enable IAM auth, then send a Slack notification
+  - name: rds_instance_iam_authentication_enabled
+    description: |
+      Detects RDS instances without IAM authentication enabled,
+      invokes a Lambda to enable IAM auth,
+      then posts a Slack notification.
+    resource: aws.rds
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::311278774159:role/custodian-mu-role
+    filters:
+      - type: value
+        key: IAMDatabaseAuthenticationEnabled
+        op: eq
+        value: false
+    actions:
+      - type: invoke-lambda
+        function: arn:aws:lambda:ap-northeast-2:311278774159:function:rds_instance_iam_authentication_enabled
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: "RDS instance without IAM authentication detected."
+        action_desc: |
+          1) Invoked rds_instance_iam_authentication_enabled remediation.
+          2) Confirm RDS IAM auth in AWS console.
+        to: [slack]
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue
