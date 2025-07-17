@@ -1,0 +1,99 @@
+policies:
+# Backup ------------------------------------------------------------------------- Backup 
+# # CHECKID: backup_plans_exist
+# # ACTIONPLAN: AWS Backup 계획을 수립하여 백업 일정 및 대상 자동화
+# # ACTIONPLAN: AWS Backup을 통해 리소스 유형별 백업 플랜을 구성 및 적용
+# # Custodian으로는 없는 리소스에 대해서는 점검 불가 -> 람다 실행
+#   - name: backup-plans-exist
+#     resource: aws.account
+#     description: "Alert: No Backup Plan"
+#     mode:
+#       type: periodic
+#       schedule: "rate(5 minutes)"
+#       role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+#     actions:
+#       - type: invoke-lambda
+#         function: arn:aws:lambda:ap-northeast-2:${ACCOUNT_ID}:function:custodian-backup-plans-exist-2
+
+
+# # CHECKID: backup_reportplans_exist
+# # ACTIONPLAN: AWS Backup 리포트 플랜을 생성하여 백업 실행 및 결과 모니터링
+# # ACTIONPLAN: AWS Backup Report Plan을 활성화하여 백업 이행 상태 자동 보고
+# # Custodian으로는 없는 리소스에 대해서는 점검 불가 -> 람다 실행
+#   - name: backup-reportplans-exist
+#     resource: aws.account
+#     description: "Alert: No Backup Report Plan"
+#     mode:
+#       type: periodic
+#       schedule: "rate(5 minutes)"
+#       role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+#     actions:
+#       - type: invoke-lambda
+#         function: arn:aws:lambda:ap-northeast-2:${ACCOUNT_ID}:function:custodian-backup-reportplans-exist-2
+
+
+# CHECKID: backup_vaults_exist
+# ACTIONPLAN: AWS Backup 존재 여부를 확인하여 백업 저장소 확보
+# ACTIONPLAN: Vault가 연결되지 않은 Backup Plan 탐지
+  - name: backup-vaults-exist
+    resource: aws.backup-plan
+    description: "Alert: Backup Plan Without Vault"
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: Rules[].TargetBackupVaultName
+        op: eq
+        value: ""
+    actions:
+      - type: notify
+        template: slack-default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: backup_vaults_exist ***
+          - Vault가 누락된 Backup Plan이 감지되었습니다.
+        action_desc: |
+          1. Backup Plan에 Vault가 연결하여, 백업 저장소를 확보해 주세요.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+
+# CHECKID: backup_vaults_encrypted
+# ACTIONPLAN: Backup Vault에 KMS 암호화가 없을 경우 암호화 적용
+# ACTIONPLAN: AWS Backup에 암호화 설정을 적용하여 보안 백업 환경 구성
+  - name: backup-vaults-encrypted
+    resource: aws.backup-vault
+    description: "Alert: Backup Vault Without Encrypted"
+    mode:
+      type: periodic
+      schedule: "rate(5 minutes)"
+      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+    filters:
+      - or:
+        - type: value
+          key: EncryptionKeyArn
+          op: eq
+          value: ""
+        - type: value
+          key: EncryptionKeyArn
+          op: contains
+          value: "alias/aws/backup"
+    actions:
+      - type: notify
+        template: slack-default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: backup_vaults_encrypted ***
+          - Backup Vault에 기본 암호화 설정이 감지되었습니다.
+        action_desc: |
+          1. 보안 백업 환경 구성을 위해, Backup Vault에 KMS 암호화를 적용해 주세요.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
