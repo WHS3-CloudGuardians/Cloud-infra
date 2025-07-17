@@ -1,7 +1,3 @@
-# 일단 성공했는데 과잉대응 ~~ 이거 제출
-vars:
-  slack_webhook_url: "https://hooks.slack.com/services/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"
-
 policies:
   # 1) iam_administrator_access_with_mfa
   # ISMS-P: 2.4.x Multi-Factor Authentication
