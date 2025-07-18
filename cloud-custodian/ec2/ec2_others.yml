@@ -1,0 +1,148 @@
+policies:
+
+# CHECKID: ec2_elastic_ip_unassigned
+# ACTIONPLAN: EC2에 연결되지 않은 Elastic IP 탐지 및 비용 최적화 대상 태그
+  - name: ec2_elastic_ip_unassigned
+    description: Detect Elastic IPs not connected to EC2 and target tags for cost optimization
+    resource: aws.elastic-ip                   
+    mode:
+      type: periodic
+      schedule: "rate(7 days)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: "AssociationId"
+        op: eq
+        value: null        
+    actions:
+      # 1) 비용 최적화 검토 태그 부착
+      - type: tag
+        tags:
+          CostOptimize: "UnattachedEIP"
+          ManagedBy:   "Custodian"
+      # 2) Slack 알림
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+	        *** CHECKID: ec2_elastic_ip_unassigned ***
+          • EC2에 연결되지 않은(Unattached) Elastic IP가 감지되었습니다.
+        action_desc: |
+          1. Elastic IP의 사용 기록을 검토해 주세요.
+          2. Elastic IP의 필요성을 점검하고 삭제를 고려해주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+# CHECKID: ec2_networkacl_allow_ingress_any_port
+# ACTIONPLAN: 네트워크 ACL이 모든 포트에 대해 0.0.0.0/0에서 인바운드 접근을 허용하는 경우, 불필요한 규칙을 제거하고 필요한 포트만 특정 IP 범위로 제한합니다.
+  - name: ec2_networkacl_allow_ingress_any_port
+    description: Detect whether the network ACL allows inbound access from 0.0.0.0/0 for all ports
+    resource: aws.network-acl
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: "length(Entries[?Egress==`false` && RuleAction=='allow' && CidrBlock=='0.0.0.0/0' && Protocol=='-1'])"
+        op: gt
+        value: 0
+    actions:
+      - type: tag
+        key: ec2_networkacl_allow_ingress_any_port
+        value: "true"
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: ec2_networkacl_allow_ingress_any_port ***
+          • 네트워크 ACL에서 0.0.0.0/0 대상 모든 포트·프로토콜 허용 규칙이 발견되었습니다.
+        action_desc: |
+          1. 해당 ACL 항목을 점검하여 최소 권한 원칙에 맞게 수정하세요.  
+          2. 필요할 경우 특정 IP/포트만 허용하도록 제한하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: ec2_networkacl_allow_ingress_tcp_port_22
+  # ACTIONPLAN: 네트워크 ACL이 SSH 포트(22)에 대해 0.0.0.0/0에서 인바운드 접근을 허용하는 경우, 규칙을 삭제하고 특정 IP 범위로 제한합니다.
+  - name: ec2_networkacl_allow_ingress_tcp_port_22
+    description: Detect whether the network ACL allows inbound access from 0.0.0.0/0 for the SSH port (22)
+    resource: aws.network-acl
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: >
+          length(Entries[?Egress==`false`
+                          && RuleAction=='allow'
+                          && CidrBlock=='0.0.0.0/0'
+                          && Protocol=='6'
+                          && PortRange.From==`22`
+                          && PortRange.To==`22`])
+        op: gt
+        value: 0
+    actions:
+      - type: tag
+        key: ec2_networkacl_allow_ingress_tcp_port_22
+        value: "true"
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: ec2_networkacl_allow_ingress_tcp_port_22 ***
+          • 네트워크 ACL에서 TCP 포트 22 (SSH) 에 대해 0.0.0.0/0 허용 규칙이 발견되었습니다.
+        action_desc: |
+          1. SSH 접근 제어가 필요한 소스 IP만 허용하도록 ACL을 수정하세요.  
+          2. 보안 그룹에서도 중복 필터링을 적용하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: ec2_networkacl_allow_ingress_tcp_port_3389
+  # ACTIONPLAN: 네트워크 ACL이 RDP 포트(3389)에 대해 0.0.0.0/0에서 인바운드 접근을 허용하는 경우, 규칙을 삭제하고 특정 IP 범위로 제한합니다.
+  - name: ec2_networkacl_allow_ingress_tcp_port_3389-4
+    description: Detect whether the network ACL allows inbound access from 0.0.0.0/0 for the RDP port (3389)
+    resource: aws.network-acl
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: >
+          length(Entries[?Egress==`false`
+                          && RuleAction=='allow'
+                          && CidrBlock=='0.0.0.0/0'
+                          && Protocol=='6'
+                          && PortRange.From==`3389`
+                          && PortRange.To==`3389`])
+        op: gt
+        value: 0
+    actions:
+      - type: tag
+        key: ec2_networkacl_allow_ingress_tcp_port_3389
+        value: "true"
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: ec2_networkacl_allow_ingress_tcp_port_3389 ***
+          • 네트워크 ACL에서 TCP 포트 3389 (RDP) 에 대해 0.0.0.0/0 허용 규칙이 발견되었습니다.
+        action_desc: |
+          1. RDP 접근 제어가 필요한 소스 IP만 허용하도록 ACL을 수정하세요.  
+          2. 추가 방화벽 또는 보안 그룹 규칙을 검토하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
