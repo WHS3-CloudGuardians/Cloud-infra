@@ -1,0 +1,235 @@
+policies:
+  #CHECKID: elasticache_cluster_uses_public_subnet
+  #ACTIONPLAN: ElastiCache 클러스터가 공개 서브넷을 사용하는 경우, 비공개 서브넷으로 이동하여 클러스터의 노출을 최소화합니다.
+  # NOTE:
+  #   Cloud Custodian의 스키마상 cache-subnet-group에는 'type: subnet' 필터를 쓸 수 없습니다.
+  #   퍼블릭 서브넷 자체는 aws.subnet 리소스에서 필터링하고,
+  #   ElastiCache의 cache subnet group이 퍼블릭 서브넷만 사용하는지는
+  #   결과 파일을 jq, bash, python 등으로 후처리해서 매칭해야 합니다.
+  - name: elasticache_cluster_uses_public_subnet
+    resource: aws.cache-subnet-group
+    description: |
+      List subnets used by ElastiCache subnet groups. Output to Slack for post-processing to identify public exposure.
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: elasticache.amazonaws.com
+          event: ModifyReplicationGroup
+          ids: "requestParameters.replicationGroupId"
+        - source: elasticache.amazonaws.com
+          event: CreateReplicationGroup
+          ids: "responseElements.replicationGroup.replicationGroupId"
+    actions:
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** elasticache_cluster_uses_public_subnet ***
+          • ElastiCache에서 사용 중인 서브넷 정보입니다. 후처리로 퍼블릭 여부를 매칭하세요.
+        action_desc: |
+          1. 아래 SubnetId 목록을 활용하여 퍼블릭 노출 가능성을 추가 분석하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  #CHECKID: elasticache_redis_cluster_auto_minor_version_upgrades
+  #ACTIONPLAN: ElastiCache Redis 캐시 클러스터에 마이너 버전 자동 업그레이드가 비활성화된 경우, 활성화하여 최신 보안 패치 및 기능이 적용되도록 합니다.
+  - name: elasticache_redis_cluster_auto_minor_version_upgrades
+    resource: aws.elasticache-group
+    description: |
+      Detect Replication Groups where AutoMinorVersionUpgrade is disabled.
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: elasticache.amazonaws.com
+          event: ModifyReplicationGroup
+          ids: "requestParameters.replicationGroupId"
+        - source: elasticache.amazonaws.com
+          event: CreateReplicationGroup
+          ids: "responseElements.replicationGroup.replicationGroupId"
+    filters:
+      - type: value
+        key: Engine
+        value: redis
+        op: eq
+      - type: value
+        key: AutoMinorVersionUpgrade
+        value: false
+        op: eq
+    actions:
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** elasticache_redis_cluster_auto_minor_version_upgrades ***
+          • ElastiCache Redis Replication Group에 마이너 버전 자동 업그레이드가 비활성화되어 있습니다.
+        action_desc: |
+          1. Replication Group에서 마이너 버전 자동 업그레이드를 활성화하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  #CHECKID: elasticache_redis_cluster_backup_enabled
+  #ACTIONPLAN: ElastiCache Redis 캐시 클러스터에 자동 백업이 비활성화된 경우, 활성화하여 데이터 손실에 대비하고 복구 기능을 확보합니다.
+  - name: elasticache_redis_cluster_backup_enabled
+    resource: aws.elasticache-group
+    description: |
+      Detect Replication Groups where automatic backups are not enabled.
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: elasticache.amazonaws.com
+          event: ModifyReplicationGroup
+          ids: "requestParameters.replicationGroupId"
+        - source: elasticache.amazonaws.com
+          event: CreateReplicationGroup
+          ids: "responseElements.replicationGroup.replicationGroupId"
+    filters:
+      - type: value
+        key: Engine
+        value: redis
+        op: eq
+      - type: value
+        key: SnapshotRetentionLimit
+        value: 0
+        op: eq
+    actions:
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** elasticache_redis_cluster_backup_enabled ***
+          • ElastiCache Redis Replication Group에 자동 백업이 비활성화되어 있습니다.
+        action_desc: |
+          1. Replication Group에서 SnapshotRetentionLimit을 증가시켜 백업을 활성화하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  #CHECKID: elasticache_redis_cluster_in_transit_encryption_enabled
+  #ACTIONPLAN: ElastiCache Redis 캐시 클러스터에 전송 중 암호화가 비활성화된 경우, 활성화하여 데이터 통신의 보안을 강화합니다.
+  - name: elasticache_redis_cluster_in_transit_encryption_enabled
+    resource: aws.elasticache-group
+    description: |
+      Detect Replication Groups where in-transit encryption is disabled.
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: elasticache.amazonaws.com
+          event: ModifyReplicationGroup
+          ids: "requestParameters.replicationGroupId"
+        - source: elasticache.amazonaws.com
+          event: CreateReplicationGroup
+          ids: "responseElements.replicationGroup.replicationGroupId"
+    filters:
+      - type: value
+        key: Engine
+        value: redis
+        op: eq
+      - type: value
+        key: TransitEncryptionEnabled
+        value: false
+        op: eq
+    actions:
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** elasticache_redis_cluster_in_transit_encryption_enabled ***
+          • ElastiCache Redis Replication Group에 전송 중 암호화가 비활성화되어 있습니다.
+        action_desc: |
+          1. Replication Group에서 전송 중 암호화를 활성화하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  #CHECKID: elasticache_redis_cluster_multi_az_enabled
+  #ACTIONPLAN: ElastiCache Redis 캐시 클러스터에 Multi-AZ가 비활성화된 경우, 활성화하여 고가용성과 내결함성을 확보합니다.
+  - name: elasticache_redis_cluster_multi_az_enabled
+    resource: aws.elasticache-group
+    description: |
+      Detect Replication Groups where Multi-AZ is disabled.
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: elasticache.amazonaws.com
+          event: ModifyReplicationGroup
+          ids: "requestParameters.replicationGroupId"
+        - source: elasticache.amazonaws.com
+          event: CreateReplicationGroup
+          ids: "responseElements.replicationGroup.replicationGroupId"
+    filters:
+      - type: value
+        key: Engine
+        value: redis
+        op: eq
+      - type: value
+        key: MultiAZ
+        value: "disabled"
+    actions:
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** elasticache_redis_cluster_multi_az_enabled ***
+          • ElastiCache Redis Replication Group에 Multi-AZ가 비활성화되어 있습니다.
+        action_desc: |
+          1. Replication Group에서 Multi-AZ를 활성화하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  #CHECKID: elasticache_redis_cluster_rest_encryption_enabled
+  #ACTIONPLAN: ElastiCache Redis 캐시 클러스터에 저장 시 암호화가 비활성화된 경우, 활성화하여 저장된 데이터의 보안을 강화합니다.
+  - name: elasticache_redis_cluster_rest_encryption_enabled
+    resource: aws.elasticache-group
+    description: |
+      Detect Replication Groups where at-rest encryption is disabled.
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: elasticache.amazonaws.com
+          event: ModifyReplicationGroup
+          ids: "requestParameters.replicationGroupId"
+        - source: elasticache.amazonaws.com
+          event: CreateReplicationGroup
+          ids: "responseElements.replicationGroup.replicationGroupId"
+    filters:
+      - type: value
+        key: Engine
+        value: redis
+        op: eq
+      - type: value
+        key: AtRestEncryptionEnabled
+        value: false
+        op: eq
+    actions:
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** elasticache_redis_cluster_rest_encryption_enabled ***
+          • ElastiCache Redis Replication Group에 저장 시 암호화가 비활성화되어 있습니다.
+        action_desc: |
+          1. Replication Group에서 저장 시 암호화를 활성화하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
