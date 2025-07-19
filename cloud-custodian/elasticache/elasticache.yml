@@ -1,11 +1,6 @@
 policies:
   #CHECKID: elasticache_cluster_uses_public_subnet
   #ACTIONPLAN: ElastiCache 클러스터가 공개 서브넷을 사용하는 경우, 비공개 서브넷으로 이동하여 클러스터의 노출을 최소화합니다.
-  # NOTE:
-  #   Cloud Custodian의 스키마상 cache-subnet-group에는 'type: subnet' 필터를 쓸 수 없습니다.
-  #   퍼블릭 서브넷 자체는 aws.subnet 리소스에서 필터링하고,
-  #   ElastiCache의 cache subnet group이 퍼블릭 서브넷만 사용하는지는
-  #   결과 파일을 jq, bash, python 등으로 후처리해서 매칭해야 합니다.
   - name: elasticache_cluster_uses_public_subnet
     resource: aws.cache-subnet-group
     description: |
@@ -26,9 +21,10 @@ policies:
         priority_header: 2
         violation_desc: |
           *** elasticache_cluster_uses_public_subnet ***
-          • ElastiCache에서 사용 중인 서브넷 정보입니다. 후처리로 퍼블릭 여부를 매칭하세요.
+          • ElastiCache에서 사용 중인 서브넷 정보입니다.
         action_desc: |
-          1. 아래 SubnetId 목록을 활용하여 퍼블릭 노출 가능성을 추가 분석하세요.
+          1. 아래 SubnetId 목록을 확인하여 퍼블릭 노출 가능성을 추가 분석하세요.
+          # subnet이 퍼블릭인지는 수동으로 확인해야함
         to:
           - https://hooks.slack.com/services/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
         transport:
