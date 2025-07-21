@@ -43,7 +43,7 @@ policies:
       - type: flow-logs
         enabled: false
     actions:
-	# 원하면 채워넣고 활성화
+# 원하면 채워넣고 활성화
       # - type: enable-flow-logs
         # log-group: "/aws/vpc/flow-logs"
         # iam-role-arn: arn:aws:iam::311278774159:role/custodian-flow-logs-role
