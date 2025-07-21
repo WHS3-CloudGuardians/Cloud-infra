@@ -1,5 +1,5 @@
-# name too long
-# action
+# name too long: check_id를 줄였다
+# action: 자동조치
 
 policies:
   # 1) iam_administrator_access_with_mfa
@@ -14,7 +14,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(7 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: AttachedManagedPolicies[].PolicyName
@@ -50,7 +50,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(20 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: RootAccountUsage
@@ -69,30 +69,28 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
   # 3) iam_aws_attached_policy_no_administrative_privileges   # name too long 
-  # ISMS-P: 2.4.3 Access Management
-  # PURPOSE: Disallow AWS-managed policies granting full admin privileges
-  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+# ISMS-P: 2.4.3 Access Management
+# PURPOSE: Disallow AWS-managed policies granting full admin privileges
+# ACTION PLAN: Send Slack notification when violation detected
   - name: iam_aws_attached_policy_no_admin_privs
     resource: aws.iam-user
     mode:
-       type: periodic
-       schedule: rate(7 days)
-       role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      type: periodic
+      schedule: rate(7 days)
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: AttachedManagedPolicies[].PolicyArn
         op: contains
         value: arn:aws:iam::aws:policy/AdministratorAccess
     actions:
-      - type: invoke-lambda
-        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_aws_attached_policy_no_admin_privs
       - type: notify
         template: default
         template_format: slack
-        violation_desc: "AWS-managed policy with admin privileges found."
+        violation_desc: "AWS-managed policy with admin privileges attached."
         action_desc: |
-           1) Invoked iam_aws_attached_policy_no_administrative_privileges remediation.
-           2) Confirm policy detach in IAM console.
+          1) Sent Slack notification for iam_aws_attached_policy_no_admin_privs.
+          2) Confirm policy detach in IAM console.
         to:
           - "${SLACK_WEBHOOK_URL}"
         transport:
@@ -112,7 +110,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(7 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: Arn
@@ -125,25 +123,24 @@ policies:
         violation_desc: "SAML provider without STS support detected."
         action_desc: "Please update trust policy to include sts.amazonaws.com."
         to:
-          - slack
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
-  # 5) iam_customer_attached_policy_no_administrative_privileges     # name too long 
-  # ISMS-P: 2.4.3 Access Management
-  # PURPOSE: Disallow customer-managed policies with full admin privileges when attached
-  # ACTION PLAN: Detach policy, then send Slack notification
-  - name: iam_cust_attached_no_admin   
+# 5) iam_customer_attached_policy_no_administrative_privileges     # name too long 
+# ISMS-P: 2.4.3 Access Management
+# PURPOSE: Disallow customer-managed policies with full admin privileges when attached
+# ACTION PLAN: Send Slack notification when violation detected
+  - name: iam_cust_attached_no_admin
     description: |
       Detects customer-managed policies with “*:*” privileges that are attached,
-      invokes a Lambda to detach them,
       then posts a Slack notification.
     resource: aws.iam-policy
     mode:
       type: periodic
-      schedule: "rate(7 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      schedule: rate(7 days)
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: Arn
@@ -158,16 +155,15 @@ policies:
         op: contains
         value: "*:*"
     actions:
-      - type: invoke-lambda
-        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_customer_attached_policy_no_administrative_privileges
       - type: notify
         template: default
         template_format: slack
         violation_desc: "Attached customer policy with admin privileges found."
         action_desc: |
-          1) Invoked iam_customer_attached_policy_no_administrative_privileges remediation.
+          1) Sent Slack notification for iam_cust_attached_no_admin.
           2) Confirm detach in IAM console.
-        to: [slack]
+        to:
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -185,7 +181,7 @@ policies:
   #   mode:
   #     type: periodic
   #     schedule: "rate(7 days)"
-  #     role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+  #     role: arn:aws:iam::311278774159:role/custodian-my-role
   #   filters:
   #     - type: has-allow-all
   #     - type: value
@@ -200,7 +196,7 @@ policies:
   #       violation_desc: "Unattached customer-managed policy with admin privileges found."
   #       action_desc: "Policy was automatically deleted by Custodian."
   #       to:
-  #         - slack
+  #         - "${SLACK_WEBHOOK_URL}"
   #       transport:
   #         type: sqs
   #         queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -219,7 +215,7 @@ policies:
   #   mode:
   #     type: periodic
   #     schedule: "rate(7 days)"
-  #     role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+  #     role: arn:aws:iam::311278774159:role/custodian-my-role
   #   filters:
   #     - type: value
   #       key: AttachedManagedPolicies[].PolicyName
@@ -235,7 +231,8 @@ policies:
   #       action_desc: |
   #         1) Invoked iam_group_administrator_access_policy remediation.
   #         2) Confirm detach in IAM console.
-  #       to: [slack]
+  #       to:
+  #         - "${SLACK_WEBHOOK_URL}"
   #       transport:
   #         type: sqs
   #         queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -243,34 +240,31 @@ policies:
   # 8) iam_inline_policy_allows_privilege_escalation
   # ISMS-P: 2.4.3 Access Management
   # PURPOSE: Disallow inline policies that allow privilege escalation
-  # ACTION PLAN: Invoke remediation Lambda, then notify via Slack
+  # ACTION PLAN: Send Slack notification when violation detected
   - name: iam_inline_policy_allows_privilege_escalation
     description: |
       Detects IAM users whose inline policies include iam:PassRole,
-      invokes a Lambda to remove the offending statements,
       then posts a Slack notification.
     resource: aws.iam-user
     mode:
       type: periodic
-      schedule: "rate(7 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      schedule: rate(7 days)
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: InlinePolicies[].PolicyDocument.Statement[].Action
         op: contains
         value: iam:PassRole
     actions:
-      - type: invoke-lambda
-        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_inline_policy_allows_privilege_escalation
       - type: notify
         template: default
         template_format: slack
         violation_desc: "Inline policy allowing privilege escalation detected."
         action_desc: |
-          1) Invoked iam_inline_policy_allows_privilege_escalation remediation.
+          1) Sent Slack notification for iam_inline_policy_allows_privilege_escalation.
           2) Confirm policy updates in AWS IAM console.
         to:
-          - slack
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -278,33 +272,31 @@ policies:
   # 9) iam_inline_policy_no_administrative_privileges      # name too long 
   # ISMS-P: 2.4.3 Access Management
   # PURPOSE: Disallow inline policies granting full administrative privileges
-  # ACTION PLAN: Invoke a Lambda to remove offending statements, then Slack notification
-  - name: iam_inline_no_administrat_privileges     
+  # ACTION PLAN: Send Slack notification when violation detected
+  - name: iam_inline_no_admin_privs
     description: |
       Detects inline policies with “*:*” actions,
-      invokes a Lambda to remove those statements,
       then posts a Slack notification.
     resource: aws.iam-user
     mode:
       type: periodic
-      schedule: "rate(7 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      schedule: rate(7 days)
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: InlinePolicies[].PolicyDocument.Statement[].Action
         op: contains
         value: "*:*"
     actions:
-      - type: invoke-lambda
-        function: arn:aws:lambda:ap-northeast-2:311278774159:function:iam_inline_no_administrat_privileges
       - type: notify
         template: default
         template_format: slack
         violation_desc: "Inline policy with administrative privileges detected."
         action_desc: |
-          1) Invoked iam_inline_policy_no_administrative_privileges remediation.
+          1) Sent Slack notification for iam_inline_no_admin_privs.
           2) Confirm removal in IAM console.
-        to: [slack]
+        to:
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -321,7 +313,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(7 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: InlinePolicies[].PolicyDocument.Statement[].Action
@@ -334,7 +326,7 @@ policies:
         violation_desc: "Inline policy with cloudtrail:* detected."
         action_desc: "Please remove cloudtrail:* statements from inline policies."
         to:
-          - slack
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -351,7 +343,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(7 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: InlinePolicies[].PolicyDocument.Statement[].Action
@@ -364,7 +356,7 @@ policies:
         violation_desc: "Inline policy with kms:* detected."
         action_desc: "Please remove kms:* statements from inline policies."
         to:
-          - slack
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -383,7 +375,7 @@ policies:
   #   mode:
   #     type: periodic
   #     schedule: "rate(7 days)"
-  #     role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+  #     role: arn:aws:iam::311278774159:role/custodian-my-role
   #   filters:
   #     - type: value
   #       key: PolicyDocument.Statement[].Action
@@ -399,7 +391,8 @@ policies:
   #       action_desc: |
   #         1) Invoked iam_no_custom_policy_permissive_role_assumption remediation.
   #         2) Confirm policy corrections in IAM console.
-  #       to: [slack]
+  #       to:
+  #         - "${SLACK_WEBHOOK_URL}"
   #       transport:
   #         type: sqs
   #         queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -416,7 +409,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(20 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: RootAccessKeys
@@ -429,7 +422,7 @@ policies:
         violation_desc: "Root access key detected."
         action_desc: "Please delete root access keys immediately."
         to:
-          - slack
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -437,28 +430,17 @@ policies:
   # 14) iam_password_policy_expires_passwords_within_90_days_or_less    # name too long 
   # ISMS-P: 2.4.1 Identity Management
   # PURPOSE: Ensure password expiration ≤ 90 days
-  # ACTION PLAN: Invoke remediation Lambda, then notify via Slack
+  # ACTION PLAN: Enforce 90-day password rotation when violation detected
   - name: iam_pwd_exp_90d
     description: |
-      Detects password policies that do not expire passwords within 90 days,
-      then posts a Slack notification.
+      Detects password policies that do not expire passwords within 90 days.
     resource: aws.account
     filters:
       - type: value
         key: PasswordPolicy.ExpirePasswords
         op: eq
         value: false
-    actions:
-      - type: notify
-        template: default
-        template_format: slack
-        violation_desc: "Password expiration > 90 days."
-        action_desc: "Please enforce 90-day password rotation."
-        to:
-          - slack
-        transport:
-          type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+    actions: []
 
  # 15) iam_password_policy_lowercase
   # ISMS-P: 2.4.1 Identity Management
@@ -619,7 +601,7 @@ policies:
   #   mode:
   #     type: periodic
   #     schedule: "rate(50 days)"
-  #     role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+  #     role: arn:aws:iam::311278774159:role/custodian-my-role
   #   filters:
   #     - type: value
   #       key: AttachedUsers
@@ -700,7 +682,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(50 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: MFADevices
@@ -732,7 +714,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(20 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: MFADevices
@@ -789,7 +771,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(50 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: RoleName
@@ -819,7 +801,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(50 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: RoleName
@@ -849,7 +831,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(20 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: credential
         key: access_keys.last_used_date
@@ -881,7 +863,7 @@ policies:
   #   mode:
   #     type: periodic
   #     schedule: "rate(5 minutes)"
-  #     role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+  #     role: arn:aws:iam::311278774159:role/custodian-my-role
   #   filters:
   #     - type: value
   #       key: AttachedManagedPolicies[].PolicyName
@@ -915,7 +897,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(20 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: value
         key: MfaDevices
@@ -1003,7 +985,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(20 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: credential
         key: access_keys.active
@@ -1018,7 +1000,7 @@ policies:
           Notify that this user has console-only access without key usage.
           Please review and disable or flag as appropriate in the IAM console.
         to:
-         - slack
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -1036,7 +1018,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(20 days)"
-      role: arn:aws:iam::311278774159:role/custodian-mu-exec-role
+      role: arn:aws:iam::311278774159:role/custodian-my-role
     filters:
       - type: credential
         key: access_keys.active
@@ -1051,7 +1033,7 @@ policies:
           Temporary STS credentials detected for this user.
           Please audit or revoke them in the IAM console.
         to:
-         - slack
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
