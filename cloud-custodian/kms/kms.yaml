@@ -115,7 +115,7 @@ policies:
         key: KeyState
         value: Enabled
       - type: value
-        key: RotationEnabled
+        key: KeyRotationEnabled
         value: false
       - type: value
         key: Origin
