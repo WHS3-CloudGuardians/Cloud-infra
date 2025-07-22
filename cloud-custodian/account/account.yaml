@@ -19,10 +19,10 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** account_maintain_current_contact_details ***
-          AWS 계정의 연락처 정보가 최신이 아닙니다.
+          *** CHECKID: account_maintain_current_contact_details ***
+          • AWS 계정의 연락처 정보가 최신이 아닙니다.
         action_desc: |
-          AWS 계정의 연락처 정보를 즉시 업데이트하고 유효성을 정기적으로 확인하세요.
+          1. AWS 계정의 연락처 정보를 즉시 업데이트하고 유효성을 정기적으로 확인하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -58,10 +58,10 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** account_maintain_different_contact_details_to_security_billing_and_operations ***
-          보안, 결제, 운영 담당 팀의 연락처 세부 정보가 동일합니다.
+          *** CHECKID: account_maintain_different_contact_details_to_security_billing_and_operations ***
+          • 보안, 결제, 운영 담당 팀의 연락처 세부 정보가 동일합니다.
         action_desc: |
-          보안, 결제, 운영 담당 팀에 맞는 개별 연락처를 등록하세요.
+          1. 보안, 결제, 운영 담당 팀에 맞는 개별 연락처를 등록하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -88,10 +88,10 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** account_security_contact_information_is_registered ***
-          AWS 계정에 보안 연락처 정보가 등록되지 않았습니다.
+          *** CHECKID: account_security_contact_information_is_registered ***
+          • AWS 계정에 보안 연락처 정보가 등록되지 않았습니다.
         action_desc: |
-          AWS 계정에 정확한 보안 연락처 정보를 등록하여 비상시 중요한 보안 알림을 받도록 하세요.
+          1. AWS 계정에 정확한 보안 연락처 정보를 등록하여 비상시 중요한 보안 알림을 받도록 하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -118,10 +118,10 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** account_security_questions_are_registered_in_the_aws_account ***
-          AWS 계정에 보안 질문이 설정되지 않았습니다.
+          *** CHECKID: account_security_questions_are_registered_in_the_aws_account ***
+          • AWS 계정에 보안 질문이 설정되지 않았습니다.
         action_desc: |
-          AWS 계정에 보안 질문을 설정하고 답변을 안전하게 보관하여 계정 복구 시 활용하도록 설정하세요.
+          1. AWS 계정에 보안 질문을 설정하고 답변을 안전하게 보관하여 계정 복구 시 활용하도록 설정하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

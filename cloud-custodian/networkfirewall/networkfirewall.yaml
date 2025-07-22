@@ -28,7 +28,7 @@ policies:
           1. 해당 VPC에 AWS Network Firewall을 생성하여 인바운드 및 아웃바운드 트래픽을 필터링하세요.
           2. 방화벽 정책이 올바르게 적용되었는지 주기적으로 검토하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

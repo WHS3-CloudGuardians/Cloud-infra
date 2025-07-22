@@ -20,7 +20,9 @@ policies:
       - type: notify
         template: default
         template_format: slack
-        violation_desc: "Access Analyzer analyzer not ACTIVE."
+        violation_desc: |
+          *** CHECKID: accessanalyzer_enabled ***
+          Access Analyzer analyzer not ACTIVE.
         action_desc: |
           1) Invoked accessanalyzer_enabled remediation.
           2) Confirm analyzer status in AWS console.

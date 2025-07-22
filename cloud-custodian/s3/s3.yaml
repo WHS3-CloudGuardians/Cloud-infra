@@ -8,7 +8,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(12 hours)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: s3-public-block
     actions:
@@ -17,14 +17,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_account_level_public_access_blocks ***
-          - 계정 수준에서 S3 퍼블릭 접근 차단 설정이 비활성화가 감지되었습니다.
+          • 계정 수준에서 S3 퍼블릭 접근 차단 설정이 비활성화가 감지되었습니다.
         action_desc: |
           1. 차단 정책을 구성하여, 계정 수준에서 S3 퍼블릭 접근 차단 설정을 활성화해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_acl_prohibited
@@ -35,7 +35,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: "Acl.Grants"
@@ -51,14 +51,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_acl_prohibited ***
-          S3 버킷에서 ACL 설정이 감지되었습니다.
+          • S3 버킷에서 ACL 설정이 감지되었습니다.
         action_desc: |
           1. ACL 자체 사용이 금지된 정책에 따라 ACL 설정을 변경해주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_cross_region_replication
@@ -72,7 +72,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: ReplicationConfiguration.Rules
@@ -83,15 +83,15 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_cross_region_replication ***
-          - S3 버킷에 교차 리전 복제 비활성화가 감지되었습니다.
+          • S3 버킷에 교차 리전 복제 비활성화가 감지되었습니다.
         action_desc: |
           1. S3 버킷에 교차 리전 복제를 설정하여 재해복구 기능 확보해 주세요.
           2. 중요 S3 버킷에 대해 Cross-Region Replication 활성화 및 정책 적용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_default_encryption
@@ -103,7 +103,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: bucket-encryption
         state: false
@@ -115,15 +115,15 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_default_encryption ***
-          - S3 기본 암호화 비활성화가 감지되어 활성화 조치하였습니다.
+          • S3 기본 암호화 비활성화가 감지되어 활성화 조치하였습니다.
         action_desc: |
           1. S3 기본 암호화(AES256) 활성화 조치
           2. 저장된 백업 데이터의 무결성 보장을 위해, 암호화를 적용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_kms_encryption
@@ -135,7 +135,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: bucket-encryption
         crypto: AES256
@@ -145,14 +145,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_default_encryption ***
-          - S3 버킷에서 KMS 암호화 비활성화가 감지되었습니다.
+          • S3 버킷에서 KMS 암호화 비활성화가 감지되었습니다.
         action_desc: |
           1. 저장된 백업 데이터의 무결성 보장을 위해, S3 버킷에 KMS 암호화를 적용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_level_public_access_block
@@ -164,7 +164,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: PublicAccessBlockConfiguration
@@ -176,14 +176,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_level_public_access_block ***
-          - S3 버킷에 퍼블릭 접근 차단 설정 비활성화가 감지되었습니다.
+          • S3 버킷에 퍼블릭 접근 차단 설정 비활성화가 감지되었습니다.
         action_desc: |
           1. S3 버킷에 대해 Public Access Block 설정을 구성해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_lifecycle_enabled
@@ -196,7 +196,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: Lifecycle
@@ -207,15 +207,15 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_lifecycle_enabled ***
-          - S3 버킷에 수명 정책 비활성화가 감지되었습니다.
+          • S3 버킷에 수명 정책 비활성화가 감지되었습니다.
         action_desc: |
           1. S3 버킷에 라이프사이클 정책을 설정하여 백업 파일의 주기적 삭제 또는 전환 자동화해주세요.
           2. S3 버킷에 객체 전환/만료 정책을 포함한 수명주기 정책을 설정해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_no_mfa_delete
@@ -226,7 +226,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
        - type: value
          key: VersioningConfiguration.MFADelete
@@ -238,14 +238,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_no_mfa_delete ***
-          - S3 버킷에 MFA 삭제 설정 누락이 감지되었습니다.
+          • S3 버킷에 MFA 삭제 설정 누락이 감지되었습니다.
         action_desc: |
           1. 중요 데이터 삭제 보호를 위해, S3 버킷에 MFA 삭제 설정 적용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_object_lock
@@ -256,7 +256,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
         - type: value
@@ -271,14 +271,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_object_lock ***
-          - S3 버킷에 Object Lock 누락이 감지되었습니다.
+          • S3 버킷에 Object Lock 누락이 감지되었습니다.
         action_desc: |
           1. S3 버킷에 Object Lock 및 WORM 설정 적용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_object_versioning
@@ -289,7 +289,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
         - type: value
@@ -304,14 +304,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_object_versioning ***
-          - S3 버킷에 객체 버전 관리 누락이 감지되었습니다.
+          • S3 버킷에 객체 버전 관리 누락이 감지되었습니다.
         action_desc: |
           1. 데이터 복구 가능성 확보를 위해, S3 버킷에 객체 버전 관리를 활성화해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_policy_public_write_access
@@ -323,7 +323,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: global-grants
         permissions:
@@ -335,14 +335,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_policy_public_write_access ***
-          - S3 버킷에 퍼블릭 쓰기 허용 설정이 감지되었습니다.
+          • S3 버킷에 퍼블릭 쓰기 허용 설정이 감지되었습니다.
         action_desc: |
           1. S3 버킷 정책에서 쓰기 권한 공개 접근을 비허용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_public_access
@@ -354,7 +354,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
         - type: global-grants
@@ -372,14 +372,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_public_access ***
-          - S3 버킷에 전체 공개 설정이 감지되었습니다.
+          • S3 버킷에 전체 공개 설정이 감지되었습니다.
         action_desc: |
           1. 데이터 노출 방지를 위해, 퍼블릭 접근 차단 정책 적용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_public_list_acl
@@ -391,7 +391,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: global-grants
         permissions:
@@ -402,15 +402,15 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_public_list_acl ***
-          - S3 버킷에 대한 리스트 권한 공개가 감지되었습니다.
+          • S3 버킷에 대한 리스트 권한 공개가 감지되었습니다.
         action_desc: |
           1. 백업 목록 노출 방지를 위해, S3 버킷에 대한 리스트 권한 공개 ACL 제거해 주세요. 
           2. S3 버킷에 대한 리스트 권한이 퍼블릭으로 열려 있는 경우, ACL/정책 수정해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_public_write_acl
@@ -423,7 +423,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: global-grants
         permissions:
@@ -434,16 +434,16 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_secure_transport_policy ***
-          - S3 버킷에 쓰기 권한 공개 ACL이 감지되었습니다.
+          • S3 버킷에 쓰기 권한 공개 ACL이 감지되었습니다.
         action_desc: |
           1. 버킷 ACL에 'WRITE' 권한이 Everyone 또는 AllUsers에 부여되어 있는 경우, 해당 권한 제거해 주세요.
           2. S3 버킷에 쓰기 권한 공개 ACL 제거로 무단 백업 데이터 덮어쓰기 방지해 주세요.
           3. S3 버킷에 쓰기 ACL이 퍼블릭하게 설정된 경우, ACL 제거 또는 차단 구성해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_secure_transport_policy
@@ -455,7 +455,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: missing-policy-statement
         statement_ids:
@@ -478,15 +478,15 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_secure_transport_policy ***
-          - S3 버킷에 HTTPS 접근 정책 미설정 감지되었습니다.
+          • S3 버킷에 HTTPS 접근 정책 미설정 감지되었습니다.
         action_desc: |
           1. S3 HTTPS 접근 정책 설정 여부 확인 및 필터링해 주세요.
           2. S3 버킷 정책에 'aws:SecureTransport' 조건을 추가하여 HTTPS만 허용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: s3_bucket_server_access_logging_enabled
@@ -497,7 +497,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: LoggingEnabled
@@ -508,11 +508,11 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_server_access_logging_enabled ***
-          - S3 버킷에 서버 액세스 로그 설정 누락이 감지되었습니다.
+          • S3 버킷에 서버 액세스 로그 설정 누락이 감지되었습니다.
         action_desc: |
           1. S3 서버 액세스 로그 설정 활성화해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

@@ -5,10 +5,10 @@ policies:
     resource: aws.rds
     description: |
       Enable automatic backups for the RDS instance(BackupRetentionPeriod > 0).
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: BackupRetentionPeriod
@@ -38,10 +38,10 @@ policies:
     resource: aws.rds
     description: |
       Identify RDS instances using expired certificates, replace them with new ones, and restart the instances to prevent connection errors.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: CertificateDetails.ValidTill
@@ -60,7 +60,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_certificate_expiration ***
+          *** CHECKID: rds_instance_certificate_expiration ***
           • 만료된 RDS 인증서가 발견되었습니다.
         action_desc: |
           1. 만료된 RDS 인증서를 새로운 인증서로 교체하였습니다.
@@ -77,10 +77,10 @@ policies:
     resource: aws.rds
     description: |
       Automatically copy tags from RDS instances to snapshots to facilitate resource identification and management.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: CopyTagsToSnapshot
@@ -91,7 +91,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_copy_tags_to_snapshots ***
+          *** CHECKID: rds_instance_copy_tags_to_snapshots ***
           • RDS 인스턴스에 태그 복사 기능이 비활성화되어 있습니다.
         action_desc: |
           1. RDS 인스턴스의 태그를 자동으로 스냅샷에 복사를 합니다.
@@ -108,10 +108,10 @@ policies:
     resource: aws.rds
     description: |
       Detect RDS instances using default administrator usernames such as 'admin' or 'root', notify the security team, and replace the master user.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
         - type: value
@@ -128,7 +128,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_default_admin ***
+          *** CHECKID: rds_instance_default_admin ***
           • RDS 인스턴스의 마스터 사용자 이름이 'admin', 'postgres' 등 추측하기 쉬운 기본값입니다.
         action_desc: |
           1. RDS 인스턴스의 마스터 사용자 이름을 변경하세요.
@@ -145,10 +145,10 @@ policies:
     resource: aws.rds
     description: |
       Verify that deletion protection is enabled on all RDS instances.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: DeletionProtection
@@ -162,7 +162,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_deletion_protection ***
+          *** CHECKID: rds_instance_deletion_protection ***
           • RDS 인스턴스에서 삭제 보호가 비활성화되어 있습니다.
         action_desc: |
           1. RDS 인스턴스에 삭제 방지 설정 적용합니다.
@@ -179,10 +179,10 @@ policies:
     resource: aws.rds
     description: |
       Identify RDS instances running unsupported engine versions and automatically upgrade them to the latest supported version to maintain stability.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: Engine
@@ -196,7 +196,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_deprecated_engine_version ***
+          *** CHECKID: rds_instance_deprecated_engine_version ***
           • 지원이 중단된 엔진 버전을 사용하는 RDS 인스턴스가 존재합니다.
         action_desc: |
           1. RDS 인스턴스의 엔진 버전을 지원되는 최신 버전으로 업그레이드하세요.
@@ -212,10 +212,10 @@ policies:
     resource: aws.rds
     description: |
       모든 RDS 인스턴스에서 enhanced monitoring 활성화
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: MonitoringInterval
@@ -231,7 +231,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_enhanced_monitoring_enabled ***
+          *** CHECKID: rds_instance_enhanced_monitoring_enabled ***
           • RDS 인스턴스의 enhanced monitoring이 비활성화되어 있습니다.
         action_desc: |
           1. RDS 인스턴스의 enhanced monitoring을 활성화합니다.
@@ -248,10 +248,10 @@ policies:
     resource: aws.rds-subscription
     description: |
       If an RDS event subscription is not configured for events such as DB security group change, automatically create and subscribe to the event, and notify the responsible team.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: SourceType
@@ -267,7 +267,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_event_subscription_security_groups ***
+          *** CHECKID: rds_instance_event_subscription_security_groups ***
           • RDS 이벤트 구독이 DB security group change 등 중요 이벤트를 포함하지 않습니다.
         action_desc: |
           1. RDS 이벤트 구독이 중요 이벤트를 포함하도록 변경하세요.
@@ -283,10 +283,10 @@ policies:
     resource: aws.rds
     description: |
       Verify that IAM authentication is enabled for all RDS instances, identify those where it is disabled, and notify the administrator.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: IAMDatabaseAuthenticationEnabled
@@ -300,7 +300,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_iam_authentication_enabled ***
+          *** CHECKID: rds_instance_iam_authentication_enabled ***
           • IAM 인증이 비활성화된 RDS 인스턴스가 존재합니다.
         action_desc: |
           1. RDS 인스턴스의 IAM 인증을 활성화합니다.
@@ -316,10 +316,10 @@ policies:
     resource: aws.rds
     description: |
       Verify that RDS instances are exporting logs to CloudWatch Logs.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: "length(EnabledCloudwatchLogsExports || `[]`)"
@@ -338,7 +338,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_integration_cloudwatch_logs ***
+          *** CHECKID: rds_instance_integration_cloudwatch_logs ***
           • RDS 로그가 CloudWatch에 연동되어 있지 않습니다.
         action_desc: |
           1. RDS의 로그 전송 설정을 자동으로 구성하여 통합 모니터링을 가능하게 합니다.
@@ -354,10 +354,10 @@ policies:
     resource: aws.rds
     description: |
       Identify RDS instances with minor version automatic upgrades disabled, enable the setting to ensure security patches are applied automatically.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: AutoMinorVersionUpgrade
@@ -373,7 +373,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_minor_version_upgrade_enabled ***
+          *** CHECKID: rds_instance_minor_version_upgrade_enabled ***
           • RDS 인스턴스의 마이너 버전 자동 업그레이드가 비활성화되어 있습니다.
         action_desc: |
           1. RDS 인스턴스의 마이너 버전 자동 업그레이드를 활성화합니다.
@@ -389,10 +389,10 @@ policies:
     resource: aws.rds
     description: |
       Enable Multi-AZ deployment for all single-AZ RDS instances.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: MultiAZ
@@ -406,7 +406,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_multi_az ***
+          *** CHECKID: rds_instance_multi_az ***
           • Multi-AZ 배포가 비활성화된 RDS 인스턴스가 존재합니다.
         action_desc: |
           1. 모든 단일 AZ RDS 인스턴스에 대해 Multi-AZ 배포를 활성화합니다.
@@ -422,10 +422,10 @@ policies:
     resource: aws.rds
     description: |
       공개 접근이 활성화된 RDS 인스턴스를 찾아 PubliclyAccessible 속성을 비활성화하여 외부 노출을 차단
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: PubliclyAccessible
@@ -441,7 +441,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_no_public_access ***
+          *** CHECKID: rds_instance_no_public_access ***
           • 퍼블릭 액세스가 가능한 RDS 인스턴스가 존재합니다.
         action_desc: |
           1. 퍼블릭 액세스가 가능한 RDS 인스턴스의 PubliclyAccessible 속성을 비활성화하였습니다.
@@ -457,10 +457,10 @@ policies:
     resource: aws.rds
     description: |
       Identify RDS instances with unencrypted storage and send notifications for manual remediation.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: StorageEncrypted
@@ -470,7 +470,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** rds_instance_storage_encrypted ***
+          *** CHECKID: rds_instance_storage_encrypted ***
           • 암호화되지 않은 RDS 인스턴스 스토리지가 존재합니다.
         action_desc: |
           1. 스냅샷 복원을 통해 암호화된 인스턴스로 마이그레이션하세요.
@@ -486,10 +486,10 @@ policies:
     resource: aws.rds
     description: |
       SSL이 미설정된 인스턴스와 최신 CA가 아닌 인스턴스를 찾아 최신 RDS CA로 지정하여 모든 클라이언트 연결에 SSL/TLS를 강제하고, 관리팀에 알림
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 day)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+     type: periodic
+     schedule: "rate(1 day)"
+     role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
         - type: value
@@ -508,7 +508,7 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** elasticache_cluster_uses_public_subnet ***
+          *** CHECKID: elasticache_cluster_uses_public_subnet ***
           • RDS 인스턴스의 CA 인증서가 최신(rds-ca-2019)이 아닙니다.
         action_desc: |
           1. RDS 인스턴스의 CA 인증서를 rds-ca-2019로 교체하였습니다.

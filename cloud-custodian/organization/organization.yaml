@@ -11,7 +11,7 @@ policies:
   #    - type: notify
   #      template: default
   #      violation_desc: |
-  #        *** organizations_account_part_of_organizations ***
+  #        *** CHECKID: organizations_account_part_of_organizations ***
   #        • AWS Organizations에 소속되지 않은 독립 실행형 계정이 있습니다.
   #      action_desc: |
   #        1. 독립 실행형 계정을 AWS Organizations에 가입시켜 중앙에서 정책을 관리하세요.
@@ -23,12 +23,15 @@ policies:
 
   #CHECKID: organizations_scp_check_deny_regions
   #ACTIONPLAN: 리전 사용 제한이 없는 경우, SCP를 사용하여 허가된 리전 외의 사용을 차단합니다.
-  #이미 정책이 존재하면 에러가 뜸
   - name: organizations_scp_check_deny_regions
     resource: aws.org-account
     description: |
       Ensure every account has the ‘deny-unapproved-regions’ Service Control Policy;
       if missing or outdated, create/update it to block API calls outside approved regions.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: AttachedPolicies[].PolicyName
@@ -53,7 +56,7 @@ policies:
       - type: notify
         template: default
         violation_desc: |
-          *** organizations_scp_check_deny_regions ***
+          *** CHECKID: organizations_scp_check_deny_regions ***
           • 허가되지 않은 리전 사용 차단에 대한 SCP가 적용되지 않았습니다.
         action_desc: |
           1. SCP를 사용하여 허가된 리전 외의 사용을 차단합니다.
@@ -65,12 +68,15 @@ policies:
 
   #CHECKID: organizations_tags_policies_enabled_and_attached
   #ACTIONPLAN: 태그 정책이 비활성화된 경우, 활성화하고 적용하여 리소스에 일관된 태그를 강제합니다.
-  #이미 정책이 존재하면 에러가 뜸
   - name: organizations_tags_policies_enabled_and_attached
     resource: aws.org-account
     description: |
       Ensure every account has the organization’s Tag Policy;
       if missing or outdated, create/update it to enforce required CostCenter tagging.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: AttachedPolicies[].Type
@@ -92,7 +98,7 @@ policies:
       - type: notify
         template: default
         violation_desc: |
-          *** organizations_tags_policies_enabled_and_attached ***
+          *** CKECKID: organizations_tags_policies_enabled_and_attached ***
           • 태그 정책이 비활성화되어있습니다.
         action_desc: |
           1. 태그 정책을 활성화하고 적용합니다.

@@ -4,8 +4,7 @@ policies:
   - name: enforce-emr-cluster-no-public-access
     resource: aws.emr
     description: |
-      VisibleToAllUsers=true 인 EMR 클러스터를 찾아 종료하여
-      퍼블릭 액세스 위험을 제거합니다.
+      Terminates EMR clusters with VisibleToAllUsers=true to eliminate the risk of public access exposure.
     mode:
       type: periodic
       schedule: "rate(1 day)"
@@ -22,9 +21,9 @@ policies:
         priority_header: 2
         violation_desc: |
           *** emr_cluster_account_public_block_enabled ***
-          EMR의 퍼블릭 액세스 차단이 비활성화되어 있습니다.
+          • EMR의 퍼블릭 액세스 차단이 비활성화되어 있습니다.
         action_desc: |
-          EMR의 퍼블릭 액세스 차단을 활성화하여 S3 데이터 유출을 방지합니다.
+          1. EMR의 퍼블릭 액세스 차단을 활성화하여 S3 데이터 유출을 방지합니다.
         to:
           - https://hooks.slack.com/services/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
         transport:

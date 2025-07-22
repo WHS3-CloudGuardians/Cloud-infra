@@ -7,7 +7,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: cross-account
     actions:
@@ -19,14 +19,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: eventbridge_bus_cross_account_access ***
-          - 크로스 계정 접근이 가능한 EventBridge 버스가 감지되었습니다.
+          • 크로스 계정 접근이 가능한 EventBridge 버스가 감지되었습니다.
         action_desc: |
           1. EventBridge 버스에 대한 접근 정책 점검해주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: eventbridge_bus_exposed
@@ -37,7 +37,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: cross-account
         actions: 
@@ -48,11 +48,11 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: eventbridge_bus_exposed ***
-          - 외부 노출이 가능한 EventBridge 버스가 감지되었습니다.
+          • 외부 노출이 가능한 EventBridge 버스가 감지되었습니다.
         action_desc: |
           1. EventBridge 버스에 대한 접근 정책 점검해주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

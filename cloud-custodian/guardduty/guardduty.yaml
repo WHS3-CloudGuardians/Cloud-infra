@@ -16,7 +16,7 @@ policies:
     filters:
       - ConfigPublicZone: true
       - type: query-logging-enabled
-        enabled: false
+        state: false
 
     actions:
       - type: notify
@@ -24,10 +24,10 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "route53_query_logging_enabled" ***
-          Route53 공개 호스티드 존에 대해 Query Logging이 설정되어 있지 않습니다.
+          • Route53 공개 호스티드 존에 대해 Query Logging이 설정되어 있지 않습니다.
         action_desc: |
-          CloudWatch Logs 기반 Query Logging을 활성화하여 DNS 요청 이력을 추적할 수 있도록 설정하세요.
-          Cloud Custodian에서는 해당 기능을 직접 활성화할 수 없으므로 수동 조치가 필요합니다.
+          1. CloudWatch Logs 기반 Query Logging을 활성화하여 DNS 요청 이력을 추적할 수 있도록 설정하세요.
+          2. Cloud Custodian에서는 해당 기능을 직접 활성화할 수 없으므로 수동 조치가 필요합니다.
         to:
           - https://hooks.slack.com/services/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
         transport:

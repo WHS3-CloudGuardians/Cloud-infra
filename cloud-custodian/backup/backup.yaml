@@ -53,9 +53,9 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: backup_vaults_exist ***
-          - Vault가 누락된 Backup Plan이 감지되었습니다.
+          • Vault가 누락된 Backup Plan이 감지되었습니다.
         action_desc: |
-          1. Backup Plan에 Vault가 연결하여, 백업 저장소를 확보해 주세요.
+          1. Backup Plan에 Vault를 연결하여, 백업 저장소를 확보해 주세요.
         to:
           - "${SLACK_WEBHOOK_URL}"
         transport:
@@ -89,7 +89,7 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: backup_vaults_encrypted ***
-          - Backup Vault에 기본 암호화 설정이 감지되었습니다.
+          • Backup Vault에 기본 암호화 설정이 감지되었습니다.
         action_desc: |
           1. 보안 백업 환경 구성을 위해, Backup Vault에 KMS 암호화를 적용해 주세요.
         to:

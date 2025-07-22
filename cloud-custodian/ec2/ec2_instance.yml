@@ -26,6 +26,20 @@ policies:
     actions:
       - type: set-ec2-metadata-defaults
         HttpTokens: required
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: ec2_instance_account_imdsv2_enabled ***
+          • EC2 계정의 IMDS 기본 HttpTokens 설정이 미흡하여 자동으로 'required'로 변경하였습니다.
+        action_desc: |
+          1. AWS Console에서 계정별 EC2 인스턴스의 IMDS(HttpTokens) 설정이 'required'로 변경되었는지 확인해 주세요.
+          2. 모든 EC2 인스턴스에 대해 IMDSv2만 허용되도록 주기적으로 점검해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 # CHECKID: ec2_instance_detailed_monitoring_enabled
 # ACTIONPLAN: EC2 인스턴스의 상세 모니터링이 비활성화된 경우, 자동 활성화 구성
@@ -90,6 +104,21 @@ policies:
     actions:
       - type: set-metadata-access
         tokens: required
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: auto-require-imdsv2-on-launch ***
+          • tokens 옵션이 optional로 생성된 EC2 인스턴스를 감지하여 자동으로 'required'로 변경하였습니다.
+        action_desc: |
+          1. 생성된 EC2 인스턴스의 Metadata HttpTokens 설정이 'required'로 변경되었는지 확인해 주세요.
+          2. 모든 신규 인스턴스가 IMDSv2만 허용되도록 런치 템플릿 및 정책을 점검해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
 
 # CHECKID: ec2_instance_internet_facing_with_instance_profile
 # ACTIONPLAN: 퍼블릭 IP가 부여되고 IAM 인스턴스 프로파일이 연결된 인스턴스를 탐지하여 자격증명 노출 위험을 점검
@@ -245,6 +274,22 @@ policies:
         value: "true"
       # 2) (선택) 퍼블릭 IP 할당 인스턴스 즉시 중지
       #- type: stop
+      # 3) Slack 알림
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: ec2_instance_public_ip ***
+          • 퍼블릭 IP가 할당된 EC2 인스턴스가 감지되어 "PubliclyAccessible" 태그를 부착하였습니다.
+        action_desc: |
+          1. 퍼블릭 노출이 불필요한 경우 해당 인스턴스의 퍼블릭 IP를 해제하거나, 보안 그룹/네트워크 ACL을 점검해 주세요.
+          2. 보안정책에 따라 인스턴스를 중지(stop)하거나, VPC 설정을 재검토해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
 
 # CHECKID: ec2_instance_secrets_user_data
 # ACTIONPLAN: UserData에 하드코드된 시크릿 정보가 포함된 EC2 인스턴스를 태그/알림
@@ -273,14 +318,15 @@ policies:
         value: "required"
       # Slack 알림
       - type: notify
-        slack_template: slack_default
-        slack_msg_color: danger
+        template: default
+        template_format: slack
         violation_desc: |
           *** CHECKID: ec2_instance_secrets_user_data ***
-          • EC2 인스턴스의 UserData 내에 시크릿 정보가 하드코드되어 있습니다.
+          • EC2 인스턴스의 UserData에 하드코드된 시크릿(비밀번호, 토큰 등 민감정보) 패턴이 감지되었습니다.
         action_desc: |
-          1. UserData를 빈 상태로 초기화하거나  
-          2. AWS Secrets Manager/Parameter Store를 사용하세요.
+          1. UserData에 시크릿 정보(비밀번호, 토큰, 인증키 등)가 포함되어 있는지 확인하고 즉시 삭제 또는 빈 값으로 초기화해 주세요.
+          2. 민감정보 전달이 필요하다면 AWS Secrets Manager 또는 Parameter Store를 반드시 사용해 주세요.
+          3. 반복 발생 방지를 위해 배포 파이프라인 및 운영 정책을 재점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

@@ -1,0 +1,256 @@
+policies:
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_all_ports
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_any_port
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_high_risk_tcp_ports
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_port_mongodb_27017_27018
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_ftp_port_20_21
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_3389
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_cassandra_7199_9160_8888
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_elasticsearch_kibana_9200_9300_5601
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_kafka_9092
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_memcached_11211
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_mysql_3306
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_oracle_1521_2483
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_postgres_5432
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_redis_6379
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_sql_server_1433_1434
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_telnet_23
+  # CHECKID: ec2_securitygroup_allow_wide_open_public_ipv4
+  # CHECKID: ec2_instance_port_cassandra_exposed_to_internet
+  # CHECKID: ec2_instance_port_cifs_exposed_to_internet
+  # CHECKID: ec2_instance_port_elasticsearch_kibana_exposed_to_internet
+  # CHECKID: ec2_instance_port_ftp_exposed_to_internet
+  # CHECKID: ec2_instance_port_kafka_exposed_to_internet
+  # CHECKID: ec2_instance_port_kerberos_exposed_to_internet
+  # CHECKID: ec2_instance_port_ldap_exposed_to_internet
+  # CHECKID: ec2_instance_port_memcached_exposed_to_internet
+  # CHECKID: ec2_instance_port_mongodb_exposed_to_internet
+  # CHECKID: ec2_instance_port_mysql_exposed_to_internet
+  # CHECKID: ec2_instance_port_oracle_exposed_to_internet
+  # CHECKID: ec2_instance_port_postgresql_exposed_to_internet
+  # CHECKID: ec2_instance_port_rdp_exposed_to_internet
+  # CHECKID: ec2_instance_port_redis_exposed_to_internet
+  # CHECKID: ec2_instance_port_sqlserver_exposed_to_internet
+  # CHECKID: ec2_instance_port_ssh_exposed_to_internet
+  # CHECKID: ec2_instance_port_telnet_exposed_to_internet
+  # ACTIONPLAN: 0.0.0.0/0 전체/임의/고위험/특정 서비스 포트 인바운드 오픈 규칙 실시간 자동 삭제
+  - name: ec2_instance_securitygroup_ports
+    description: |
+      Automatically deletes when 0.0.0.0/0 inbound (all/random/high-risk/specific service ports) is opened
+    resource: aws.security-group
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: ec2.amazonaws.com
+          event: AuthorizeSecurityGroupIngress
+          ids: "requestParameters.groupId"
+    filters:
+      - type: ingress
+        Cidr:
+          value: 0.0.0.0/0
+    actions:
+      - type: remove-permissions
+        ingress: matched
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: ec2_instance_securitygroup_ports ***
+          • 0.0.0.0/0(전체 인바운드)로 오픈된 보안그룹 규칙이 탐지되어 삭제 조치하였습니다.
+        action_desc: |
+          1. 반드시 필요한 경우가 아니라면 0.0.0.0/0 인바운드 허용을 삼가주세요.
+          2. 인바운드 규칙은 최소 권한 원칙에 따라 제한적으로 관리해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+
+  # CHECKID: ec2_securitygroup_from_launch_wizard
+  # ACTIONPLAN: launch-wizard로 생성된 SG 실시간 자동 삭제
+  - name: ec2_securitygroup_from_launch_wizard
+    description: |
+      Security groups created with launch-wizard (temporary/test/directly created) are detected in real time and automatically deleted immediately after creation.
+    resource: aws.security-group
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: ec2.amazonaws.com
+          event: CreateSecurityGroup
+          ids: "responseElements.groupId"
+    filters:
+      - type: value
+        key: GroupName
+        op: regex
+        value: ^launch-wizard
+    actions:
+      - type: delete
+      - type: notify
+        template: default
+        template_format: slack
+        subject: "[자동조치] launch-wizard 보안그룹이 실시간 삭제됨"
+        violation_desc: |
+          *** CHECKID: ec2_securitygroup_from_launch_wizard ***
+          • launch-wizard로 생성된 보안그룹이 감지되어 삭제 조치하였습니다.
+        action_desc: |
+          1. 필요한 경우 EC2 콘솔에서 삭제 이력 및 보안그룹 생성 내역을 검토해 주세요.
+          2. 불필요한 보안그룹 생성을 방지해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: ec2_securitygroup_with_many_ingress_egress_rules
+  # ACTIONPLAN: 인바운드/아웃바운드 규칙 개수 30개 이상 실시간 Slack 알림
+  - name: ec2_securitygroup_with_many_ingress_egress_rules
+    description: |
+      description: Security groups with more than 30 inbound/outbound rules are difficult to manage and have high potential security risks, so Slack notifications are sent when detected in real time.
+    resource: aws.security-group
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: ec2.amazonaws.com
+          event: AuthorizeSecurityGroupIngress
+          ids: "requestParameters.groupId"
+        - source: ec2.amazonaws.com
+          event: AuthorizeSecurityGroupEgress
+          ids: "requestParameters.groupId"
+    filters:
+      - or:
+          - type: value
+            key: "IpPermissions"
+            value_type: size
+            op: gte
+            value: 30
+          - type: value
+            key: "IpPermissionsEgress"
+            value_type: size
+            op: gte
+            value: 30
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: ec2_securitygroup_with_many_ingress_egress_rules ***
+          • 보안그룹에 인바운드/아웃바운드 규칙이 30개 이상 존재하여 과도한 권한 설정이 감지되었습니다.
+        action_desc: |
+          1. 불필요한 인바운드/아웃바운드 규칙을 점검하여 최소화해 주세요.
+          2. 보안그룹 권한은 최소 권한 원칙에 따라 관리해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22
+  # CHECKID: ec2_instance_port_ssh_exposed_to_internet
+  # ACTIONPLAN: 22번 포트(SSH) 0.0.0.0/0 인바운드 실시간 감지/Slack 알림
+  - name: ec2_instance_port_ssh_exposed_to_internet
+    description: |
+      When port 22 (SSH) is opened to 0.0.0.0/0 (all external), there is a high risk of external attacks, so when the rule is detected, send a real-time Slack notification.
+    resource: aws.security-group
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: ec2.amazonaws.com
+          event: AuthorizeSecurityGroupIngress
+          ids: "requestParameters.groupId"
+    filters:
+      - type: ingress
+        Cidr:
+          value: 0.0.0.0/0
+        Ports: [22]
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: ec2_instance_port_ssh_exposed_to_internet ***
+          • 22번 포트(SSH)가 0.0.0.0/0(외부 전체)로 오픈된 인바운드 규칙이 탐지되었습니다.
+          • SSH 포트 오픈은 외부 공격 및 무차별 대입 시도에 매우 취약하므로 즉시 점검이 필요합니다.
+        action_desc: |
+          1. 반드시 필요한 경우가 아니라면 SSH 인바운드(22번 포트) 오픈을 제한해 주세요.
+          2. 운영 환경에서는 VPN, Bastion Host 등 안전한 접속 방식을 사용해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+
+  # # CHECKID: ec2_securitygroup_default_restrict_traffic
+  # # ACTIONPLAN: Default Security Group이 0.0.0.0/0 오픈시 Slack 알림 (삭제 X)
+  - name: ec2_securitygroup_default_restrict_traffic
+    description: |
+      If the Default Security Group is opened to 0.0.0.0/0 (all external), it violates the recommended security settings, so send a real-time Slack notification when that rule is detected (for auditing/operational purposes, no deletion)
+    resource: aws.security-group
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: ec2.amazonaws.com
+          event: AuthorizeSecurityGroupIngress
+          ids: "requestParameters.groupId"
+        - source: ec2.amazonaws.com
+          event: AuthorizeSecurityGroupEgress
+          ids: "requestParameters.groupId"
+    filters:
+      - type: value
+        key: GroupName
+        value: default
+      - type: ingress
+        Cidr:
+          value: 0.0.0.0/0
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: ec2_securitygroup_default_restrict_traffic ***
+          • Default Security Group이 0.0.0.0/0(전체 외부)로 오픈된 상태가 감지되었습니다.
+          • Default SG 오픈은 보안 정책 위반이며, 외부 공격에 취약해질 수 있습니다.
+        action_desc: |
+          1. Default SG의 인바운드 규칙을 점검하고, 불필요한 오픈은 즉시 제한해 주세요.
+          2. 운영 환경에서는 Default SG 사용을 지양하고, 별도의 SG를 최소 권한 원칙에 따라 관리해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+
+  # CHECKID: ec2_securitygroup_not_used
+  # ACTIONPLAN: 미사용 SG는 batch(run)로 일괄 삭제 (정기 실행만 가능)
+  - name: ec2_securitygroup_not_used
+    description: Unused security groups can be misused or contaminated, so a Slack notification is sent every month through scheduled batch execution.
+    resource: aws.security-group
+    mode:
+      type: periodic
+      schedule: "rate(30 days)"  # 한 달마다 실행
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - unused
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: ec2_securitygroup_not_used ***
+          • 미사용 보안그룹이 감지되었습니다.  
+          • 미사용 SG는 오남용·오염 위험이 있으니 반드시 필요성 검토 후 삭제를 고려해 주세요.
+        action_desc: |
+          1. EC2 콘솔에서 미사용 보안그룹 내역을 확인해 주세요.
+          2. 실제 사용 목적이 없는 보안그룹만 신중히 삭제해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

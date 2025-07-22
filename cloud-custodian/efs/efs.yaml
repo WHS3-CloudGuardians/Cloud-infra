@@ -7,7 +7,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: Encrypted
@@ -22,10 +22,10 @@ policies:
         action_desc: |
           1. EFS 리소스의 저장 시 암호화 설정을 해주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: efs_have_backup_enabled
@@ -36,7 +36,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: BackupPolicy.Status
@@ -52,10 +52,10 @@ policies:
         action_desc: |
           1. AWS Backup을 통해 EFS 파일 시스템에 백업 계획을 적용하고 일별 백업 활성화해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: efs_not_publicly_accessible
@@ -66,7 +66,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: ingress
         Cidr:
@@ -83,7 +83,7 @@ policies:
           1. EFS를 프라이빗 서브넷에 위치해 주세요.
           2. EFS를 제한된 보안그룹과 사용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

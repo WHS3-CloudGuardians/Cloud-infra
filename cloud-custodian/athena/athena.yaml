@@ -8,7 +8,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::123456789012:role/custodian-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: Configuration.ResultConfiguration.EncryptionConfiguration.EncryptionOption
@@ -26,12 +26,12 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** athena_workgroup_encryption ***
-          Athena 워크그룹이 쿼리 결과 암호화를 사용하지 않고 있습니다.
+          *** CHECKID: athena_workgroup_encryption ***
+          • Athena 워크그룹이 쿼리 결과 암호화를 사용하지 않고 있습니다.
         action_desc: |
-          Athena 워크그룹이 쿼리 결과 암호화를 활성화하여 민감한 데이터가 저장 시 보호되도록 합니다.
+          1. Athena 워크그룹이 쿼리 결과 암호화를 활성화하여 민감한 데이터가 저장 시 보호되도록 합니다.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -45,7 +45,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::123456789012:role/custodian-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: Configuration.EnforceWorkGroupConfiguration
@@ -59,12 +59,12 @@ policies:
         template: default
         priority_header: 2
         violation_desc: |
-          *** athena_workgroup_enforce_configuration ***
-          Athena 워크그룹이 구성 적용 옵션을 사용하지 않습니다.
+          *** CHECKID: athena_workgroup_enforce_configuration ***
+          • Athena 워크그룹이 구성 적용 옵션을 사용하지 않습니다.
         action_desc: |
-          Athena Workgroup이 구성 적용 옵션을 활성화하여 모든 사용자가 Workgroup 설정을 따르도록 강제합니다.
+          1. Athena Workgroup이 구성 적용 옵션을 활성화하여 모든 사용자가 Workgroup 설정을 따르도록 강제합니다.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

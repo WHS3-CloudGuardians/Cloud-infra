@@ -31,7 +31,7 @@ policies:
         action_desc: |
           장기간 사용되지 않은 KMS 키를 비활성화하거나 삭제를 예약하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -55,11 +55,11 @@ policies:
         priority_header: 2
         violation_desc: |
           *** kms_key_not_publicly_accessible ***
-          KMS 키 정책이 외부에 노출된 상태입니다.
+          • KMS 키 정책이 외부에 노출된 상태입니다.
         action_desc: |
-          KMS 키 외부에 노출된 정책을 수정하여 신뢰된 계정만 접근하도록 제한하세요.
+          1. KMS 키 외부에 노출된 정책을 수정하여 신뢰된 계정만 접근하도록 제한하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -92,7 +92,7 @@ policies:
         action_desc: |
           KMS 키에 삭제 대기 기간을 설정하거나 삭제 방지 정책 추가합니다.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
@@ -127,7 +127,7 @@ policies:
         action_desc: |
           CMK의 키 자동 회전 기능을 활성화하는 정책 적용합니다.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

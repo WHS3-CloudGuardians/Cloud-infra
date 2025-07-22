@@ -8,7 +8,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: DefaultCacheBehavior.FieldLevelEncryptionId
@@ -20,14 +20,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: cloudfront_distributions_field_level_encryption_enabled ***
-          - CloudFront 배포에 필드 수준 암호화 누락이 감지되었습니다.
+          • CloudFront 배포에 필드 수준 암호화 누락이 감지되었습니다.
         action_desc: |
           1. CloudFront 배포에 필드 수준 암호화 설정을 해주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: cloudfront_distributions_geo_restrictions_enabled
@@ -38,7 +38,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: Restrictions.GeoRestriction.RestrictionType
@@ -50,14 +50,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: cloudfront_distributions_geo_restrictions_enabled ***
-          - CloudFront 배포에 Geo Restriction 누락이 감지되었습니다.
+          • CloudFront 배포에 Geo Restriction 누락이 감지되었습니다.
         action_desc: |
           1. CloudFront 배포에 대해 지리적 제한을 활성화해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: cloudfront_distributions_https_enabled
@@ -70,7 +70,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: DefaultCacheBehavior.ViewerProtocolPolicy
@@ -82,15 +82,15 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: cloudfront_distributions_https_enabled ***
-          - CloudFront 배포에 HTTPS 설정 누락이 감지되었습니다.
+          • CloudFront 배포에 HTTPS 설정 누락이 감지되었습니다.
         action_desc: |
           1. CloudFront 배포에 SSL 인증서 적용하여 HTTPS 설정해 주세요.
           2. CloudFront 배포에 'Viewer Protocol Policy'를 Redirect to HTTPS로 설정해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: cloudfront_distributions_logging_enabled
@@ -101,7 +101,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
         - type: value
@@ -120,14 +120,14 @@ policies:
         template_format: slack
         violation_desc:  |
           *** CHECKID: cloudfront_distributions_logging_enabled ***
-          - CloudFront 배포에 로그 설정 누락이 감지되었습니다.
+          • CloudFront 배포에 로그 설정 누락이 감지되었습니다.
         action_desc: |
           1. CloudFront 배포에서 로그 설정을 활성화해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue      
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
         # 특정 이름의 버킷을 로깅에 설정 가능
 
 # CHECKID: cloudfront_distributions_using_deprecated_ssl_protocols
@@ -141,7 +141,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: ViewerCertificate.MinimumProtocolVersion
@@ -157,10 +157,10 @@ policies:
         action_desc: |
           1. CloudFront에서 SSL 프로토콜을 TLS 1.2 이상으로 설정해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: cloudfront_distributions_using_waf
@@ -172,7 +172,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
           - type: value
@@ -187,11 +187,11 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: cloudfront_distributions_using_waf ***
-          - CloudFront 배포에 WAF 누락이 감지되었습니다.
+          • CloudFront 배포에 WAF 누락이 감지되었습니다.
         action_desc: |
           1. CloudFront 배포에 AWS WAF를 연결하여 웹 공격 차단 정책 적용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

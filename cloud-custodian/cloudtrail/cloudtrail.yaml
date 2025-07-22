@@ -28,7 +28,7 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_bucket_requires_mfa_delete" ***
-          하나 이상의 S3 버킷에서 MFA Delete가 비활성화된 상태로 감지되었습니다.
+          • 하나 이상의 S3 버킷에서 MFA Delete가 비활성화된 상태로 감지되었습니다.
         action_desc: |
           1. 만약 해당 버킷이 CloudTrail 로그에 사용되고 있다면 추가적인 보호 조치인 S3 객체 잠금 또는 보존 정책을 설정하십시오.
           2. 참고: MFA Delete는 버킷 생성 시에만 활성화할 수 있으며 이후에는 API나 콘솔을 통해 업데이트할 수 없습니다.
@@ -74,9 +74,9 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_cloudwatch_logging_enabled" ***
-          CloudTrail 트레일이 CloudWatch Logs와 연동되어 있지 않아 로깅이 비활성화 되어 있다.
+          • CloudTrail 트레일이 CloudWatch Logs와 연동되어 있지 않아 로깅이 비활성화 되어 있다.
         action_desc: |
-          CloudWatch Logs 연동을 자동으로 활성화하고, 로깅을 시작하도록 설정하였습니다.
+          1. CloudWatch Logs 연동을 자동으로 활성화하고, 로깅을 시작하도록 설정하였습니다.
         to:
           - "https://hooks.slack.com/services/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"
         transport:
@@ -111,10 +111,10 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_insights_exist" ***
-          CloudTrail Insights가 비활성화되어 있습니다.
+          • CloudTrail Insights가 비활성화되어 있습니다.
         action_desc: |
-            1. CloudTrail Insights 기능을 활성화하여 이상 API 호출 패턴을 탐지할 수 있도록 설정해야 합니다.
-            2. aws cloudtrail update-trail 명령을 사용하여 InsightSelectors를 추가 혹은 새로운 Trail 생성 시 Insights를 기본으로 활성화해야 한다. 
+          1. CloudTrail Insights 기능을 활성화하여 이상 API 호출 패턴을 탐지할 수 있도록 설정해야 합니다.
+          2. aws cloudtrail update-trail 명령을 사용하여 InsightSelectors를 추가 혹은 새로운 Trail 생성 시 Insights를 기본으로 활성화해야 한다. 
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -148,10 +148,10 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_kms_encryption_enabled" ***
-          CloudTrail 로그가 KMS 키로 암호화되지 않았다. 
+          • CloudTrail 로그가 KMS 키로 암호화되지 않았다. 
         action_desc: |
-          CloudTrail 설정에서 KMS 암호화를 활성화하고 적절한 키를 지정하세요.  
-          설정 변경 시 로깅 중단 여부를 사전에 확인하세요.
+          1. CloudTrail 설정에서 KMS 암호화를 활성화하고 적절한 키를 지정하세요.  
+          2. 설정 변경 시 로깅 중단 여부를 사전에 확인하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -185,10 +185,10 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_log_file_validation_enabled" ***
-          CloudTrail 로그 무결성 검증 설정이 비활성화 상태이다.  
+          • CloudTrail 로그 무결성 검증 설정이 비활성화 상태이다.  
         action_desc: |
-          CloudTrail 설정에서 KMS 암호화를 활성화하고 적절한 키를 지정하세요.  
-          설정 변경 시 로깅 중단 여부를 사전에 확인하세요.
+          1. CloudTrail 설정에서 KMS 암호화를 활성화하고 적절한 키를 지정하세요.  
+          2. 설정 변경 시 로깅 중단 여부를 사전에 확인하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -231,10 +231,10 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "loudtrail_logs_s3_bucket_access_logging_enabled" ***
-          해당 S3 버킷은 접근 로그(Access Logging)가 비활성화되어 있어 로그 추적이 불가능한 상태였습니다.
-          자동으로 로그 수신 버킷에 Access Logging이 설정되었습니다.
+          • 해당 S3 버킷은 접근 로그(Access Logging)가 비활성화되어 있어 로그 추적이 불가능한 상태였습니다.
+          • 자동으로 로그 수신 버킷에 Access Logging이 설정되었습니다.
         action_desc: |
-          CloudTrail 로그 버킷과 기타 중요 로그 저장 버킷의 Access Logging 설정을 정기적으로 점검하고 순환 참조가 발생하지 않도록 주의하세요.
+          1. CloudTrail 로그 버킷과 기타 중요 로그 저장 버킷의 Access Logging 설정을 정기적으로 점검하고 순환 참조가 발생하지 않도록 주의하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -273,9 +273,9 @@ policies:
         template_format: slack  
         violation_desc: |
           *** CHECKID : "cloudtrail_logs_s3_bucket_is_not_publicly_accessible" ***
-          CloudTrail 로그를 저장하는 S3 버킷이 퍼블릭으로 노출되어 있습니다. 
+          • CloudTrail 로그를 저장하는 S3 버킷이 퍼블릭으로 노출되어 있습니다. 
         action_desc: |
-          S3 버킷의 접근 정책을 수정하여 퍼블릭 접근을 차단하고 로그 기밀성을 확보하세요.
+          1. S3 버킷의 접근 정책을 수정하여 퍼블릭 접근을 차단하고 로그 기밀성을 확보하세요.
         to:
           - https://hooks.slack.com/services/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  
         transport:
@@ -314,9 +314,9 @@ policies:
         template_format: slack  
         violation_desc: |
           *** CHECKID : "cloudtrail_not_multi_region_or_no_management_events" ***
-          CloudTrail이 다중 리전 로깅 또는 관리 이벤트 로깅을 비활성화하고 있습니다.
+          • CloudTrail이 다중 리전 로깅 또는 관리 이벤트 로깅을 비활성화하고 있습니다.
         action_desc: |
-          CloudTrail 설정에서 모든 리전에 대해 로깅을 활성화하고 관리 이벤트 로깅이 포함되도록 구성하세요.
+          1. CloudTrail 설정에서 모든 리전에 대해 로깅을 활성화하고 관리 이벤트 로깅이 포함되도록 구성하세요.
         to:
           - https://hooks.slack.com/services/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 
         transport:
@@ -351,9 +351,9 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_multi_region_enabled" ***
-          CloudTrail이 단일 리전 트레일로 설정되어 있어 운영 환경 전반에 대한 완전한 감사가 어려울 수 있습니다.
+          • CloudTrail이 단일 리전 트레일로 설정되어 있어 운영 환경 전반에 대한 완전한 감사가 어려울 수 있습니다.
         action_desc: |
-          모든 리전에 대한 가시성을 확보하려면 CloudTrail 설정에서 다중 리전 로깅을 활성화하세요.
+          1. 모든 리전에 대한 가시성을 확보하려면 CloudTrail 설정에서 다중 리전 로깅을 활성화하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -386,9 +386,9 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_s3_dataevents_read_enabled" ***
-          CloudTrail에서 S3 객체 수준의 읽기 이벤트 로깅이 비활성화되어 데이터 접근 추적이 불가능합니다. 
+          • CloudTrail에서 S3 객체 수준의 읽기 이벤트 로깅이 비활성화되어 데이터 접근 추적이 불가능합니다. 
         action_desc: |
-          CloudTrail 설정에서 S3 객체 수준(Read) 데이터 이벤트 로깅을 활성화하세요.
+          1. CloudTrail 설정에서 S3 객체 수준(Read) 데이터 이벤트 로깅을 활성화하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -421,9 +421,9 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_s3_dataevents_write_enabled" ***
-          CloudTrail에서 S3 객체 수준의 쓰기 이벤트 로깅이 비활성화되어 객체 변경 사항 추적이 불가능합니다.
+          • CloudTrail에서 S3 객체 수준의 쓰기 이벤트 로깅이 비활성화되어 객체 변경 사항 추적이 불가능합니다.
         action_desc: |
-          CloudTrail 설정에서 S3 객체 수준(Write) 데이터 이벤트 로깅을 활성화하세요.
+          1. CloudTrail 설정에서 S3 객체 수준(Write) 데이터 이벤트 로깅을 활성화하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

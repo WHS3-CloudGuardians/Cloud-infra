@@ -8,7 +8,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: VpcConfig
@@ -19,11 +19,11 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: awslambda_function_inside_vpc ***
-          - VPC 외부에 존재하는 Lambda가 감지되었습니다.
+          • VPC 외부에 존재하는 Lambda가 감지되었습니다.
         action_desc: |
           1. Lambda를 VPC 내부로 마이그레이션 또는 VPC 연결해주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
@@ -37,7 +37,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
           - type: value
@@ -61,14 +61,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: awslambda_function_invoke_api_operations_cloudtrail_logging_enabled ***
-          - Lambda 함수의 Invoke API 호출에 대한, CloudTrail 로깅 누락이 감지되었습니다.
+          • Lambda 함수의 Invoke API 호출에 대한, CloudTrail 로깅 누락이 감지되었습니다.
         action_desc: |
           1. Lambda 함수의 Invoke API 호출에 대한, CloudTrail 로깅을 활성화해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: awslambda_function_no_secrets_in_variables
@@ -80,7 +80,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
         - type: value
@@ -117,15 +117,15 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: awslambda_function_no_secrets_in_variables ***
-          - Lambda 함수에서 시크릿으로 예상되는 환경 변수 이름이 감지되었습니다.
-          - 탐지 키워드 : PW, PASSWORD, DB_PASSWORD, JWT_SECRET, SECRET_KEY, JWT_SECRET_KEY, API_KEY
+          • Lambda 함수에서 시크릿으로 예상되는 환경 변수 이름이 감지되었습니다.
+          • 탐지 키워드 : PW, PASSWORD, DB_PASSWORD, JWT_SECRET, SECRET_KEY, JWT_SECRET_KEY, API_KEY
         action_desc: |
-          1.Lambda function의 환경변수 내 시크릿을 암호화 혹은 삭제해 주세요.
+          1. Lambda function의 환경변수 내 시크릿을 암호화 혹은 삭제해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: awslambda_function_not_publicly_accessible
@@ -137,7 +137,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
        - or:
           - type: value
@@ -150,14 +150,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: awslambda_function_not_publicly_accessible ***
-          - Lambda 함수의 인터넷에 직접 노출 설정이 감지되었습니다.
+          • Lambda 함수의 인터넷에 직접 노출 설정이 감지되었습니다.
         action_desc: |
           1. 공개 Lambda 함수에 대해, 비공개 설정 적용해 주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
 # CHECKID: awslambda_function_using_supported_runtimes
@@ -168,7 +168,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(5 minutes)"
-      role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: Runtime
@@ -186,11 +186,11 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: awslambda_function_using_supported_runtimes ***
-          - 지원 종료된 런타임을 사용하는 Lambda 함수가 감지되었습니다.
+          • 지원 종료된 런타임을 사용하는 Lambda 함수가 감지되었습니다.
         action_desc: |
           1. 최신 런타임으로 마이그레이션해주세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

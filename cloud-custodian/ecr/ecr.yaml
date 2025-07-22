@@ -1,0 +1,84 @@
+policies:
+
+  # CHECKID: ecr_registry_scan_images_on_push_enabled
+  - name: ecr_registry_scan_images_on_push_enabled
+    resource: aws.ecr
+    description: |
+      Ensure ECR registries have 'scan on push' enabled for all images.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: imageScanningConfiguration.scanOnPush
+        value: false
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: ecr_registry_scan_images_on_push_enabled ***
+          • ECR 레지스트리에 Scan on Push 미설정이 감지되었습니다.
+        action_desc: |
+          1. AWS 콘솔에서 해당 ECR 레지스트리의 Scan on Push 설정을 활성화하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: ecr_repositories_lifecycle_policy_enabled
+  - name: ecr_repositories_lifecycle_policy_enabled
+    resource: aws.ecr
+    description: |
+      Ensure ECR repositories have a lifecycle policy enabled.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: lifecycle-rule
+        state: false
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: ecr_repositories_lifecycle_policy_enabled ***
+          • ECR 리포지토리에 라이프사이클 정책이 미설정되어 있습니다.
+        action_desc: |
+          1. 해당 ECR 리포지토리에 이미지 라이프사이클 정책을 적용하여 이미지 관리 기준을 설정하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: ecr_repositories_scan_images_on_push_enabled
+  - name: ecr_repositories_scan_images_on_push_enabled
+    resource: aws.ecr
+    description: |
+      Ensure ECR repositories have 'scan on push' enabled for all images.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: imageScanningConfiguration.scanOnPush
+        value: false
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: ecr_repositories_scan_images_on_push_enabled ***
+          • ECR 리포지토리에 Scan on Push 미설정이 감지되었습니다.
+        action_desc: |
+          1. AWS 콘솔에서 해당 ECR 리포지토리의 Scan on Push 설정을 활성화하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
