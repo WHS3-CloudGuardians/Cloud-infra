@@ -194,3 +194,64 @@ policies:
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: awslambda_function_inside_vpc
+  - name: awslambda_function_inside_vpc
+    resource: aws.lambda
+    description: |
+      Ensure Lambda functions are attached to a VPC.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: VpcConfig
+        value: null
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: awslambda_function_inside_vpc ***
+          • VPC에 연결되지 않은 Lambda 함수가 감지되었습니다.
+        action_desc: |
+          1. Lambda 함수를 반드시 VPC에 연결하여 네트워크 접근 제어 및 보안을 강화하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: awslambda_function_invoke_api_operations_cloudtrail_logging_enabled
+  - name: lambda_func_cloudtrail_log_enabled
+    resource: aws.lambda
+    description: |
+      Ensure Lambda functions that invoke AWS API operations are logging events to CloudTrail.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      # CloudTrail에 eventSource가 lambda.amazonaws.com이면서 functionName이 포함된 이벤트가 없는 함수만 탐지
+      - type: metrics
+        name: "Invocations"
+        days: 30
+        op: gt
+        value: 0
+      # CloudTrail에 로깅 여부는 정책에서 직접 제어할 수 없으나, Lambda의 Logging 권한/구성이 없는 함수는 다음처럼 탐지 가능
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: awslambda_function_invoke_api_operations_cloudtrail_logging_enabled ***
+          • Lambda 함수의 AWS API 호출 이력이 CloudTrail에 남지 않을 수 있습니다.
+        action_desc: |
+          1. Lambda 함수에 대해 CloudTrail 이벤트 로깅이 활성화되어 있는지 확인하세요.
+          2. CloudTrail이 모든 Lambda 이벤트(Invoke, API 호출)를 수집하도록 구성하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
