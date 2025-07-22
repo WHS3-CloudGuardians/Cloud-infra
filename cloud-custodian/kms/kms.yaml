@@ -5,10 +5,10 @@ policies:
     resource: aws.kms-key
     description: |
       A customer-managed CMK that has remained unused for over 90 days since creation and is currently in the Enabled state is scheduled for deletion in 7 days
-    mode: 
+    mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      role: arn:aws:iam::123456789012:role/custodian-role
     filters:
       - type: value
         key: KeyState
@@ -42,14 +42,17 @@ policies:
     resource: aws.kms-key
     description: |
       If the KMS key policy is exposed externally, modify the policy to restrict access to trusted accounts only
-    mode: 
+    mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      role: arn:aws:iam::123456789012:role/custodian-role
     filters:
       - type: cross-account
         everyone_only: true
     actions:
+      - type: tag
+        key: public-accessible
+        value: "true"
       - type: notify
         template: default
         priority_header: 2
@@ -71,10 +74,10 @@ policies:
     region: all
     description: |
       Configure a deletion waiting period for the KMS key or add a deletion protection policy
-    mode: 
+    mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      role: arn:aws:iam::123456789012:role/custodian-role
     filters: 
       - type: value
         key: KeyState
@@ -114,6 +117,12 @@ policies:
       - type: value
         key: RotationEnabled
         value: false
+      - type: value
+        key: Origin
+        value: AWS_KMS
+      - type: value
+        key: KeySpec
+        value: SYMMETRIC_DEFAULT
     actions:
       - type: set-rotation
         state: true
