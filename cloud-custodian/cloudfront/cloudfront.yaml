@@ -103,17 +103,10 @@ policies:
       schedule: "rate(5 minutes)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
-      - or:
-        - type: value
-          key: Logging.Enabled
-          value: false
-          op: eq
-        - type: value
-          key: Logging
-          value: absent
-        - type: value
-          key: DistributionConfig.Logging.Enabled
-          value: false
+      - type: distribution-config
+        key: Logging.Enabled
+        value: false
+        op: eq
     actions:
       - type: notify
         template: slack-default
