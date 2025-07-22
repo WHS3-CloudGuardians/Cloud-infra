@@ -1,0 +1,83 @@
+policies:
+
+  # CHECKID: apigateway_restapi_client_certificate_enabled
+  - name: apigateway_restapi_client_certificate_enabled
+    resource: aws.rest-api
+    description: |
+      Ensure API Gateway REST APIs have client certificate required.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: RequireClientCertificate
+        value: false
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: apigateway_restapi_client_certificate_enabled ***
+          • API Gateway REST API에 클라이언트 인증서(Client Certificate)가 활성화되어 있지 않습니다.
+        action_desc: |
+          1. API Gateway REST API에서 클라이언트 인증서 요구(Client Certificate Required)를 활성화하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: apigateway_restapi_logging_enabled
+  - name: apigateway_restapi_logging_enabled
+    resource: aws.rest-api
+    description: |
+      Ensure API Gateway REST APIs have access logging enabled.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: AccessLogSettings.DestinationArn
+        value: null
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: apigateway_restapi_logging_enabled ***
+          • API Gateway REST API에 접근 로그(Access Logging)가 활성화되어 있지 않습니다.
+        action_desc: |
+          1. API Gateway REST API에 접근 로그를 활성화하고, 로그 그룹(CloudWatch Logs 등)을 지정하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: apigateway_restapi_public
+  - name: apigateway_restapi_public
+    resource: aws.rest-api
+    description: |
+      Detect API Gateway REST APIs that are publicly accessible by resource policy.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: cross-account
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: apigateway_restapi_public ***
+          • API Gateway REST API가 리소스 정책으로 외부(크로스 계정/공개)에 노출되어 있습니다.
+        action_desc: |
+          1. 퍼블릭/외부 노출을 제한하려면 리소스 정책을 검토하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

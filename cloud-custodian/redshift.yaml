@@ -1,0 +1,29 @@
+policies:
+
+  # CHECKID: redshift_cluster_audit_logging
+  - name: redshift_cluster_audit_logging
+    resource: aws.redshift
+    description: |
+      Ensure that Amazon Redshift clusters have audit logging enabled.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: LoggingStatus.LoggingEnabled
+        value: false
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: redshift_cluster_audit_logging ***
+          • Redshift 클러스터의 감사 로깅(Audit Logging)이 비활성화되어 있습니다.
+        action_desc: |
+          1. Redshift 클러스터에 대해 감사 로깅(Audit Logging)을 활성화하고 S3 버킷을 지정하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
