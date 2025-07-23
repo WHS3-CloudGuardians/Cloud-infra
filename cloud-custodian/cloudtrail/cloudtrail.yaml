@@ -27,16 +27,17 @@ policies:
         template: default
         template_format: slack
         violation_desc: |
-          *** CHECKID : "cloudtrail_bucket_requires_mfa_delete" ***
-          • 하나 이상의 S3 버킷에서 MFA Delete가 비활성화된 상태로 감지되었습니다.
+          *** CHECKID: "cloudtrail_bucket_requires_mfa_delete" ***
+          MFA Delete가 비활성화된 S3 버킷이 감지되었습니다.
+
         action_desc: |
-          1. 만약 해당 버킷이 CloudTrail 로그에 사용되고 있다면 추가적인 보호 조치인 S3 객체 잠금 또는 보존 정책을 설정하십시오.
-          2. 참고: MFA Delete는 버킷 생성 시에만 활성화할 수 있으며 이후에는 API나 콘솔을 통해 업데이트할 수 없습니다.
+          1. 해당 버킷이 CloudTrail 로그용이라면 객체 잠금 또는 보존 정책을 설정하세요.
+          2. MFA Delete는 버킷 생성 시에만 설정 가능하며 이후 변경할 수 없습니다.
         to:
-          - https://hooks.slack.com/services/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
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 ---
 # 2-cloudtrail_cloudwatch_logging_enabled.yml
 
@@ -74,14 +75,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_cloudwatch_logging_enabled" ***
-          • CloudTrail 트레일이 CloudWatch Logs와 연동되어 있지 않아 로깅이 비활성화 되어 있다.
+          CloudTrail 트레일이 CloudWatch Logs와 연동되어 있지 않아 로깅이 비활성화 되어 있다.
         action_desc: |
-          1. CloudWatch Logs 연동을 자동으로 활성화하고, 로깅을 시작하도록 설정하였습니다.
+          CloudWatch Logs 연동을 자동으로 활성화하고, 로깅을 시작하도록 설정하였습니다.
         to:
-          - "https://hooks.slack.com/services/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"
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 ---
 # 3-cloudtrail_insights_exist.yml
 
@@ -93,7 +94,7 @@ policies:
 policies:
   - name: notify-cloudtrail-insights-disabled
     resource: aws.cloudtrail
-    description: CloudTrail Insights가 비활성화된 상태 탐지 시 Slack 알림 전송
+    description: Detect and notify when CloudTrail Insights is disabled.
 
     mode:
       type: periodic
@@ -111,15 +112,15 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_insights_exist" ***
-          • CloudTrail Insights가 비활성화되어 있습니다.
+          CloudTrail Insights가 비활성화되어 있습니다.
         action_desc: |
-          1. CloudTrail Insights 기능을 활성화하여 이상 API 호출 패턴을 탐지할 수 있도록 설정해야 합니다.
-          2. aws cloudtrail update-trail 명령을 사용하여 InsightSelectors를 추가 혹은 새로운 Trail 생성 시 Insights를 기본으로 활성화해야 한다. 
+            1. CloudTrail Insights 기능을 활성화하여 이상 API 호출 패턴을 탐지할 수 있도록 설정해야 합니다.
+            2. aws cloudtrail update-trail 명령을 사용하여 InsightSelectors를 추가 혹은 새로운 Trail 생성 시 Insights를 기본으로 활성화해야 한다. 
         to:
-          - https://hooks.slack.com/services/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
+          - "${SLACK_WEBHOOK_URL}"
         transport:
-          type: sqs  
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 ---
 # 4-cloudtrail_kms_encryption_enabled.yml
 
@@ -128,35 +129,35 @@ policies:
 # 이유 : CloudTrail 암호화 설정은 실시간으로 수정이 어렵고 운영 중인 트레일 설정 변경 시 로깅 중단 위험 존재. 
 #       Slack 알림을 통해 관리자의 수동 확인 및 조치 유도.
 
-policies:
+ppolicies:
   - name: alert-cloudtrail-without-kms
     resource: aws.cloudtrail
-    description: Send Slack notification if CloudTrail logs are not encrypted with KMS.
+    description: Detect CloudTrails that are not encrypted with KMS.
 
     mode:
-      type: periodic  
+      type: periodic   
       schedule: "rate(1 hour)" 
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
 
     filters:
-      - type: kms-encrypted  
-        value: false          
+      - type: value
+        key: KmsKeyId
+        value: absent
 
     actions:
-      - type: notify          
+      - type: notify                 
         template: default
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_kms_encryption_enabled" ***
-          • CloudTrail 로그가 KMS 키로 암호화되지 않았다. 
+          CloudTrail 로그가 KMS 키로 암호화되지 않았다. 
         action_desc: |
-          1. CloudTrail 설정에서 KMS 암호화를 활성화하고 적절한 키를 지정하세요.  
-          2. 설정 변경 시 로깅 중단 여부를 사전에 확인하세요.
+          CloudTrail 설정에서 KMS 암호화를 활성화하고 적절한 키를 지정하세요.  
         to:
-          - https://hooks.slack.com/services/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
+          - "${SLACK_WEBHOOK_URL}"
         transport:
-          type: sqs                       
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 ---
 # 5-cloudtrail_log_file_validation_enabled
 
@@ -170,13 +171,13 @@ policies:
     description: Send Slack notification when CloudTrail log file validation is disabled.
 
     mode:
-      type: periodic 
+      type: periodic
       schedule: "rate(1 day)" 
       role: arn:aws:iam::311278774159:role/custodian-lambda-role  
 
     filters:
       - type: value
-        key: HasLogFileValidationEnabled 
+        key: HasLogFileValidationEnabled  
         value: false  
 
     actions:
@@ -185,28 +186,26 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_log_file_validation_enabled" ***
-          • CloudTrail 로그 무결성 검증 설정이 비활성화 상태이다.  
+          CloudTrail 로그 무결성 검증 설정이 비활성화 상태이다.  
         action_desc: |
-          1. CloudTrail 설정에서 KMS 암호화를 활성화하고 적절한 키를 지정하세요.  
-          2. 설정 변경 시 로깅 중단 여부를 사전에 확인하세요.
+          CloudTrail 설정에서 KMS 암호화를 활성화하고 적절한 키를 지정하세요.  
+          설정 변경 시 로깅 중단 여부를 사전에 확인하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - "${SLACK_WEBHOOK_URL}"
         transport:
-          type: sqs                       
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 ---
 # 6-cloudtrail_logs_s3_bucket_access_logging_enabled.yml
 
-# 자동 조치 O
-# 위반 사항 : CloudTrail 로그 저장 S3 버킷을 포함하여 S3 버킷 전반에 접근 로그 설정이 누락된 경우 로그 추적이 불가능
-# Access Logging이 꺼진 모든 S3 버킷을 필터링하여 자동으로 로그 설정을 적용 가능. 
-# 단, 대상 로그 수신 버킷은 사전에 존재해야 하며, 순환 참조 방지를 위해 수신 버킷은 대상에서 제외함
+# 위반 사항 : S3 버킷에 Access Logging이 비활성화되어 있어, 접근 기록 추적 및 이상 행위 감사가 불가능한 상태입니다.
+# 자동조치 X / 알림만
+# 이유 : S3 Access Logging 설정을 변경하는 액션을 지원하지 않아 자동조치가 불가능
 
 policies:
-  - name: auto-enable-s3-access-logging-with-alert
+  - name: alert-s3-access-logging-disabled
     resource: aws.s3
-    description: Enables Access Logging on all S3 buckets where it is disabled and sends a Slack notification.
-
+    description: Notify when S3 bucket access logging is disabled.
 
     mode:
       type: periodic
@@ -214,32 +213,28 @@ policies:
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
 
     filters:
-      - type: logging
-        enabled: false
+      - type: value
+        key: Logging.Enabled
+        value: false
       - not:
           - type: value
             key: Name
             value: cloudtrail-access-log-bucket-311278774159
 
     actions:
-      - type: set-s3-logging
-        target_bucket: cloudtrail-access-log-bucket-311278774159
-        target_prefix: ct-logs/
-
       - type: notify
         template: default
         template_format: slack
         violation_desc: |
-          *** CHECKID : "loudtrail_logs_s3_bucket_access_logging_enabled" ***
-          • 해당 S3 버킷은 접근 로그(Access Logging)가 비활성화되어 있어 로그 추적이 불가능한 상태였습니다.
-          • 자동으로 로그 수신 버킷에 Access Logging이 설정되었습니다.
+          *** CHECKID : "s3_access_logging_enabled" ***
+            S3 버킷에 Access Logging이 비활성화되어 있습니다.
         action_desc: |
-          1. CloudTrail 로그 버킷과 기타 중요 로그 저장 버킷의 Access Logging 설정을 정기적으로 점검하고 순환 참조가 발생하지 않도록 주의하세요.
+         S3 콘솔에서 해당 버킷의 액세스 로그를 수동으로 설정하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 ---
 # 7-cloudtrail_logs_s3_bucket_is_not_publicly_accessible.yml
 
@@ -249,23 +244,19 @@ policies:
 
 policies:
   - name: alert-cloudtrail-logs-public-s3  
-    resource: aws.s3  
-    description: Send Slack notification when CloudTrail log bucket is publicly accessible.  
+    resource: aws.s3
+    description: Send Slack notification when CloudTrail log bucket is publicly accessible.
 
     mode:
       type: periodic  
-      schedule: "rate(1 day)"
+      schedule: "rate(1 day)" 
       role: arn:aws:iam::311278774159:role/custodian-lambda-role  
 
     filters:
       - type: value  
-        key: "tag:aws:cloudtrail:trail" 
-        value: present  
-      - type: global-grants  
-        allow_combinations: true  
-        grants:
-          - URI: "http://acs.amazonaws.com/groups/global/AllUsers" 
-          - URI: "http://acs.amazonaws.com/groups/global/AuthenticatedUsers" 
+        key: "tag:aws:cloudtrail:trail"  
+        value: present 
+      - type: global-grants
 
     actions:
       - type: notify 
@@ -273,14 +264,14 @@ policies:
         template_format: slack  
         violation_desc: |
           *** CHECKID : "cloudtrail_logs_s3_bucket_is_not_publicly_accessible" ***
-          • CloudTrail 로그를 저장하는 S3 버킷이 퍼블릭으로 노출되어 있습니다. 
+          CloudTrail 로그를 저장하는 S3 버킷이 퍼블릭으로 노출되어 있습니다. 
         action_desc: |
-          1. S3 버킷의 접근 정책을 수정하여 퍼블릭 접근을 차단하고 로그 기밀성을 확보하세요.
+          S3 버킷의 접근 정책을 수정하여 퍼블릭 접근을 차단하고 로그 기밀성을 확보하세요.
         to:
-          - https://hooks.slack.com/services/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  
+          - "${SLACK_WEBHOOK_URL}"
         transport:
-          type: sqs  
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue  
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 ---
 # 8-cloudtrail_multi_region_enabled_logging_management_events.yml
 
@@ -290,22 +281,22 @@ policies:
 # 관리자가 직접 콘솔 또는 Terraform 등으로 IsMultiRegionTrail=true로 설정 검토
 
 policies:
-  - name: alert-cloudtrail-not-multi-region-logging-enabled
-    resource: aws.cloudtrail
+  - name: alert-cloudtrail-not-multi-region-logging-enabled 
+    resource: aws.cloudtrail  
     description: Send Slack notification when CloudTrail is not logging in all regions or not capturing management events.
 
     mode:
-      type: periodic
-      schedule: "rate(1 hour)" 
-      role: arn:aws:iam::311278774159:role/custodian-lambda-role 
+      type: periodic  
+      schedule: "rate(1 hour)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role  
 
     filters:
       - or:  
           - type: value
             key: IsMultiRegionTrail  
-            value: false  
+            value: false 
           - type: value
-            key: HasManagementEvents  
+            key: HasManagementEvents 
             value: false  
 
     actions:
@@ -313,15 +304,15 @@ policies:
         template: default  
         template_format: slack  
         violation_desc: |
-          *** CHECKID : "cloudtrail_not_multi_region_or_no_management_events" ***
-          • CloudTrail이 다중 리전 로깅 또는 관리 이벤트 로깅을 비활성화하고 있습니다.
+          *** CHECKID : "cloudtrail_multi_region_or_no_management_events" ***
+          CloudTrail이 다중 리전 로깅 또는 관리 이벤트 로깅을 비활성화하고 있습니다.
         action_desc: |
-          1. CloudTrail 설정에서 모든 리전에 대해 로깅을 활성화하고 관리 이벤트 로깅이 포함되도록 구성하세요.
+          CloudTrail 설정에서 모든 리전에 대해 로깅을 활성화하고 관리 이벤트 로깅이 포함되도록 구성하세요.
         to:
-          - https://hooks.slack.com/services/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 
+          - "${SLACK_WEBHOOK_URL}"
         transport:
-          type: sqs  
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue  
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 ---
 # 9-cloudtrail_multi_region_enabled.yml
 
@@ -336,9 +327,9 @@ policies:
     description: Send Slack notification when CloudTrail is not enabled for multi-region logging.
 
     mode:
-      type: periodic  
+      type: periodic
       schedule: "rate(24 hours)"  
-      role: arn:aws:iam::311278774159:role/custodian-lambda-role  
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
 
     filters:
       - type: value
@@ -351,14 +342,14 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_multi_region_enabled" ***
-          • CloudTrail이 단일 리전 트레일로 설정되어 있어 운영 환경 전반에 대한 완전한 감사가 어려울 수 있습니다.
+          CloudTrail이 단일 리전 트레일로 설정되어 있어 운영 환경 전반에 대한 완전한 감사가 어려울 수 있습니다.
         action_desc: |
-          1. 모든 리전에 대한 가시성을 확보하려면 CloudTrail 설정에서 다중 리전 로깅을 활성화하세요.
+          모든 리전에 대한 가시성을 확보하려면 CloudTrail 설정에서 다중 리전 로깅을 활성화하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 ---
 # 10-cloudtrail_s3_dataevents_read_enabled.yml
 
@@ -371,29 +362,34 @@ policies:
   - name: alert-cloudtrail-s3-dataevents-read-disabled
     resource: aws.cloudtrail
     description: |
-      CloudTrail is not logging S3 object-level read events, making it impossible to track data access activity.
+      Detect CloudTrail trails without S3 read data event logging.
     mode:
       type: periodic
       schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: cloudtrail.amazonaws.com
+          event: PutEventSelectors
+          ids: "requestParameters.name"
     filters:
-      - type: data-events
-        key_type: S3
-        read: false
+      - type: event-selectors
+        key: 'DataResources[?Type==`AWS::S3::Object`]|[?ReadWriteType==`ReadOnly`]'
+        op: equal
+        value: null
     actions:
       - type: notify
         template: default
         template_format: slack
         violation_desc: |
-          *** CHECKID : "cloudtrail_s3_dataevents_read_enabled" ***
-          • CloudTrail에서 S3 객체 수준의 읽기 이벤트 로깅이 비활성화되어 데이터 접근 추적이 불가능합니다. 
+          *** CHECKID: "cloudtrail_s3_dataevents_read_enabled" ***
+          CloudTrail이 S3 객체 읽기 이벤트를 로깅하지 않고 있습니다.
         action_desc: |
-          1. CloudTrail 설정에서 S3 객체 수준(Read) 데이터 이벤트 로깅을 활성화하세요.
+          CloudTrail에서 S3 읽기 데이터 이벤트 로깅을 활성화하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 ---
 # 11-cloudtrail_s3_dataevents_write_enabled.yml
 
@@ -401,31 +397,35 @@ policies:
 # 위반 사항 : CloudTrail에서 S3 객체 수준의 쓰기 이벤트 로깅이 비활성화되어 객체 생성/삭제 등의 변경 추적이 불가능한 상태
 # 이유 : S3에 대한 쓰기 이벤트는 중요한 변경사항을 포함하며 설정되지 않을 경우 감사 및 추적이 어려움.
 
-
 policies:
   - name: alert-cloudtrail-s3-dataevents-write-disabled
     resource: aws.cloudtrail
     description: |
       CloudTrail is not logging S3 object-level write events, making it impossible to track changes like object creation or deletion.
+
     mode:
       type: periodic
       schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
+
     filters:
-      - type: data-events
-        key_type: S3
-        write: false
+      - type: value
+        key: EventSelectors[].DataResources[].Type
+        op: not-in
+        value: s3
+
     actions:
       - type: notify
         template: default
         template_format: slack
         violation_desc: |
           *** CHECKID : "cloudtrail_s3_dataevents_write_enabled" ***
-          • CloudTrail에서 S3 객체 수준의 쓰기 이벤트 로깅이 비활성화되어 객체 변경 사항 추적이 불가능합니다.
+          CloudTrail에서 S3 객체 수준의 쓰기 이벤트 로깅이 비활성화되어 객체 변경 사항 추적이 불가능합니다.
         action_desc: |
-          1. CloudTrail 설정에서 S3 객체 수준(Write) 데이터 이벤트 로깅을 활성화하세요.
+          CloudTrail 설정에서 S3 객체 수준(Write) 데이터 이벤트 로깅을 활성화하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
