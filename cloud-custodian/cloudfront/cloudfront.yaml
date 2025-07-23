@@ -1,5 +1,6 @@
 policies:
 # CloudFront ----------------------------------------------------------- CloudFront
+
 # CHECKID: cloudfront_distributions_field_level_encryption_enabled
 # ACTIONPLAN: CloudFront 필드 수준 암호화 설정 누락 시 보완
   - name: cloudfront-field-level-encryption-enabled
@@ -7,7 +8,7 @@ policies:
     description: "CloudFront distributions field level encryption disabled alert"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(15 minutes)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -18,17 +19,18 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: cloudfront_distributions_field_level_encryption_enabled ***
           • CloudFront 배포에 필드 수준 암호화 누락이 감지되었습니다.
         action_desc: |
-          1. CloudFront 배포에 필드 수준 암호화 설정을 해주세요.
+          1. 해당 배포에 필드 수준 암호화(Field Level Encryption) 설정을 적용해 주세요.
+          2. 향후 신규 배포/변경 시에도 암호화가 누락되지 않도록 배포 스크립트 및 운영 프로세스를 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
-
 
 # CHECKID: cloudfront_distributions_geo_restrictions_enabled
 # ACTIONPLAN: CloudFront 배포에 대해 지리적 제한이 활성화되지 않은 경우 탐지하고 태깅, 경고
@@ -37,7 +39,7 @@ policies:
     description: "cloudfront distributions geo restrictions disabled alert"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -48,17 +50,18 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: cloudfront_distributions_geo_restrictions_enabled ***
           • CloudFront 배포에 Geo Restriction 누락이 감지되었습니다.
         action_desc: |
-          1. CloudFront 배포에 대해 지리적 제한을 활성화해 주세요.
+          1. 해당 배포에 지리적 제한(Geo Restriction)을 필요에 따라 활성화해 주세요.
+          2. 서비스 목적/보안정책에 맞게 불필요한 국가/지역 차단을 검토해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
-
 
 # CHECKID: cloudfront_distributions_https_enabled
 # ACTIONPLAN: CloudFront HTTPS 설정 누락 시 정책 위반 알림
@@ -69,7 +72,7 @@ policies:
     description: "cloudfront distributions https disabled alert"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(15 minutes)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -80,18 +83,18 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: cloudfront_distributions_https_enabled ***
-          • CloudFront 배포에 HTTPS 설정 누락이 감지되었습니다.
+          • CloudFront 배포에 HTTPS 미설정이 감지되었습니다.
         action_desc: |
-          1. CloudFront 배포에 SSL 인증서 적용하여 HTTPS 설정해 주세요.
-          2. CloudFront 배포에 'Viewer Protocol Policy'를 Redirect to HTTPS로 설정해 주세요.
+          1. Viewer Protocol Policy를 'Redirect to HTTPS'로 변경하고, SSL 인증서를 적용해 주세요.
+          2. 신규 배포/변경 시에도 항상 HTTPS만 허용되도록 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
-
 
 # CHECKID: cloudfront_distributions_logging_enabled
 # ACTIONPLAN: CloudFront 배포에서 로그 설정이 꺼져 있는 경우, 활성화 설정 적용
@@ -100,7 +103,7 @@ policies:
     description: "cloudfront distributions logging disabled alert"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
@@ -118,11 +121,13 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc:  |
           *** CHECKID: cloudfront_distributions_logging_enabled ***
           • CloudFront 배포에 로그 설정 누락이 감지되었습니다.
         action_desc: |
-          1. CloudFront 배포에서 로그 설정을 활성화해 주세요.
+          1. S3 버킷을 지정해 CloudFront 로그 설정을 활성화해 주세요.
+          2. 장기 운영/감사 대비 정기적으로 로그 수집 정책을 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -140,7 +145,7 @@ policies:
     description: "cloudfront distributions using legacy ssl protocols alert"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -151,17 +156,18 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: cloudfront_distributions_using_deprecated_ssl_protocols ***
-          - CloudFront 배포에 구식 SSL 프로토콜 사용이 감지되었습니다. 
+          • CloudFront 배포에 구식 SSL 프로토콜 사용이 감지되었습니다.
         action_desc: |
-          1. CloudFront에서 SSL 프로토콜을 TLS 1.2 이상으로 설정해 주세요.
+          1. ViewerCertificate의 MinimumProtocolVersion을 TLS 1.2 이상으로 직접 변경해 주세요.
+          2. 배포 스크립트/템플릿에서도 최신 버전을 기본값으로 적용해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
-
 
 # CHECKID: cloudfront_distributions_using_waf
 # ACTIONPLAN: CloudFront 배포에 AWS WAF를 연결하여 웹 공격 차단 정책 적용
@@ -171,7 +177,7 @@ policies:
     description: "cloudfront distributions using none waf alert"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
@@ -185,11 +191,13 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: cloudfront_distributions_using_waf ***
-          • CloudFront 배포에 WAF 누락이 감지되었습니다.
+          • CloudFront 배포에 WAF 미적용이 감지되었습니다.
         action_desc: |
-          1. CloudFront 배포에 AWS WAF를 연결하여 웹 공격 차단 정책 적용해 주세요.
+          1. CloudFront 배포에 AWS WAF(Web ACL)를 직접 연결해 주세요.
+          2. 신규 배포/운영 시에도 반드시 WAF가 적용되도록 관리해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

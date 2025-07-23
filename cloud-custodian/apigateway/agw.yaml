@@ -1,6 +1,7 @@
 policies:
 
   # CHECKID: apigateway_restapi_client_certificate_enabled
+  # ACTIONPLAN: 클라이언트 인증서가 적용되지 않은 API Gateway REST API 탐지 시, 담당자에게 알림 전송 및 Client Certificate Required 활성화 권고
   - name: apigateway_restapi_client_certificate_enabled
     resource: aws.rest-api
     description: |
@@ -17,11 +18,13 @@ policies:
       - type: notify
         template: default
         template_format: slack
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: apigateway_restapi_client_certificate_enabled ***
-          • API Gateway REST API에 클라이언트 인증서(Client Certificate)가 활성화되어 있지 않습니다.
+          • API Gateway REST API에서 클라이언트 인증서 미적용이 감지되었습니다.
         action_desc: |
-          1. API Gateway REST API에서 클라이언트 인증서 요구(Client Certificate Required)를 활성화하세요.
+          1. 민감 API 또는 인증이 필요한 엔드포인트는 반드시 'Client Certificate Required'를 활성화해 주세요.
+          2. 신규 배포/템플릿/IaC에서도 인증서 누락이 반복되지 않도록 주기적으로 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -29,6 +32,7 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
   # CHECKID: apigateway_restapi_logging_enabled
+  # ACTIONPLAN: 접근 로그 미설정 REST API 탐지 시 담당자에게 알림, 로그 활성화 및 CloudWatch Logs 연동 권고
   - name: apigateway_restapi_logging_enabled
     resource: aws.rest-api
     description: |
@@ -45,11 +49,13 @@ policies:
       - type: notify
         template: default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: apigateway_restapi_logging_enabled ***
-          • API Gateway REST API에 접근 로그(Access Logging)가 활성화되어 있지 않습니다.
+          • API Gateway REST API에서 접근 로그 미설정이 감지되었습니다.
         action_desc: |
-          1. API Gateway REST API에 접근 로그를 활성화하고, 로그 그룹(CloudWatch Logs 등)을 지정하세요.
+          1. CloudWatch Logs 등 로그 그룹을 지정하여 접근 로그를 활성화해 주세요.
+          2. 감사/운영 요구 사항에 맞게 로그 정책을 주기적으로 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -57,6 +63,7 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
   # CHECKID: apigateway_restapi_public
+  # ACTIONPLAN: 퍼블릭/크로스계정 접근 허용 REST API 탐지 시 담당자 알림, 리소스 정책 제한 권고
   - name: apigateway_restapi_public
     resource: aws.rest-api
     description: |
@@ -71,11 +78,13 @@ policies:
       - type: notify
         template: default
         template_format: slack
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: apigateway_restapi_public ***
-          • API Gateway REST API가 리소스 정책으로 외부(크로스 계정/공개)에 노출되어 있습니다.
+          • API Gateway REST API가 퍼블릭/외부에 노출된 상태가 감지되었습니다.
         action_desc: |
-          1. 퍼블릭/외부 노출을 제한하려면 리소스 정책을 검토하세요.
+          1. 리소스 정책을 반드시 검토하여 불필요한 퍼블릭/크로스계정 접근을 차단해 주세요.
+          2. 신규 배포, 운영 중에도 외부 노출이 재발되지 않도록 주기적으로 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

@@ -1,13 +1,14 @@
 policies:
-  #CHECKID: account_maintain_current_contact_details
-  #ACTIONPLAN: AWS 계정의 연락처 정보가 최신이 아닌 경우, 즉시 업데이트하고 유효성을 정기적으로 확인합니다.
+
+  # CHECKID: account_maintain_current_contact_details
+  # ACTIONPLAN: AWS 계정의 연락처 정보가 최신이 아닌 경우 알림을 전송하고, 담당자가 즉시 연락처를 최신 정보로 업데이트하도록 안내
   - name: account_maintain_current_contact_details
     resource: aws.org-account
     description: |
       - Verify that the root email of the AWS account is included in the predefined, up-to-date contact list. If it does not match, notify the security team and record the validation timestamp in the LastContactValidation tag
     mode:
       type: periodic
-      schedule: "rate(7 days)"
+      schedule: "rate(30 days)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -17,66 +18,69 @@ policies:
     actions:
       - type: notify
         template: default
-        priority_header: 2
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: account_maintain_current_contact_details ***
           • AWS 계정의 연락처 정보가 최신이 아닙니다.
         action_desc: |
-          1. AWS 계정의 연락처 정보를 즉시 업데이트하고 유효성을 정기적으로 확인하세요.
+          1. AWS 계정의 연락처 정보를 최신 정보로 직접 업데이트해 주세요.
+          2. 연락처 정보가 변경될 때마다 주기적으로 최신화 상태를 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
-  #CHECKID: account_maintain_different_contact_details_to_security_billing_and_operations
-  #ACTIONPLAN: 보안, 결제, 운영 담당 팀의 연락처 세부 정보가 동일하다면, 각 역할에 맞는 개별 연락처를 등록합니다.
-  - name: account_maintain_different_contact_details_to #이름 길이가 64자를 넘음
+  # CHECKID: account_maintain_different_contact_details_to_security_billing_and_operations
+  # ACTIONPLAN: 보안, 결제, 운영 담당 팀의 연락처가 동일한 경우 알림 전송 및 각 담당 역할별로 연락처 분리 등록 안내
+  - name: account_maintain_different_contact_details_to
     resource: aws.org-account
     description: |
       If the contact information for the Security, Billing, and Operations teams is identical, detect it using the policy below and immediately notify the Security team
     mode:
       type: periodic
-      schedule: "rate(7 days)"
+      schedule: "rate(30 days)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
+      # 각 역할별 실제 책임자/부서 이메일을 정확하게 입력
           - type: value
             key: ContactInformation.SecurityContact
             op: eq
-            value: "security@example.com"
+            value: "security1@example.com"
           - type: value
             key: ContactInformation.BillingContact
             op: eq
-            value: "security@example.com"
+            value: "security2@example.com"
           - type: value
             key: ContactInformation.OperationsContact
             op: eq
-            value: "security@example.com"
+            value: "security3@example.com"
     actions:
       - type: notify
         template: default
-        priority_header: 2
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: account_maintain_different_contact_details_to_security_billing_and_operations ***
           • 보안, 결제, 운영 담당 팀의 연락처 세부 정보가 동일합니다.
         action_desc: |
-          1. 보안, 결제, 운영 담당 팀에 맞는 개별 연락처를 등록하세요.
+          1. 각 담당 역할(Security, Billing, Operations)에 맞는 별도의 연락처 정보를 등록해 주세요.
+          2. 연락처 정보가 하나로 합쳐져 있지 않은지 정기적으로 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
-  #CHECKID: account_security_contact_information_is_registered
-  #ACTIONPLAN: AWS 계정에 보안 연락처 정보가 등록되지 않은 경우, 정확한 정보를 등록하여 비상시 중요한 보안 알림을 받도록 합니다.
+  # CHECKID: account_security_contact_information_is_registered
+  # ACTIONPLAN: AWS 계정에 보안 연락처 정보가 등록되지 않은 경우, 알림 전송 및 즉시 등록 안내
   - name: account_security_contact_information_is_registered
     resource: aws.org-account
     description: |
       Detect accounts where the `ContactInformation.SecurityContact` field is empty or missing, notify the Security team for each violating account, and request immediate registration
     mode:
       type: periodic
-      schedule: "rate(7 days)"
+      schedule: "rate(30 days)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -86,27 +90,28 @@ policies:
     actions:
       - type: notify
         template: default
-        priority_header: 2
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: account_security_contact_information_is_registered ***
           • AWS 계정에 보안 연락처 정보가 등록되지 않았습니다.
         action_desc: |
-          1. AWS 계정에 정확한 보안 연락처 정보를 등록하여 비상시 중요한 보안 알림을 받도록 하세요.
+          1. 비상시 보안 알림 수신을 위해 정확한 보안 연락처 정보를 반드시 등록해 주세요.
+          2. 신규 계정 생성 및 정보 변경 시 보안 연락처 필수 등록을 주기적으로 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
-  #CHECKID: account_security_questions_are_registered_in_the_aws_account
-  #ACTIONPLAN: AWS 계정에 보안 질문이 설정되지 않았다면, 질문을 설정하고 답변을 안전하게 보관하여 계정 복구 시 활용합니다.
+  # CHECKID: account_security_questions_are_registered_in_the_aws_account
+  # ACTIONPLAN: AWS 계정에 보안 질문 미설정 시 알림 전송 및 즉시 설정/안전한 보관 안내
   - name: account_security_questions_are_registered_in__account
     resource: aws.org-account
     description: |
       Detect accounts where the `ContactInformation.SecurityQuestion` field is empty or missing, notify the Security team for each violating account, and request immediate configuration of the security question
     mode:
       type: periodic
-      schedule: "rate(7 days)"
+      schedule: "rate(30 days)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -116,12 +121,13 @@ policies:
     actions:
       - type: notify
         template: default
-        priority_header: 2
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: account_security_questions_are_registered_in_the_aws_account ***
           • AWS 계정에 보안 질문이 설정되지 않았습니다.
         action_desc: |
-          1. AWS 계정에 보안 질문을 설정하고 답변을 안전하게 보관하여 계정 복구 시 활용하도록 설정하세요.
+          1. 계정 복구 및 보안 강화 목적으로 보안 질문을 즉시 설정하고, 답변을 안전하게 보관해 주세요.
+          2. 계정 생성/변경 시 보안 질문 설정이 누락되지 않도록 주기적으로 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

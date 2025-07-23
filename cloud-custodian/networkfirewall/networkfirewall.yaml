@@ -7,7 +7,7 @@ policies:
     resource: aws.vpc
     mode:
       type: periodic
-      schedule: "rate(7 days)"
+      schedule: "rate(7 days)" # 더 민감한 환경이면 "rate(1 day)" 등으로 조정 가능
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -25,10 +25,12 @@ policies:
           *** CHECKID: networkfirewall_in_all_vpc ***
           • 네트워크 방화벽이 배포되지 않은 VPC가 감지되었습니다.
         action_desc: |
-          1. 해당 VPC에 AWS Network Firewall을 생성하여 인바운드 및 아웃바운드 트래픽을 필터링하세요.
-          2. 방화벽 정책이 올바르게 적용되었는지 주기적으로 검토하세요.
+          1. 반드시 해당 VPC에 AWS Network Firewall을 직접 배포하여 인바운드·아웃바운드 트래픽을 필터링하세요.
+          2. 배포 이후에도 방화벽 정책 및 작동상태가 주기적으로 점검되는지 확인하세요.
+          3. 방화벽 정책/구성이 변경될 때마다 보안팀과 사전 협의하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+

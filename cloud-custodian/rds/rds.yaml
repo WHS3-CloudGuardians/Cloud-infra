@@ -6,9 +6,9 @@ policies:
     description: |
       Enable automatic backups for the RDS instance(BackupRetentionPeriod > 0).
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: BackupRetentionPeriod
@@ -20,28 +20,31 @@ policies:
             value: 7
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: danger
         violation_desc: |
           *** rds_instance_backup_enabled ***
-          • RDS 인스턴스에 백업이 비활성화되어 있습니다.
+          • 백업이 비활성화된 RDS 인스턴스가 탐지되어 백업(7일 보존)을 자동으로 활성화하였습니다.
         action_desc: |
-          1. RDS 인스턴스에 백업을 활성화하였습니다.
+          1. RDS 백업 설정(보존 기간 포함)이 주기적으로 비활성화되지 않는지 점검하세요.
+          2. 모든 RDS 인스턴스가 항상 자동 백업 상태임을 정기적으로 검토·보고하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
+
   #CHECKID: rds_instance_certificate_expiration
-  #ACTIONPLAN: 만료된 RDS 인증서가 발견된 경우, 즉시 새로운 인증서로 교체하여 연결 오류를 방지합니다.
+  #ACTIONPLAN: 만료된 RDS 인증서가 발견된 경우, 즉시 새로운 인증서로 교체하여 연결 오류를 방지
   - name: rds_instance_certificate_expiration
     resource: aws.rds
     description: |
       Identify RDS instances using expired certificates, replace them with new ones, and restart the instances to prevent connection errors.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: CertificateDetails.ValidTill
@@ -58,13 +61,14 @@ policies:
             value: true
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: danger
         violation_desc: |
-          *** CHECKID: rds_instance_certificate_expiration ***
-          • 만료된 RDS 인증서가 발견되었습니다.
+          *** rds_instance_certificate_expiration ***
+          • 만료된 RDS 인증서를 탐지하여 새로운 인증서로 자동 교체(재시작 포함)하였습니다.
         action_desc: |
-          1. 만료된 RDS 인증서를 새로운 인증서로 교체하였습니다.
-          2. 인증서 연결 오류를 방지하였습니다.
+          1. 교체된 인증서 적용 결과 및 연결 정상 여부를 반드시 점검하세요.
+          2. 만료 예정 인증서가 사전에 탐지·교체될 수 있도록 RDS 인증서 유효기간을 정기적으로 관리하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -78,9 +82,9 @@ policies:
     description: |
       Automatically copy tags from RDS instances to snapshots to facilitate resource identification and management.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: CopyTagsToSnapshot
@@ -89,13 +93,14 @@ policies:
       - type: set-snapshot-copy-tags
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: warning
         violation_desc: |
-          *** CHECKID: rds_instance_copy_tags_to_snapshots ***
-          • RDS 인스턴스에 태그 복사 기능이 비활성화되어 있습니다.
+          *** rds_instance_copy_tags_to_snapshots ***
+          • RDS 인스턴스에서 스냅샷 태그 복사 기능 미설정이 탐지되어 자동으로 활성화하였습니다.
         action_desc: |
-          1. RDS 인스턴스의 태그를 자동으로 스냅샷에 복사를 합니다.
-          2. 리소스 식별 및 관리를 용이하게 합니다.
+          1. 태그 복사 기능 활성화 이후에도 스냅샷 식별이 정확히 이루어지는지 주기적으로 점검하세요.
+          2. 복구 시점에도 태그 정보가 유지되고 있는지 확인하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -109,9 +114,9 @@ policies:
     description: |
       Detect RDS instances using default administrator usernames such as 'admin' or 'root', notify the security team, and replace the master user.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
         - type: value
@@ -126,13 +131,14 @@ policies:
     actions:
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: warning
         violation_desc: |
-          *** CHECKID: rds_instance_default_admin ***
-          • RDS 인스턴스의 마스터 사용자 이름이 'admin', 'postgres' 등 추측하기 쉬운 기본값입니다.
+          *** rds_instance_default_admin ***
+          • 추측이 쉬운 기본 관리자 계정명('admin', 'root', 'administrator' 등)이 탐지되었습니다.
         action_desc: |
-          1. RDS 인스턴스의 마스터 사용자 이름을 변경하세요.
-          2. RDS 인스턴스의 마스터 사용자 이름은 추측하기 어렵게 설정하세요.
+          1. 마스터 사용자 계정명을 유추하기 어려운 이름으로 즉시 변경하세요.
+          2. 모든 RDS 인스턴스의 관리자 계정명 정책 준수 상태를 주기적으로 점검하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -146,9 +152,9 @@ policies:
     description: |
       Verify that deletion protection is enabled on all RDS instances.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: DeletionProtection
@@ -160,13 +166,14 @@ policies:
             value: true
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: danger
         violation_desc: |
-          *** CHECKID: rds_instance_deletion_protection ***
-          • RDS 인스턴스에서 삭제 보호가 비활성화되어 있습니다.
+          *** rds_instance_deletion_protection ***
+          • 삭제 방지 비활성 RDS 인스턴스를 탐지하여 삭제 방지 설정을 자동 적용하였습니다.
         action_desc: |
-          1. RDS 인스턴스에 삭제 방지 설정 적용합니다.
-          2. RDS 인스턴스의 의도치 않은 삭제를 방지합니다.
+          1. 모든 RDS 인스턴스의 삭제 방지 설정이 지속적으로 유지되는지 정기적으로 점검하세요.
+          2. 삭제 방지 미적용 인스턴스가 재탐지되면 즉시 운영팀에 보고하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -174,15 +181,15 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
   #CHECKID: rds_instance_deprecated_engine_version
-  #ACTIONPLAN: 지원이 중단된 엔진 버전을 사용하는 RDS 인스턴스는 지원되는 최신 버전으로 업그레이드합니다.
+  #ACTIONPLAN: 지원이 중단된 엔진 버전을 사용하는 RDS 인스턴스는 지원되는 최신 버전으로 업그레이드
   - name: rds_instance_deprecated_engine_version
     resource: aws.rds
     description: |
-      Identify RDS instances running unsupported engine versions and automatically upgrade them to the latest supported version to maintain stability.
+      Identify RDS instances running unsupported engine versions and notify responsible team for upgrade.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: Engine
@@ -190,16 +197,18 @@ policies:
       - type: value
         key: EngineVersion
         op: less-than
-        value: 8.0.36 # 예시 버전
+        value: 8.0.36
     actions:
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: warning
         violation_desc: |
-          *** CHECKID: rds_instance_deprecated_engine_version ***
-          • 지원이 중단된 엔진 버전을 사용하는 RDS 인스턴스가 존재합니다.
+          *** rds_instance_deprecated_engine_version ***
+          • 지원이 종료된 RDS 엔진 버전 사용 인스턴스가 탐지되었습니다.
         action_desc: |
-          1. RDS 인스턴스의 엔진 버전을 지원되는 최신 버전으로 업그레이드하세요.
+          1. 담당자는 반드시 지원되는 최신 버전으로 업그레이드 하세요.
+          2. 엔진 버전 지원 정책 및 RDS 엔진 업그레이드 일정을 정기적으로 검토하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -213,9 +222,9 @@ policies:
     description: |
       모든 RDS 인스턴스에서 enhanced monitoring 활성화
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: MonitoringInterval
@@ -225,17 +234,18 @@ policies:
         update:
           - property: MonitoringInterval
             value: 60
-          - property: MonitoringRoleARN    # ARN 대소문자 에러 있음. 커스토디안 자체 문제
+          - property: MonitoringRoleARN
             value: arn:aws:iam::311278774159:role/rds-monitoring-role
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: warning
         violation_desc: |
-          *** CHECKID: rds_instance_enhanced_monitoring_enabled ***
-          • RDS 인스턴스의 enhanced monitoring이 비활성화되어 있습니다.
+          *** rds_instance_enhanced_monitoring_enabled ***
+          • 향상된 모니터링이 비활성화된 RDS 인스턴스를 탐지하여 자동으로 활성화하였습니다.
         action_desc: |
-          1. RDS 인스턴스의 enhanced monitoring을 활성화합니다.
-          2. enhanced monitoring 활성화를 통해 성능 진단 기능을 강화합니다.
+          1. 모니터링 설정이 잘 적용되어 실시간 성능 진단이 가능한지 주기적으로 확인하세요.
+          2. 성능 이슈·장애 발생시 모니터링 데이터가 누락되지 않도록 관리하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -249,9 +259,9 @@ policies:
     description: |
       If an RDS event subscription is not configured for events such as DB security group change, automatically create and subscribe to the event, and notify the responsible team.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: SourceType
@@ -265,12 +275,14 @@ policies:
     actions:
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: warning
         violation_desc: |
-          *** CHECKID: rds_instance_event_subscription_security_groups ***
-          • RDS 이벤트 구독이 DB security group change 등 중요 이벤트를 포함하지 않습니다.
+          *** rds_instance_event_subscription_security_groups ***
+          • RDS 이벤트 구독에 보안 그룹 변경 등 주요 이벤트 미포함 상태가 탐지되었습니다.
         action_desc: |
-          1. RDS 이벤트 구독이 중요 이벤트를 포함하도록 변경하세요.
+          1. 이벤트 구독이 중요한 보안 이벤트를 반드시 포함하도록 담당자가 직접 수정하세요.
+          2. 구독 항목이 누락되지 않는지 연 1회 이상 감사 점검하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -284,9 +296,9 @@ policies:
     description: |
       Verify that IAM authentication is enabled for all RDS instances, identify those where it is disabled, and notify the administrator.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: IAMDatabaseAuthenticationEnabled
@@ -298,12 +310,14 @@ policies:
             value: true
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: warning
         violation_desc: |
-          *** CHECKID: rds_instance_iam_authentication_enabled ***
-          • IAM 인증이 비활성화된 RDS 인스턴스가 존재합니다.
+          *** rds_instance_iam_authentication_enabled ***
+          • IAM 인증 미설정 RDS 인스턴스를 탐지하여 자동으로 IAM 인증을 활성화하였습니다.
         action_desc: |
-          1. RDS 인스턴스의 IAM 인증을 활성화합니다.
+          1. IAM 인증 활성화가 잘 적용되었는지 주기적으로 점검하세요.
+          2. 사용자 관리 및 인증정책 이행 상태를 연 1회 이상 점검·보고하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -317,9 +331,9 @@ policies:
     description: |
       Verify that RDS instances are exporting logs to CloudWatch Logs.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: "length(EnabledCloudwatchLogsExports || `[]`)"
@@ -336,12 +350,14 @@ policies:
                 - slowquery
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: danger
         violation_desc: |
-          *** CHECKID: rds_instance_integration_cloudwatch_logs ***
-          • RDS 로그가 CloudWatch에 연동되어 있지 않습니다.
+          *** rds_instance_integration_cloudwatch_logs ***
+          • CloudWatch Logs 미연동 RDS 인스턴스를 탐지하여 자동으로 로그 연동을 구성하였습니다.
         action_desc: |
-          1. RDS의 로그 전송 설정을 자동으로 구성하여 통합 모니터링을 가능하게 합니다.
+          1. 로그 연동 결과가 정상적으로 적용되어 있는지 점검하세요.
+          2. RDS 로그 수집 및 감사 로그 적재 정책 준수 여부를 정기적으로 확인하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -349,15 +365,15 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
   #CHECKID: rds_instance_minor_version_upgrade_enabled
-  #ACTIONPLAN: RDS 인스턴스의 마이너 버전 자동 업그레이드가 비활성화된 경우, 활성화하여 보안 패치를 적용합니다.
+  #ACTIONPLAN: RDS 인스턴스의 마이너 버전 자동 업그레이드가 비활성화된 경우, 활성화하여 보안 패치를 적용
   - name: rds_instance_minor_version_upgrade_enabled
     resource: aws.rds
     description: |
       Identify RDS instances with minor version automatic upgrades disabled, enable the setting to ensure security patches are applied automatically.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: AutoMinorVersionUpgrade
@@ -371,12 +387,14 @@ policies:
             value: true
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: warning
         violation_desc: |
-          *** CHECKID: rds_instance_minor_version_upgrade_enabled ***
-          • RDS 인스턴스의 마이너 버전 자동 업그레이드가 비활성화되어 있습니다.
+          *** rds_instance_minor_version_upgrade_enabled ***
+          • 마이너 버전 자동 업그레이드 미설정 RDS 인스턴스를 탐지하여 자동으로 활성화하였습니다.
         action_desc: |
-          1. RDS 인스턴스의 마이너 버전 자동 업그레이드를 활성화합니다.
+          1. 자동 업그레이드가 잘 적용되고 있는지 주기적으로 점검하세요.
+          2. 마이너/메이저 버전 업그레이드 일정을 정기적으로 관리하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -390,9 +408,9 @@ policies:
     description: |
       Enable Multi-AZ deployment for all single-AZ RDS instances.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: MultiAZ
@@ -404,12 +422,14 @@ policies:
             value: true
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: danger
         violation_desc: |
-          *** CHECKID: rds_instance_multi_az ***
-          • Multi-AZ 배포가 비활성화된 RDS 인스턴스가 존재합니다.
+          *** rds_instance_multi_az ***
+          • 단일 AZ RDS 인스턴스를 탐지하여 Multi-AZ 배포를 자동으로 활성화하였습니다.
         action_desc: |
-          1. 모든 단일 AZ RDS 인스턴스에 대해 Multi-AZ 배포를 활성화합니다.
+          1. Multi-AZ 전환 이후에도 장애 복구, 고가용성 정책이 잘 적용되고 있는지 정기적으로 점검하세요.
+          2. AZ 분산 배포, DR 테스트 등을 연 1회 이상 운영팀에서 시행하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -417,15 +437,15 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
   #CHECKID: rds_instance_no_public_access
-  #ACTIONPLAN: 공개적으로 액세스 가능한 RDS 인스턴스는 '퍼블릭 액세스' 속성을 비활성화하여 접근을 차단합니다.
+  #ACTIONPLAN: 공개적으로 액세스 가능한 RDS 인스턴스는 '퍼블릭 액세스' 속성을 비활성화하여 접근을 차단
   - name: rds_instance_no_public_access
     resource: aws.rds
     description: |
       공개 접근이 활성화된 RDS 인스턴스를 찾아 PubliclyAccessible 속성을 비활성화하여 외부 노출을 차단
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: PubliclyAccessible
@@ -439,12 +459,14 @@ policies:
         immediate: true
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: danger
         violation_desc: |
-          *** CHECKID: rds_instance_no_public_access ***
-          • 퍼블릭 액세스가 가능한 RDS 인스턴스가 존재합니다.
+          *** rds_instance_no_public_access ***
+          • 외부 공개(퍼블릭) 접근이 가능한 RDS 인스턴스를 탐지하여 퍼블릭 접근을 자동으로 차단하였습니다.
         action_desc: |
-          1. 퍼블릭 액세스가 가능한 RDS 인스턴스의 PubliclyAccessible 속성을 비활성화하였습니다.
+          1. 퍼블릭 접근 차단 이후에도 VPC/보안그룹 등 외부 노출 경로가 완전히 차단됐는지 추가 점검하세요.
+          2. 외부 접근 정책 위반 이력은 별도로 관리하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -452,15 +474,15 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
   #CHECKID: rds_instance_storage_encrypted
-  #ACTIONPLAN: RDS 인스턴스 스토리지가 암호화되지 않은 경우, 스냅샷 복원을 통해 암호화된 인스턴스로 마이그레이션합니다.
+  #ACTIONPLAN: RDS 인스턴스 스토리지가 암호화되지 않은 경우, 스냅샷 복원을 통해 암호화된 인스턴스로 마이그레이션
   - name: rds_instance_storage_encrypted
     resource: aws.rds
     description: |
       Identify RDS instances with unencrypted storage and send notifications for manual remediation.
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: StorageEncrypted
@@ -468,12 +490,14 @@ policies:
     actions:
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: danger
         violation_desc: |
-          *** CHECKID: rds_instance_storage_encrypted ***
-          • 암호화되지 않은 RDS 인스턴스 스토리지가 존재합니다.
+          *** rds_instance_storage_encrypted ***
+          • 암호화 미설정 RDS 인스턴스 스토리지가 탐지되었습니다.
         action_desc: |
-          1. 스냅샷 복원을 통해 암호화된 인스턴스로 마이그레이션하세요.
+          1. 스냅샷 복원 방식 등으로 암호화된 RDS 인스턴스로 직접 마이그레이션하세요.
+          2. 모든 신규 인스턴스 생성 시 암호화 옵션이 활성화되어 있는지 주기적으로 점검하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -481,15 +505,15 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
   #CHECKID: rds_instance_transport_encrypted
-  #ACTIONPLAN: RDS 인스턴스의 SSL 연결이 강제되지 않는 경우, 파라미터 그룹에서 rds.force_ssl을 활성화합니다.
+  #ACTIONPLAN: RDS 인스턴스의 SSL 연결이 강제되지 않는 경우, 파라미터 그룹에서 rds.force_ssl을 활성화
   - name: enforce-rds-transport-encryption
     resource: aws.rds
     description: |
       SSL이 미설정된 인스턴스와 최신 CA가 아닌 인스턴스를 찾아 최신 RDS CA로 지정하여 모든 클라이언트 연결에 SSL/TLS를 강제하고, 관리팀에 알림
     mode:
-     type: periodic
-     schedule: "rate(1 day)"
-     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
         - type: value
@@ -506,13 +530,76 @@ policies:
             value: rds-ca-rsa2048-g1
       - type: notify
         template: default
-        priority_header: 2
+        template_format: slack
+        slack_msg_color: warning
         violation_desc: |
-          *** CHECKID: elasticache_cluster_uses_public_subnet ***
-          • RDS 인스턴스의 CA 인증서가 최신(rds-ca-2019)이 아닙니다.
+          *** enforce-rds-transport-encryption ***
+          • 최신 CA 인증서 미적용 RDS 인스턴스를 탐지하여 최신 인증서로 자동 교체하였습니다.
         action_desc: |
-          1. RDS 인스턴스의 CA 인증서를 rds-ca-2019로 교체하였습니다.
-          2. 이후 파라미터 그룹에서 rds.force_ssl 등으로 SSL 강제 설정도 권장합니다.
+          1. 교체 후 모든 DB 연결에 SSL/TLS가 정상적으로 강제되는지 확인하세요.
+          2. 파라미터 그룹에서 rds.force_ssl 등 SSL 강제 정책도 별도로 관리하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  #CHECKID: rds_snapshots_encrypted
+  #ACTIONPLAN: RDS 스냅샷이 암호화되어 있지 않은 경우, 암호화 설정 적용 또는 알림 설정.
+  - name: rds_snapshots_encrypted
+    resource: aws.rds-snapshot
+    description: |
+      Find RDS snapshots that are not encrypted.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: Encrypted
+        value: false
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        slack_msg_color: danger
+        violation_desc: |
+          *** rds_snapshots_encrypted ***
+          • 암호화 미적용 RDS 스냅샷이 탐지되었습니다.
+        action_desc: |
+          1. 스냅샷 삭제, 암호화 스냅샷 재생성 등 수동 마이그레이션을 반드시 진행하세요.
+          2. 스냅샷 생성·공유 프로세스에서 암호화 미설정이 재발하지 않도록 운영 프로세스를 강화하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  #CHECKID: rds_snapshots_public_access
+  #ACTIONPLAN: RDS 수동 스냅샷이 Public으로 노출된 경우 탐지 및 'restore access' 제거
+  - name: rds-snapshot-public-check
+    resource: aws.rds-snapshot
+    description: |
+      Find RDS snapshots that are publicly accessible (shared with all AWS accounts).
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: cross-account
+        whitelist: []
+        everyone_only: true
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        slack_msg_color: danger
+        violation_desc: |
+          *** rds_snapshots_public_access ***
+          • 퍼블릭 공유 RDS 스냅샷이 탐지되었습니다.
+        action_desc: |
+          1. 스냅샷 공유 설정에서 '모든 AWS 계정' 공유를 반드시 직접 해제하세요.
+          2. 스냅샷 생성/공유 정책에서 퍼블릭 설정이 재발하지 않도록 운영팀·보안팀에서 정기 점검하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

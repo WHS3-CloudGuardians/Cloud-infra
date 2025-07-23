@@ -5,10 +5,10 @@ policies:
   - name: vpc_different_regions
     description: Alert when a region has only one VPC
     resource: aws.vpc
-    # mode:
-    #   type: periodic
-    #   schedule: "rate(1 day)"
-    #   role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: "length(@)"
@@ -34,10 +34,10 @@ policies:
   - name: vpc_flow_logs_enabled
     description: Ensure VPC Flow Logs are enabled for traffic monitoring
     resource: aws.vpc
-    # mode:
-    #   type: periodic
-    #   schedule: "rate(1 day)"
-    #   role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       # flow‑logs filter matches VPCs without any Flow Logs enabled
       - type: flow-logs
@@ -99,10 +99,10 @@ policies:
   - name: vpc-subnet-disable-default-public-ip
     description: Disables default public IP assignment on new EC2 instances launched in subnets
     resource: aws.subnet
-    # mode:
-    #   type: periodic
-    #   schedule: "rate(7 days)"
-    #   role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+      type: periodic
+      schedule: "rate(7 days)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: MapPublicIpOnLaunch
@@ -133,10 +133,10 @@ policies:
   - name: vpc_subnet_separate_private_public
     description: Alert VPCs that have only public subnets without any private subnets
     resource: aws.vpc
-    # mode:
-    #   type: periodic
-    #   schedule: "rate(7 days)"
-    #   role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+      type: periodic
+      schedule: "rate(7 days)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       # 1) 하나 이상의 public 서브넷이 있는 VPC
       - type: subnet

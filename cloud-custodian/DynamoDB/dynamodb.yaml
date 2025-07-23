@@ -1,0 +1,57 @@
+policies:
+
+  # CHECKID: dynamodb_tables_kms_cmk_encryption_enabled
+  - name: dynamodb_tables_kms_cmk_encryption_enabled
+    resource: aws.dynamodb-table
+    description: |
+      Ensure DynamoDB tables use customer managed KMS keys (CMK) for encryption at rest.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: kms-key
+        key: AliasName
+        value: alias/aws/dynamodb   # AWS 관리형 기본키 사용시 탐지(위반)
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: dynamodb_tables_kms_cmk_encryption_enabled ***
+          • DynamoDB 테이블이 고객 관리형 KMS 키(CMK)로 암호화되어 있지 않습니다.
+        action_desc: |
+          1. DynamoDB 테이블의 암호화 방식이 '고객 관리형 KMS 키(CMK)'로 설정되었는지 확인하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: dynamodb_tables_pitr_enabled
+  - name: dynamodb_tables_pitr_enabled
+    resource: aws.dynamodb-table
+    description: |
+      Ensure DynamoDB tables have Point-In-Time Recovery (PITR) enabled.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: PointInTimeRecoveryDescription.PointInTimeRecoveryStatus
+        value: DISABLED
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: dynamodb_tables_pitr_enabled ***
+          • DynamoDB 테이블의 지점 시점 복구(Point-In-Time Recovery, PITR)가 비활성화되어 있습니다.
+        action_desc: |
+          1. 테이블의 PITR(Point-In-Time Recovery) 기능을 활성화하여 데이터 복구 가능성을 확보하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

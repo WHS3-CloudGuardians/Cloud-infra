@@ -9,7 +9,7 @@ policies:
     description: "Alert: Macie is disabled"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)" 
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: check-macie
@@ -18,16 +18,18 @@ policies:
         value: ENABLED
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: macie_is_enabled ***
-          • Macie 비활성이 감지되었습니다.
+          • 계정/리전의 Macie가 비활성화되어 개인정보 및 민감정보 탐지가 불가한 상태입니다.
         action_desc: |
-          1. Macie를 활성화하여, 민감 정보 탐지가 가능하도록 설정해주세요.
-          2. Macie를 활성화하여 S3 내 개인정보 탐지 정책 설정해주세요.
+          1. 반드시 Macie를 활성화하여 S3 내 개인정보 및 민감 정보 탐지 정책을 즉시 설정하세요.
+          2. 활성화 이후에도 Macie 설정/상태가 주기적으로 해제되지 않는지 점검·감사하세요.
+          3. 정책 해제/비활성 이력은 반드시 보안팀에 공유·보고하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+

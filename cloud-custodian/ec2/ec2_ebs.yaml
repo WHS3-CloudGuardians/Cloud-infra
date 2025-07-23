@@ -1,9 +1,11 @@
 policies:
 
   # CHECKID: ec2_ebs_default_encryption
-  # ACTIONPLAN: EBS 디폴트 암호화 설정 미적용 시 강제화
+  # ACTIONPLAN: EBS 디폴트 암호화 설정 미적용 시 알림만 전송
+  # CHECKID: ec2_ebs_default_encryption
+  # ACTIONPLAN: EBS 디폴트 암호화 설정 미적용 시 자동 활성화 + 알림
   - name: ec2_ebs_default_encryption
-    description: Automatically enabled when basic EBS encryption is disabled
+    description: 기본 EBS 암호화가 꺼진 경우 자동 활성화 및 알림 전송
     resource: aws.account
     mode:
       type: cloudtrail
@@ -22,22 +24,24 @@ policies:
       - type: notify
         template: default
         template_format: slack
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: ec2_ebs_default_encryption ***
           • EC2 기본 EBS 암호화가 비활성화되어 자동 활성화 조치가 실행되었습니다.
         action_desc: |
-          1. AWS Console에서 기본 EBS 암호화 설정을 확인해 주세요.
-          2. 모든 신규 EBS 볼륨이 암호화되도록 디폴트 정책을 유지해 주세요.
+          1. 기본 EBS 암호화 설정이 자동으로 활성화되었습니다.
+          2. AWS Console에서 적용 여부를 한 번 더 확인해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
-  # CHECKID: ec2_ebs_volume_encryption
-  # ACTIONPLAN: 비암호화된 EBS 볼륨 스냅샷 생성 및 삭제를 이메일로 알림
+
+  # CHECKID: ec2_ebs_volume_encryption-1
+  # ACTIONPLAN: 비암호화된 EBS 볼륨 감지 시 알림만 전송
   - name: ec2_ebs_volume_encryption-1
-    description: Notify via email when creating and deleting unencrypted EBS volume snapshots
+    description: 비암호화 EBS 볼륨 감지 시 알림만 전송(자동조치 없음)
     resource: aws.ebs
     mode:
       type: periodic
@@ -46,25 +50,25 @@ policies:
     filters:
       - Encrypted: false
     actions:
-      - type: snapshot
       - type: notify
         template: default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: ec2_ebs_volume_encryption ***
-          • 비암호화된 EBS 볼륨이 감지되어 스냅샷이 생성되었습니다.
+          • 비암호화된 EBS 볼륨이 감지되었습니다.
         action_desc: |
-          1. 스냅샷이 정상적으로 생성되었는지 확인해 주세요.
-          2. 원본 볼륨 삭제 또는 암호화 적용을 검토해 주세요.
+          1. 해당 볼륨의 암호화 필요 여부를 검토해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
-  # ACTIONPLAN: 비암호화된 스냅샷 암호화해서 복사 후 원본 삭제
+  # CHECKID: ec2_ebs_volume_encryption-2
+  # ACTIONPLAN: 비암호화된 스냅샷 감지 시 알림만 전송
   - name: ec2_ebs_volume_encryption-2
-    description: Encrypt unencrypted snapshots, copy them, and then delete the originals
+    description: 비암호화 EBS 스냅샷 감지 시 알림만 전송(자동조치 없음)
     resource: aws.ebs-snapshot
     mode:
       type: periodic
@@ -73,20 +77,15 @@ policies:
     filters:
       - Encrypted: false
     actions:
-      - type: copy
-        target_region: ap-northeast-2
-        encrypted: true
-        target_key: alias/aws/ebs
-      - type: delete
       - type: notify
         template: default
         template_format: slack
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: ec2_ebs_volume_encryption-2 ***
-          • 비암호화된 EBS 스냅샷이 암호화 복사 후 원본이 삭제되었습니다.
+          • 비암호화 EBS 스냅샷이 감지되었습니다.
         action_desc: |
-          1. 암호화된 스냅샷이 정상적으로 생성되었는지 확인해 주세요.
-          2. 원본(비암호화) 스냅샷이 삭제됐는지 확인해 주세요.
+          1. 암호화 및 삭제 등 후속 조치 필요 여부를 검토해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -94,9 +93,9 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
   # CHECKID: ec2_ebs_volume_snapshots_exists
-  # ACTIONPLAN: 스냅샷 없는 EC2 인스턴스의 볼륨 스냅샷 생성 및 태그 복사
+  # ACTIONPLAN: 스냅샷 없는 EBS 볼륨 감지 시 알림만 전송
   - name: ec2_ebs_volume_snapshots_exists
-    description: Creating volume snapshots and copying tags for EC2 instances without snapshots
+    description: 스냅샷이 없는 EBS 볼륨 감지 시 알림만 전송(자동조치 없음)
     resource: aws.ebs
     mode:
       type: periodic
@@ -106,20 +105,15 @@ policies:
       - type: snapshots
         count: 0
     actions:
-      - type: snapshot
-        copy-tags:
-          - "*"
-        tags:
-          CloudCustodian: "true"
       - type: notify
         template: default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: ec2_ebs_volume_snapshots_exists ***
-          • 스냅샷이 존재하지 않는 EBS 볼륨이 감지되어 자동으로 스냅샷을 생성하였습니다.
+          • 스냅샷이 없는 EBS 볼륨이 감지되었습니다.
         action_desc: |
-          1. 스냅샷이 정상적으로 생성되었는지 확인해 주세요.
-          2. 복사된 태그(CloudCustodian: "true")가 정상적으로 적용됐는지 확인해 주세요.
+          1. 스냅샷 생성 필요 여부를 검토해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

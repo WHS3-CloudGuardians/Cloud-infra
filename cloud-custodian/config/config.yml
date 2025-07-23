@@ -1,15 +1,15 @@
 policies:
-  #CHECKID: config_recorder_all_regions_enabled
-  #ACTIONPLAN: AWS Config가 모든 리전에서 리소스를 기록하도록 활성화되어 있는지 확인 (글로벌 보안 모니터링 목적)
-  #자동 조치를 위해서는 수동으로 lambda 설정이 필요
+
+  # CHECKID: config_recorder_all_regions_enabled
+  # ACTIONPLAN: AWS Config가 모든 리전에서 리소스 기록 상태인지 1일마다 점검, 미설정 시 알림 전송 및 담당자가 직접 활성화하도록 안내 (알림만)
   - name: config-recorder-all-regions-enabled
     resource: aws.config-recorder
     description: |
       Check whether AWS Config is enabled to record resources in all regions.
-    #mode:
-    #  type: periodic
-    #  schedule: "rate(1 minute)"
-    #  role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
         - type: value
@@ -21,12 +21,13 @@ policies:
     actions:
       - type: notify
         template: default
-        priority_header: 2
+        slack_msg_color: danger
         violation_desc: |
-          *** config_recorder_all_regions_enabled ***
-          • Config recorder가 모든 리전을 기록하지 않습니다.
+          *** CHECKID: config_recorder_all_regions_enabled ***
+          • AWS Config가 **모든 리전에서 리소스를 기록하지 않는 상태**가 감지되었습니다.
         action_desc: |
-          1. AWS Config가 모든 리전에서 리소스를 기록하도록 활성화하세요.
+          1. AWS Console 또는 CLI에서 Config Recorder를 모든 리전 및 글로벌 리소스 기록이 활성화되도록 직접 설정해 주세요.
+          2. 글로벌 보안 모니터링 및 규정(내부통제, ISMS-P 등) 준수를 위해 1달 1회 이상 Config 설정 상태를 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

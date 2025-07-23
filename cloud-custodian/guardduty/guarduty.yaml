@@ -1,0 +1,33 @@
+# Cloud Custodian은 최신 버전으로 설치해도 aws.guard-duty 리소스를 공식적으로 지원하지 않기 때문에 GuardDuty 상태를 직접 탐지하는 정책은 작성할 수 없습니다.
+# route 53과 동일한 이유
+# 아예 커스터디언 실행을 할 수가 없음 
+
+policies:
+  - name: alert-guardduty-disabled
+    resource: aws.guard-duty
+    description: Detect if GuardDuty is disabled in the region.
+
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+
+    filters:
+      - type: value
+        key: Status
+        value: DISABLED
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID : "guardduty_is_enabled" ***
+          GuardDuty가 비활성화되어 있습니다.
+        action_desc: |
+          GuardDuty 콘솔에서 활성화하여 이상행위 탐지 기능을 설정하세요.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue

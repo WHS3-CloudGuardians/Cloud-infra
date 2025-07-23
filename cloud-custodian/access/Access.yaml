@@ -1,16 +1,18 @@
 policies:
-  # accessanalyzer_enabled
-  # ISMS-P: 2.3.6 
-  # PURPOSE: Ensure AWS Access Analyzer is enabled
-  # ACTION PLAN: Invoke remediation Lambda, then send Slack notification
+
+  # CHECKID: accessanalyzer_enabled
+  # ACTIONPLAN: Access Analyzer가 비활성화 상태일 경우 Lambda로 자동 활성화 조치 후, Slack 알림을 전송하고 담당자가 활성화 상태를 직접 확인하도록 안내 (자동조치 + 알림)
   - name: accessanalyzer_enabled
     description: |
-      Detects when IAM Access Analyzer is not ACTIVE,
-      invokes a Lambda to create or activate the analyzer,
-      then posts a Slack notification.
-    resource: aws.account                     
+      If AWS Access Analyzer is not active, automatically invoke a Lambda to enable it and send a Slack notification.
+      This supports ISMS-P 2.3.6 controls for external connection management.
+    resource: aws.account
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
-      - type: access-analyzer                  
+      - type: access-analyzer
         key: status
         op: ne
         value: ACTIVE
@@ -20,14 +22,15 @@ policies:
       - type: notify
         template: default
         template_format: slack
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: accessanalyzer_enabled ***
-          Access Analyzer analyzer not ACTIVE.
+          • AWS Access Analyzer가 활성화되어 있지 않아 활성화 조치가 실행되었습니다.
         action_desc: |
-          1) Invoked accessanalyzer_enabled remediation.
-          2) Confirm analyzer status in AWS console.
+          1. AWS Console에서 Access Analyzer가 활성화 상태로 전환된 것을 반드시 확인해 주세요.
+          2. 외부 접근 통제를 위해 항상 활성화 상태를 주기적으로 점검/유지해 주세요.
         to:
-          - slack
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-mailer-queue

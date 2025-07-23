@@ -32,15 +32,14 @@ policies:
 #         function: arn:aws:lambda:ap-northeast-2:${ACCOUNT_ID}:function:custodian-backup-reportplans-exist-2
 
 
-# CHECKID: backup_vaults_exist
-# ACTIONPLAN: AWS Backup 존재 여부를 확인하여 백업 저장소 확보
-# ACTIONPLAN: Vault가 연결되지 않은 Backup Plan 탐지
+  # CHECKID: backup_vaults_exist
+  # ACTIONPLAN: Vault 미연결 Backup Plan 탐지 시 Slack 알림, 수동 조치 유도
   - name: backup-vaults-exist
     resource: aws.backup-plan
     description: "Alert: Backup Plan Without Vault"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
     filters:
       - type: value
@@ -49,29 +48,28 @@ policies:
         value: ""
     actions:
       - type: notify
-        template: slack-default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: backup_vaults_exist ***
-          • Vault가 누락된 Backup Plan이 감지되었습니다.
+          • Vault가 연결되지 않은 Backup Plan이 탐지되었습니다.
         action_desc: |
-          1. Backup Plan에 Vault를 연결하여, 백업 저장소를 확보해 주세요.
+          1. Backup Plan에 반드시 Backup Vault를 연결하여 백업 데이터 저장소를 확보하세요.
+          2. Vault 연결 변경 후 백업 정책이 정상적으로 적용되는지 주기적으로 점검하세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-
-# CHECKID: backup_vaults_encrypted
-# ACTIONPLAN: Backup Vault에 KMS 암호화가 없을 경우 암호화 적용
-# ACTIONPLAN: AWS Backup에 암호화 설정을 적용하여 보안 백업 환경 구성
+  # CHECKID: backup_vaults_encrypted
+  # ACTIONPLAN: KMS 암호화 미설정 Backup Vault 탐지 시 Slack 알림, 수동 암호화 적용 유도
   - name: backup-vaults-encrypted
     resource: aws.backup-vault
-    description: "Alert: Backup Vault Without Encrypted"
+    description: "Alert: Backup Vault Without Encryption"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
     filters:
       - or:
@@ -85,15 +83,16 @@ policies:
           value: "alias/aws/backup"
     actions:
       - type: notify
-        template: slack-default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: backup_vaults_encrypted ***
-          • Backup Vault에 기본 암호화 설정이 감지되었습니다.
+          • 기본 암호화(또는 미설정) Backup Vault가 탐지되었습니다.
         action_desc: |
-          1. 보안 백업 환경 구성을 위해, Backup Vault에 KMS 암호화를 적용해 주세요.
+          1. Backup Vault에 반드시 고객 관리형 KMS 암호화 키를 적용해 백업 데이터의 보안성을 강화하세요.
+          2. 암호화 설정 변경 후 정상 적용 및 권한 정책도 반드시 점검하세요.
         to:
-          - "${SLACK_WEBHOOK_URL}"
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue

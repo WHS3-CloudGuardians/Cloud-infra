@@ -6,7 +6,7 @@ policies:
     resource: aws.asg
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -18,12 +18,13 @@ policies:
       - type: notify
         template: default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: autoscaling_group_multiple_az ***
-          • Auto Scaling Group이 단일 가용 영역에만 구성되어 있습니다.
+          • Auto Scaling Group이 단일 가용 영역에만 구성된 상태가 **탐지**되었습니다.
         action_desc: |
-          1. Auto Scaling Group을 2개 이상의 AZ에 걸쳐 구성하세요.
-          2. 고가용성 구성을 위해 AZ 분산을 검토하세요.
+          1. 서비스 고가용성 확보를 위해 ASG를 2개 이상의 AZ에 분산 배포해 주세요.
+          2. 배포 템플릿/IaC에서도 AZ 분산이 누락되지 않도록 점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

@@ -6,7 +6,7 @@ policies:
     description: "Alert: EFS Without encryption"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(15 minutes)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -18,7 +18,7 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: efs_encryption_at_rest_enabled ***
-          - EFS 리소스의 저장 시 암호화 누락이 감지되었습니다.
+          • EFS 리소스의 저장 시 암호화 누락이 감지되었습니다.
         action_desc: |
           1. EFS 리소스의 저장 시 암호화 설정을 해주세요.
         to:
@@ -35,7 +35,7 @@ policies:
     description: "Alert: EFS Without Backup"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -48,7 +48,7 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: efs_have_backup_enabled ***
-          - EFS 리소스의 Backup 누락이 감지되었습니다.
+          • EFS 리소스의 Backup 누락이 감지되었습니다.
         action_desc: |
           1. AWS Backup을 통해 EFS 파일 시스템에 백업 계획을 적용하고 일별 백업 활성화해 주세요.
         to:
@@ -65,7 +65,7 @@ policies:
     description: "Alert: EFS With public access"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(15 minutes)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: ingress
@@ -78,7 +78,7 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: efs_not_publicly_accessible ***
-          - EFS 리소스의 공개 접근 허용이 감지되었습니다.
+          • EFS 리소스의 공개 접근 허용이 감지되었습니다.
         action_desc: |
           1. EFS를 프라이빗 서브넷에 위치해 주세요.
           2. EFS를 제한된 보안그룹과 사용해 주세요.

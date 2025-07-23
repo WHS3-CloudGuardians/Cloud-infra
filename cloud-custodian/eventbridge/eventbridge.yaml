@@ -6,7 +6,7 @@ policies:
     description: "Alert: eventbridge bus cross account access"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: cross-account
@@ -17,11 +17,14 @@ policies:
       - type: notify
         template: default
         template_format: slack
-        violation_desc: |
-          *** CHECKID: eventbridge_bus_cross_account_access ***
-          • 크로스 계정 접근이 가능한 EventBridge 버스가 감지되었습니다.
-        action_desc: |
-          1. EventBridge 버스에 대한 접근 정책 점검해주세요.
+    violation_desc: |
+      *** CHECKID: eventbridge_bus_cross_account_access ***
+      • 크로스 계정 접근이 가능한 EventBridge 버스가 탐지되어 
+      • 'Risk=CrossAccountOrPublic' 태그가 자동으로 부착되었습니다.
+    action_desc: |
+      1. 해당 리소스에는 위험 리소스 표시 태그가 자동 부착되었습니다.
+      2. 접근 정책을 점검하고, 불필요한 계정/외부 권한을 제거해 주세요.
+      3. 태그를 통해 추가 모니터링 및 정기 점검을 수행하세요.
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -36,7 +39,7 @@ policies:
     description: "Alert: eventbridge bus exposed"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: cross-account
@@ -48,9 +51,11 @@ policies:
         template_format: slack
         violation_desc: |
           *** CHECKID: eventbridge_bus_exposed ***
-          • 외부 노출이 가능한 EventBridge 버스가 감지되었습니다.
+          • 외부 노출이 가능한 EventBridge 버스가 탐지되었습니다.
         action_desc: |
-          1. EventBridge 버스에 대한 접근 정책 점검해주세요.
+          1. EventBridge 버스의 접근 정책을 반드시 점검하고, 불필요한 외부(계정) 접근 권한을 제거해 주세요.
+          2. 반복 방지를 위해 배포/운영 프로세스와 IAM 정책 등도 재검토하시기 바랍니다.
+          3. 정책 변경 후에는 주기적으로 재점검해 주세요.
         to:
           - https://hooks.slack.com/services/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
         transport:

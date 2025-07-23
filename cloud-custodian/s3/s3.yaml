@@ -34,7 +34,7 @@ policies:
     description: "Alert: S3 With acl ACL"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -71,7 +71,7 @@ policies:
     description: "Alert: S3 Without Cross-Region Replication"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -81,6 +81,7 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_cross_region_replication ***
           • S3 버킷에 교차 리전 복제 비활성화가 감지되었습니다.
@@ -102,7 +103,7 @@ policies:
     description: "Action & Alert : S3 Without default encryption"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: bucket-encryption
@@ -134,7 +135,7 @@ policies:
     description: "Alert : S3 Without kms encryption"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: bucket-encryption
@@ -158,13 +159,19 @@ policies:
 # CHECKID: s3_bucket_level_public_access_block
 # ACTIONPLAN: 각 S3 버킷에 대해 Public Access Block 설정이 비활성화된 경우 탐지 및 설정 적용 또는 알림
 # ACTIONPLAN: S3 버킷 수준에서 퍼블릭 접근 차단 설정이 비활성화된 경우, 자동 구성 적용.
-  - name: s3-bucket-level-public-access-block
+  - name: s3-bucket-level-public-access-block-cloudtrail
     resource: aws.s3
-    description: "Alert: S3 Without public access block"
+    description: "Alert: S3 Public Access Block 변경 실시간 감지"
     mode:
-      type: periodic
-      schedule: "rate(5 minutes)"
+      type: cloudtrail
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: s3.amazonaws.com
+          event: PutBucketPublicAccessBlock
+          ids: "requestParameters.bucketName"
+        - source: s3.amazonaws.com
+          event: DeleteBucketPublicAccessBlock
+          ids: "requestParameters.bucketName"
     filters:
       - type: value
         key: PublicAccessBlockConfiguration
@@ -186,6 +193,7 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
+
 # CHECKID: s3_bucket_lifecycle_enabled
 # ACTIONPLAN: CloudTrail 로그 버킷 등 장기 보관이 필요한 S3 버킷에 수명 정책이 없는 경우 탐지하여 알림
 # ACTIONPLAN: S3 버킷에 라이프사이클 정책을 설정하여 백업 파일의 주기적 삭제 또는 전환 자동화
@@ -195,7 +203,7 @@ policies:
     description: "Alert: S3 Without lifecycle"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -205,6 +213,7 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_lifecycle_enabled ***
           • S3 버킷에 수명 정책 비활성화가 감지되었습니다.
@@ -225,7 +234,7 @@ policies:
     description: "Alert: S3 Without MFA delete"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
        - type: value
@@ -236,6 +245,7 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_no_mfa_delete ***
           • S3 버킷에 MFA 삭제 설정 누락이 감지되었습니다.
@@ -255,7 +265,7 @@ policies:
     description: "Alert: S3 Without Object Lock"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
@@ -269,6 +279,7 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_object_lock ***
           • S3 버킷에 Object Lock 누락이 감지되었습니다.
@@ -288,7 +299,7 @@ policies:
     description: "Alert: S3 Without versioning"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - or:
@@ -302,6 +313,7 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_object_versioning ***
           • S3 버킷에 객체 버전 관리 누락이 감지되었습니다.
@@ -317,13 +329,16 @@ policies:
 # CHECKID: s3_bucket_policy_public_write_access
 # ACTIONPLAN: S3 버킷 정책이 퍼블릭 쓰기 허용인 경우, 정책 수정 또는 차단 설정
 # ACTIONPLAN: S3 버킷 정책에서 쓰기 권한 공개 접근 제거
-  - name: s3-bucket-policy-public-write-access
+  - name: s3-bucket-policy-public-write-access-cloudtrail
     resource: aws.s3
-    description: "Action & Alert: S3 With public write"
+    description: "Action & Alert: S3 퍼블릭 쓰기 정책 변경 실시간 감지"
     mode:
-      type: periodic
-      schedule: "rate(5 minutes)"
+      type: cloudtrail
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: s3.amazonaws.com
+          event: PutBucketPolicy
+          ids: "requestParameters.bucketName"
     filters:
       - type: global-grants
         permissions:
@@ -345,27 +360,34 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
+
 # CHECKID: s3_bucket_public_access
 # ACTIONPLAN: S3 버킷 전체 공개 설정 제거로 백업 데이터 노출 방지
 # ACTIONPLAN: S3 버킷이 퍼블릭하게 설정된 경우, 퍼블릭 접근 차단 정책 적용
-  - name: s3-bucket-public-access
+  - name: s3-bucket-public-access-cloudtrail
     resource: aws.s3
-    description: "Action & Alert: S3 With public access"
+    description: "Action & Alert: S3 버킷 퍼블릭 액세스 실시간 감지"
     mode:
-      type: periodic
-      schedule: "rate(5 minutes)"
+      type: cloudtrail
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: s3.amazonaws.com
+          event: PutBucketAcl
+          ids: "requestParameters.bucketName"
+        - source: s3.amazonaws.com
+          event: PutBucketPolicy
+          ids: "requestParameters.bucketName"
     filters:
       - or:
-        - type: global-grants
-          permissions:
-            - READ
-            - WRITE
-            - FULL_CONTROL
-        - type: has-statement
-          statements:
-            - Effect: Allow
-              Principal: "*"
+          - type: global-grants
+            permissions:
+              - READ
+              - WRITE
+              - FULL_CONTROL
+          - type: has-statement
+            statements:
+              - Effect: Allow
+                Principal: "*"
     actions:
       - type: notify
         template: slack-default
@@ -382,6 +404,7 @@ policies:
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
 
+
 # CHECKID: s3_bucket_public_list_acl
 # ACTIONPLAN: S3 버킷에 대한 리스트 권한 공개 ACL 제거로 백업 목록 노출 방지
 # ACTIONPLAN: S3 버킷에 대한 리스트 권한이 퍼블릭으로 열려 있는 경우, ACL/정책 수정
@@ -390,7 +413,7 @@ policies:
     description: "Alert: S3 With public list acl"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: global-grants
@@ -422,7 +445,7 @@ policies:
     description: "Alert: S3 With public write acl"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: global-grants
@@ -454,7 +477,7 @@ policies:
     description: "Alert: S3 Without HTTPS access policy"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 hour)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: missing-policy-statement
@@ -476,6 +499,7 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_secure_transport_policy ***
           • S3 버킷에 HTTPS 접근 정책 미설정 감지되었습니다.
@@ -496,7 +520,7 @@ policies:
     description: "Alert: S3 Without server access logging"
     mode:
       type: periodic
-      schedule: "rate(5 minutes)"
+      schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
@@ -506,6 +530,7 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_server_access_logging_enabled ***
           • S3 버킷에 서버 액세스 로그 설정 누락이 감지되었습니다.

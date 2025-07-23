@@ -277,6 +277,7 @@ policies:
       # 3) Slack 알림
       - type: notify
         template: default
+        slack_msg_color: warning
         template_format: slack
         violation_desc: |
           *** CHECKID: ec2_instance_public_ip ***

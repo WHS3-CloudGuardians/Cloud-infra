@@ -1,11 +1,13 @@
 policies:
-  #CHECKID: kms_cmk_are_used
-  #ACTIONPLAN: 장기간 사용되지 않은 KMS 키가 발견된 경우, 키를 비활성화하거나 삭제를 예약하여 관리합니다.
+
+  # CHECKID: kms_cmk_are_used
+  # ACTIONPLAN: 90일 이상 미사용 KMS 키는 태그 후 담당자에게 알림, 비활성화 또는 삭제 예약을 권고. 연 1회 이상 전체 키 상태 재점검.
+  # [주의] CreationDate 필드는 정책 실행 시점 기준 90일 전 날짜로 직접 수정 필요(자동화 미지원). 키 삭제는 Custodian에서 직접 불가하므로 태그만 부여, 삭제는 반드시 수동 처리 필요.
   - name: kms_cmk_are_used
     resource: aws.kms-key
     description: |
-      A customer-managed CMK that has remained unused for over 90 days since creation and is currently in the Enabled state is scheduled for deletion in 7 days
-    mode: 
+      Detect enabled customer-managed KMS keys that have not been used for over 90 days.
+    mode:
       type: periodic
       schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
@@ -16,62 +18,72 @@ policies:
         op: eq
       - type: value
         key: CreationDate
-        value: '2025-04-17T00:00:00+00:00' # 동적으로 불러오기 불가
+        value: '2025-04-17T00:00:00+00:00' # [주의] 실행 시점 기준 90일 전으로 직접 변경 필요
         op: lt
     actions:
-      - type: tag # 수동으로 삭제해야함 -> 태그 달아서 표시
+      - type: tag
         key: cmk-unused-90d
         value: "true"
       - type: notify
         template: default
         priority_header: 2
+        slack_msg_color: danger
         violation_desc: |
-          *** kms_cmk_are_used ***
-          90일 이상 사용되지 않은 KMS 키가 발견되었습니다.
+          *** CHECKID: kms_cmk_are_used ***
+          • 90일 이상 사용되지 않은 KMS 키가 발견되었습니다.
         action_desc: |
-          장기간 사용되지 않은 KMS 키를 비활성화하거나 삭제를 예약하세요.
+          1. 해당 KMS 키는 장기간 사용되지 않아 보안·운영상 위험이 있습니다.
+          2. 불필요하다면 비활성화하거나 삭제 예약을 진행하세요.
+          3. 연 1회 이상 전체 KMS 키 사용현황을 재점검하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
-  #CHECKID: kms_key_not_publicly_accessible
-  #ACTIONPLAN: KMS 키 정책이 외부에 노출된 경우, 정책을 수정하여 신뢰된 계정만 접근하도록 제한합니다.
+  # CHECKID: kms_key_not_publicly_accessible
+  # ACTIONPLAN: 외부에 노출된 KMS 키 정책을 태깅 후 담당자에게 즉시 알림, 신뢰 계정만 접근하도록 정책 수정 안내. 정책 변경 후 재노출 여부 정기 점검.
+  # [주의] 자동화로 정책(json) 수정 시 AWS 정책 문법 오류(깨짐) 발생 위험. 실제 키 정책 수정은 반드시 수동으로 진행 필요(태그만 자동 추가).
   - name: kms_key_not_publicly_accessible
     resource: aws.kms-key
     description: |
-      If the KMS key policy is exposed externally, modify the policy to restrict access to trusted accounts only
-    mode: 
+      Detect KMS keys with policies that allow public (cross-account) access.
+    mode:
       type: periodic
       schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: cross-account
         everyone_only: true
-    actions:  # 자동화 조치로 json 파일을 수정할 경우, json 파일이 깨지면서 실행이 안됨
+    actions:
+      - type: tag
+        key: public-accessible
+        value: "true"
       - type: notify
         template: default
         priority_header: 2
+        slack_msg_color: danger
         violation_desc: |
-          *** kms_key_not_publicly_accessible ***
-          • KMS 키 정책이 외부에 노출된 상태입니다.
+          *** CHECKID: kms_key_not_publicly_accessible ***
+          • KMS 키 정책이 외부(신뢰되지 않은 계정 포함)에 노출되어 있습니다.
         action_desc: |
-          1. KMS 키 외부에 노출된 정책을 수정하여 신뢰된 계정만 접근하도록 제한하세요.
+          1. 키 정책을 수정하여 신뢰된 계정만 접근 가능하도록 제한하세요.
+          2. 정책 변경 후에도 재노출되지 않는지 주기적으로 점검하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
-  #CHECKID: kms_cmk_not_deleted_unintentionally
-  #ACTIONPLAN: KMS 키에 삭제 대기 기간을 설정하거나 삭제 방지 정책 추가
+  # CHECKID: kms_cmk_not_deleted_unintentionally
+  # ACTIONPLAN: 삭제 대기 중인 KMS 키 태깅 후 알림, 의도치 않은 삭제 방지 정책 및 삭제 대기 기간 설정 권고. 삭제 일정 및 보관 필요성 재점검 안내.
+  # [주의] PendingDeletion 상태인 키만 탐지. 실행 중 관련 리소스 에러가 발생할 수 있음. 실제 삭제 방지는 수동 조치 필요.
   - name: kms_cmk_not_deleted_unintentionally
     resource: aws.kms-key
     region: all
     description: |
-      Configure a deletion waiting period for the KMS key or add a deletion protection policy
-    mode: 
+      Detect KMS keys pending deletion for review and protection.
+    mode:
       type: periodic
       schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
@@ -86,48 +98,59 @@ policies:
       - type: notify
         template: default
         priority_header: 2
+        slack_msg_color: warning
         violation_desc: |
-          *** kms_cmk_not_deleted_unintentionally ***
-          의도치 않은 cmk 삭제가 발생할 수 있습니다.
+          *** CHECKID: kms_cmk_not_deleted_unintentionally ***
+          • 삭제 대기 중인 KMS 키가 감지되었습니다.
         action_desc: |
-          KMS 키에 삭제 대기 기간을 설정하거나 삭제 방지 정책 추가합니다.
+          1. 삭제가 필요한 키인지 재확인 후, 필요시 삭제 대기 기간(Waiting Period)을 충분히 설정하세요.
+          2. 실수로 인한 삭제 방지를 위해 키 관리 정책(삭제 방지 태그/키 정책)을 추가하세요.
+          3. 키 삭제 일정 및 실제 보관 필요성을 담당자가 별도 점검해야 합니다.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
-  #CHECKID: kms_cmk_rotation_enabled
-  #ACTIONPLAN: CMK의 키 자동 회전 기능을 활성화하는 정책 적용
+  # CHECKID: kms_cmk_rotation_enabled
+  # ACTIONPLAN: 키 자동 회전 미적용 시 자동 활성화 후 담당자 알림, 연 1회 이상 전체 키 회전 정책 적용 여부 점검.
+  # [주의] 일부 환경/계정에서는 KeyRotationEnabled 상태가 정상적으로 탐지되지 않을 수 있음(예: 외부 생성, 일부 리전 등). 정책 적용 시 환경 차이점 확인 필요.
   - name: kms_cmk_rotation_enabled
     resource: aws.kms-key
-    region: all
     description: |
-      Ensure that automatic rotation is enabled for all CMKs
+      Detect customer-managed CMKs with automatic key rotation disabled and enable it.
     mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::123456789012:role/custodian-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: KeyState
         value: Enabled
       - type: value
-        key: RotationEnabled
+        key: KeyRotationEnabled
         value: false
+      - type: value
+        key: Origin
+        value: AWS_KMS
+      - type: value
+        key: KeySpec
+        value: SYMMETRIC_DEFAULT
     actions:
       - type: set-rotation
         state: true
       - type: notify
         template: default
         priority_header: 2
+        slack_msg_color: danger
         violation_desc: |
-          *** kms_cmk_rotation_enabled ***
-          CMK의 키 자동 회전 기능이 비활성화되어 있습니다.
+          *** CHECKID: kms_cmk_rotation_enabled ***
+          • CMK의 키 자동 회전 기능이 비활성화되어 있었습니다.
         action_desc: |
-          CMK의 키 자동 회전 기능을 활성화하는 정책 적용합니다.
+          1. 키 자동 회전 기능을 자동으로 활성화하였습니다.
+          2. 전체 KMS 키에 대해 연 1회 이상 회전 정책이 적용되어 있는지 점검하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - https://hooks.slack.com/services/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
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
