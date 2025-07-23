@@ -1031,4 +1031,3 @@ policies:
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-my-queue
-
