@@ -1,12 +1,11 @@
-# guardduty_is_enabled.yml
-
-# 자동 조치 O 
-# 위반 사항 : GuardDuty가 비활성화되어 이상행위 탐지가 불가능한 상태
+# Cloud Custodian은 최신 버전으로 설치해도 aws.guard-duty 리소스를 공식적으로 지원하지 않기 때문에 GuardDuty 상태를 직접 탐지하는 정책은 작성할 수 없습니다.
+# route 53과 동일한 이유
+# 아예 커스터디언 실행을 할 수가 없음 
 
 policies:
-  - name: alert-route53-public-zone-query-logging-disabled
-    resource: aws.route53-hostedzone
-    description: GuardDuty is disabled making it impossible to detect suspicious or anomalous activities.
+  - name: alert-guardduty-disabled
+    resource: aws.guard-duty
+    description: Detect if GuardDuty is disabled in the region.
 
     mode:
       type: periodic
@@ -14,22 +13,21 @@ policies:
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
 
     filters:
-      - ConfigPublicZone: true
-      - type: query-logging-enabled
-        state: false
+      - type: value
+        key: Status
+        value: DISABLED
 
     actions:
       - type: notify
         template: default
         template_format: slack
         violation_desc: |
-          *** CHECKID : "route53_query_logging_enabled" ***
-          • Route53 공개 호스티드 존에 대해 Query Logging이 설정되어 있지 않습니다.
+          *** CHECKID : "guardduty_is_enabled" ***
+          GuardDuty가 비활성화되어 있습니다.
         action_desc: |
-          1. CloudWatch Logs 기반 Query Logging을 활성화하여 DNS 요청 이력을 추적할 수 있도록 설정하세요.
-          2. Cloud Custodian에서는 해당 기능을 직접 활성화할 수 없으므로 수동 조치가 필요합니다.
+          GuardDuty 콘솔에서 활성화하여 이상행위 탐지 기능을 설정하세요.
         to:
-          - https://hooks.slack.com/services/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
+          - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
-          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
