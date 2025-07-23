@@ -17,8 +17,8 @@ policies:
         op: ne
         value: ACTIVE
     actions:
-      - type: invoke-lambda
-        function: arn:aws:lambda:ap-northeast-2:311278774159:function:accessanalyzer_enabled
+      # - type: invoke-lambda
+      #   function: arn:aws:lambda:ap-northeast-2:311278774159:function:accessanalyzer_enabled
       - type: notify
         slack_template: slack_default
         slack_msg_color: danger
