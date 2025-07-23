@@ -22,9 +22,8 @@ policies:
         state: true
         key: arn:aws:kms:ap-northeast-2:311278774159:key/b2ce04c3-e17a-4da7-a491-d0d471ac4a8c
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: danger
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: ec2_ebs_default_encryption ***
           • EC2 기본 EBS 암호화가 비활성화되어 자동 활성화 조치가 실행되었습니다.
@@ -51,8 +50,7 @@ policies:
       - Encrypted: false
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: ec2_ebs_volume_encryption ***
@@ -78,8 +76,7 @@ policies:
       - Encrypted: false
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: ec2_ebs_volume_encryption-2 ***
@@ -106,8 +103,7 @@ policies:
         count: 0
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: ec2_ebs_volume_snapshots_exists ***

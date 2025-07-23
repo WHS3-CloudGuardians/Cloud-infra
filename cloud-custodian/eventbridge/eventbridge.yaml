@@ -15,8 +15,8 @@ policies:
         key: "Risk"
         value: "CrossAccountOrPublic"
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
     violation_desc: |
       *** CHECKID: eventbridge_bus_cross_account_access ***
       • 크로스 계정 접근이 가능한 EventBridge 버스가 탐지되어 
@@ -47,8 +47,8 @@ policies:
           - "events:PutEvents"
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: eventbridge_bus_exposed ***
           • 외부 노출이 가능한 EventBridge 버스가 탐지되었습니다.

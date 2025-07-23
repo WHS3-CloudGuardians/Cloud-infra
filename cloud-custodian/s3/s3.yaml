@@ -114,6 +114,7 @@ policies:
       - type: notify
         template: slack-default
         template_format: slack
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: s3_bucket_default_encryption ***
           • S3 기본 암호화 비활성화가 감지되어 활성화 조치하였습니다.

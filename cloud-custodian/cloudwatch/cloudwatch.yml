@@ -33,8 +33,8 @@ policies:
         enabled: True
 
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: "cloudwatch_changes_to_network_acls_alarm_configured" ***
           CloudTrail 트레일이 CloudWatch Logs와 연동되어 있지 않습니다.
@@ -65,8 +65,8 @@ policies:
 
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: "cloudwatch_changes_to_network_acls_alarm_configured" ***
            모든 IP(0.0.0.0/0)를 허용하는 NACL 규칙이 감지되었습니다.
@@ -101,8 +101,8 @@ policies:
           
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: "cloudwatch_changes_to_network_route_tables_alarm_configured" ***
           라우팅 테이블의 무단 변경으로 인한 네트워크 트래픽 우회 및 데이터 유출 위험이 있다. 
@@ -170,8 +170,8 @@ policies:
 
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: "cloudwatch_changes_to_network_gateways_alarm_configured" ***
           인터넷 게이트웨이 또는 NAT 게이트웨이에 대한 변경이 감지되었습니다.
@@ -215,8 +215,8 @@ policies:
 
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID : "cloudwatch_changes_to_vpcs_alarm_configured" ***
           VPC 생성·삭제·속성 변경 감지되었습니다. 
@@ -246,8 +246,8 @@ policies:
 
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID : "cloudwatch_cross_account_sharing_disabled" ***
           CloudWatch Logs 리소스 정책에 불허된 교차 계정 접근이 감지되었습니다.
@@ -289,8 +289,8 @@ policies:
 
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID : "cloudwatch_log_metric_filter_and_alarm_for_aws_config_configuration_changes_enabled" ***
           AWS Config 설정이 변경되었습니다.
@@ -320,8 +320,8 @@ policies:
 
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: "cloudwatch_log_metric_filter_root_usage" ***
           루트 계정으로 AWS 콘솔에 로그인한 이벤트가 감지되었습니다.
@@ -356,8 +356,8 @@ policies:
 
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: "cloudwatch_log_metric_filter_unauthorized_api_calls" ***
           비인가 API 호출이 탐지되었습니다. 계정 또는 역할의 접근 권한을 점검하시기 바랍니다.
@@ -391,8 +391,8 @@ policies:
 
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: "cloudwatch_log_metric_filter_authentication_failures" ***
           AWS 콘솔 로그인 인증 실패 이벤트가 발생했습니다.

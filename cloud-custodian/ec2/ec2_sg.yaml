@@ -54,8 +54,8 @@ policies:
       - type: remove-permissions
         ingress: matched
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: ec2_instance_securitygroup_ports ***
           • 0.0.0.0/0(전체 인바운드)로 오픈된 보안그룹 규칙이 탐지되어 삭제 조치하였습니다.
@@ -90,8 +90,8 @@ policies:
     actions:
       - type: delete
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: good
         subject: "[자동조치] launch-wizard 보안그룹이 실시간 삭제됨"
         violation_desc: |
           *** CHECKID: ec2_securitygroup_from_launch_wizard ***
@@ -135,8 +135,8 @@ policies:
             value: 30
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: ec2_securitygroup_with_many_ingress_egress_rules ***
           • 보안그룹에 인바운드/아웃바운드 규칙이 30개 이상 존재하여 과도한 권한 설정이 감지되었습니다.
@@ -170,8 +170,8 @@ policies:
         Ports: [22]
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: ec2_instance_port_ssh_exposed_to_internet ***
           • 22번 포트(SSH)가 0.0.0.0/0(외부 전체)로 오픈된 인바운드 규칙이 탐지되었습니다.
@@ -211,8 +211,8 @@ policies:
           value: 0.0.0.0/0
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: ec2_securitygroup_default_restrict_traffic ***
           • Default Security Group이 0.0.0.0/0(전체 외부)로 오픈된 상태가 감지되었습니다.
@@ -240,8 +240,8 @@ policies:
       - unused
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: ec2_securitygroup_not_used ***
           • 미사용 보안그룹이 감지되었습니다.  

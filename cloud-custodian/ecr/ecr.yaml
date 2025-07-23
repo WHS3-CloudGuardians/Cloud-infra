@@ -16,8 +16,7 @@ policies:
         value: false
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: ecr_registry_scan_images_on_push_enabled ***
@@ -46,8 +45,7 @@ policies:
         state: false
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: ecr_repositories_lifecycle_policy_enabled ***
@@ -77,8 +75,7 @@ policies:
         value: false
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: ecr_repositories_scan_images_on_push_enabled ***

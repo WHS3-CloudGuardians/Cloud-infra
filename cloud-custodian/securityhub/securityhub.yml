@@ -22,8 +22,8 @@ policies:
 
     actions:
       - type: notify  
-        template: default 
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID : "securityhub_enabled" ***
           해당 S3 버킷은 접근 로그(Access Logging)가 비활성화되어 있어 로그 추적이 불가능한 상태입니다. 

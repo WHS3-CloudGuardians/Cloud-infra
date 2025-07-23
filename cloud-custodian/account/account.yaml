@@ -17,7 +17,7 @@ policies:
         value: "example@example.com"   # ← 실제 허용 이메일 리스트로 교체 필요
     actions:
       - type: notify
-        template: default
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: account_maintain_current_contact_details ***
@@ -58,7 +58,7 @@ policies:
             value: "security3@example.com"
     actions:
       - type: notify
-        template: default
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: account_maintain_different_contact_details_to_security_billing_and_operations ***
@@ -89,7 +89,7 @@ policies:
         value: ""
     actions:
       - type: notify
-        template: default
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: account_security_contact_information_is_registered ***
@@ -120,7 +120,7 @@ policies:
         value: ""
     actions:
       - type: notify
-        template: default
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: account_security_questions_are_registered_in_the_aws_account ***

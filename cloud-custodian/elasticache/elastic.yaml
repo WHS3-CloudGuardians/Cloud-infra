@@ -11,8 +11,7 @@ policies:
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: elasticache_cluster_uses_public_subnet ***
@@ -47,8 +46,7 @@ policies:
         op: eq
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: elasticache_redis_cluster_auto_minor_version_upgrades ***
@@ -83,8 +81,7 @@ policies:
         op: eq
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: elasticache_redis_cluster_backup_enabled ***
@@ -118,8 +115,7 @@ policies:
         op: eq
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: elasticache_redis_cluster_in_transit_encryption_enabled ***
@@ -152,8 +148,7 @@ policies:
         value: "disabled"
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: elasticache_redis_cluster_multi_az_enabled ***
@@ -187,8 +182,7 @@ policies:
         op: eq
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: elasticache_redis_cluster_rest_encryption_enabled ***

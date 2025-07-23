@@ -27,8 +27,8 @@ policies:
       - type: set-ec2-metadata-defaults
         HttpTokens: required
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: ec2_instance_account_imdsv2_enabled ***
           • EC2 계정의 IMDS 기본 HttpTokens 설정이 미흡하여 자동으로 'required'로 변경하였습니다.
@@ -57,7 +57,7 @@ policies:
         state: enable
       - type: notify
         slack_template: slack_default
-        slack_msg_color: warning
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: ec2_instance_detailed_monitoring_enabled ***
           • EC2 인스턴스의 세부 모니터링이 비활성화 상태입니다.
@@ -105,8 +105,8 @@ policies:
       - type: set-metadata-access
         tokens: required
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: auto-require-imdsv2-on-launch ***
           • tokens 옵션이 optional로 생성된 EC2 인스턴스를 감지하여 자동으로 'required'로 변경하였습니다.
@@ -276,9 +276,8 @@ policies:
       #- type: stop
       # 3) Slack 알림
       - type: notify
-        template: default
-        slack_msg_color: warning
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: ec2_instance_public_ip ***
           • 퍼블릭 IP가 할당된 EC2 인스턴스가 감지되어 "PubliclyAccessible" 태그를 부착하였습니다.
@@ -319,8 +318,8 @@ policies:
         value: "required"
       # Slack 알림
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: ec2_instance_secrets_user_data ***
           • EC2 인스턴스의 UserData에 하드코드된 시크릿(비밀번호, 토큰 등 민감정보) 패턴이 감지되었습니다.

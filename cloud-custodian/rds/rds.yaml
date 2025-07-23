@@ -19,9 +19,8 @@ policies:
           - property: BackupRetentionPeriod
             value: 7
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: danger
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** rds_instance_backup_enabled ***
           • 백업이 비활성화된 RDS 인스턴스가 탐지되어 백업(7일 보존)을 자동으로 활성화하였습니다.
@@ -60,9 +59,8 @@ policies:
           - property: CertificateRotationRestart
             value: true
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: danger
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** rds_instance_certificate_expiration ***
           • 만료된 RDS 인증서를 탐지하여 새로운 인증서로 자동 교체(재시작 포함)하였습니다.
@@ -92,9 +90,8 @@ policies:
     actions:
       - type: set-snapshot-copy-tags
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: warning
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** rds_instance_copy_tags_to_snapshots ***
           • RDS 인스턴스에서 스냅샷 태그 복사 기능 미설정이 탐지되어 자동으로 활성화하였습니다.
@@ -130,8 +127,7 @@ policies:
           value: administrator
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** rds_instance_default_admin ***
@@ -165,9 +161,8 @@ policies:
           - property: DeletionProtection
             value: true
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: danger
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** rds_instance_deletion_protection ***
           • 삭제 방지 비활성 RDS 인스턴스를 탐지하여 삭제 방지 설정을 자동 적용하였습니다.
@@ -200,8 +195,7 @@ policies:
         value: 8.0.36
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** rds_instance_deprecated_engine_version ***
@@ -237,9 +231,8 @@ policies:
           - property: MonitoringRoleARN
             value: arn:aws:iam::311278774159:role/rds-monitoring-role
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: warning
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** rds_instance_enhanced_monitoring_enabled ***
           • 향상된 모니터링이 비활성화된 RDS 인스턴스를 탐지하여 자동으로 활성화하였습니다.
@@ -274,8 +267,7 @@ policies:
           - failure
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** rds_instance_event_subscription_security_groups ***
@@ -309,9 +301,8 @@ policies:
           - property: EnableIAMDatabaseAuthentication
             value: true
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: warning
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** rds_instance_iam_authentication_enabled ***
           • IAM 인증 미설정 RDS 인스턴스를 탐지하여 자동으로 IAM 인증을 활성화하였습니다.
@@ -349,9 +340,8 @@ policies:
                 - general
                 - slowquery
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: danger
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** rds_instance_integration_cloudwatch_logs ***
           • CloudWatch Logs 미연동 RDS 인스턴스를 탐지하여 자동으로 로그 연동을 구성하였습니다.
@@ -386,9 +376,8 @@ policies:
           - property: AutoMinorVersionUpgrade
             value: true
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: warning
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** rds_instance_minor_version_upgrade_enabled ***
           • 마이너 버전 자동 업그레이드 미설정 RDS 인스턴스를 탐지하여 자동으로 활성화하였습니다.
@@ -421,9 +410,8 @@ policies:
           - property: MultiAZ
             value: true
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: danger
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** rds_instance_multi_az ***
           • 단일 AZ RDS 인스턴스를 탐지하여 Multi-AZ 배포를 자동으로 활성화하였습니다.
@@ -458,9 +446,8 @@ policies:
             value: false
         immediate: true
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: danger
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** rds_instance_no_public_access ***
           • 외부 공개(퍼블릭) 접근이 가능한 RDS 인스턴스를 탐지하여 퍼블릭 접근을 자동으로 차단하였습니다.
@@ -489,8 +476,7 @@ policies:
         value: false
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** rds_instance_storage_encrypted ***
@@ -529,9 +515,8 @@ policies:
           - property: CACertificateIdentifier
             value: rds-ca-rsa2048-g1
       - type: notify
-        template: default
-        template_format: slack
-        slack_msg_color: warning
+        slack_template: slack_default
+        slack_msg_color: good
         violation_desc: |
           *** enforce-rds-transport-encryption ***
           • 최신 CA 인증서 미적용 RDS 인스턴스를 탐지하여 최신 인증서로 자동 교체하였습니다.
@@ -560,8 +545,7 @@ policies:
         value: false
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** rds_snapshots_encrypted ***
@@ -591,8 +575,7 @@ policies:
         everyone_only: true
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** rds_snapshots_public_access ***

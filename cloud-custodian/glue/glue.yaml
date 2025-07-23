@@ -20,8 +20,7 @@ policies:
             value: null
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: glue_etl_jobs_amazon_s3_encryption_enabled ***
@@ -56,8 +55,7 @@ policies:
             value: null
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: glue_etl_jobs_cloudwatch_logs_encryption_enabled ***
@@ -91,8 +89,7 @@ policies:
             value: null
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: glue_etl_jobs_job_bookmark_encryption_enabled ***

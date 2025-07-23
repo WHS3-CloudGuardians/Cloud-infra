@@ -18,7 +18,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: cloudfront_distributions_field_level_encryption_enabled ***
@@ -49,7 +48,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: cloudfront_distributions_geo_restrictions_enabled ***
@@ -82,7 +80,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: cloudfront_distributions_https_enabled ***
@@ -120,7 +117,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc:  |
           *** CHECKID: cloudfront_distributions_logging_enabled ***
@@ -155,7 +151,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: cloudfront_distributions_using_deprecated_ssl_protocols ***
@@ -190,7 +185,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: cloudfront_distributions_using_waf ***

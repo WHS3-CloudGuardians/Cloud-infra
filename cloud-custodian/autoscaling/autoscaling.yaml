@@ -16,8 +16,7 @@ policies:
         value: 1
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: autoscaling_group_multiple_az ***

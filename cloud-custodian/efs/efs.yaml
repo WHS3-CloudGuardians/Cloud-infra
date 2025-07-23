@@ -14,8 +14,8 @@ policies:
         value: false
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: efs_encryption_at_rest_enabled ***
           • EFS 리소스의 저장 시 암호화 누락이 감지되었습니다.
@@ -44,8 +44,8 @@ policies:
         value: ENABLED
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: efs_have_backup_enabled ***
           • EFS 리소스의 Backup 누락이 감지되었습니다.
@@ -74,8 +74,8 @@ policies:
         Ports: [2049]
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID: efs_not_publicly_accessible ***
           • EFS 리소스의 공개 접근 허용이 감지되었습니다.

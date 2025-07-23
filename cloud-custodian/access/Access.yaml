@@ -20,8 +20,7 @@ policies:
       - type: invoke-lambda
         function: arn:aws:lambda:ap-northeast-2:311278774159:function:accessanalyzer_enabled
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: accessanalyzer_enabled ***

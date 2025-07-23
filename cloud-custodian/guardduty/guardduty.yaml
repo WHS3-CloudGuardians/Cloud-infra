@@ -19,8 +19,8 @@ policies:
 
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
+        slack_msg_color: danger
         violation_desc: |
           *** CHECKID : "guardduty_is_enabled" ***
           GuardDuty가 비활성화되어 있습니다.

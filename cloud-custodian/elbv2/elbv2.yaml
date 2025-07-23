@@ -21,7 +21,7 @@ policies:
       # 2) Slack 알림
       - type: notify
         slack_template: slack_default
-        slack_msg_color: danger
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: elbv2_deletion_protection ***
           • 삭제 보호가 비활성화된 ALB가 감지되었습니다.
@@ -65,7 +65,7 @@ policies:
       # 2) Slack 알림
       - type: notify
         slack_template: slack_default
-        slack_msg_color: warning
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: elbv2_desync_mitigation_mode ***
           • ALB desync 완화 모드가 모니터링(monitoring)으로 설정되어 있습니다.

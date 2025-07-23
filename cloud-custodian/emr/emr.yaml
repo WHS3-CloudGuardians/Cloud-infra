@@ -21,7 +21,8 @@ policies:
     actions:
       - type: terminate
       - type: notify
-        template: default
+        slack_template: slack_default
+        slack_msg_color: good
         priority_header: 2
         violation_desc: |
           *** CHECKID: emr_cluster_account_public_block_enabled ***

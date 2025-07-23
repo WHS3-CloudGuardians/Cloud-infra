@@ -1,35 +1,60 @@
 policies:
 # Backup ------------------------------------------------------------------------- Backup 
-# # CHECKID: backup_plans_exist
-# # ACTIONPLAN: AWS Backup 계획을 수립하여 백업 일정 및 대상 자동화
-# # ACTIONPLAN: AWS Backup을 통해 리소스 유형별 백업 플랜을 구성 및 적용
-# # Custodian으로는 없는 리소스에 대해서는 점검 불가 -> 람다 실행
-#   - name: backup-plans-exist
-#     resource: aws.account
-#     description: "Alert: No Backup Plan"
-#     mode:
-#       type: periodic
-#       schedule: "rate(5 minutes)"
-#       role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
-#     actions:
-#       - type: invoke-lambda
-#         function: arn:aws:lambda:ap-northeast-2:${ACCOUNT_ID}:function:custodian-backup-plans-exist-2
+  # # CHECKID: backup_plans_exist
+  # # ACTIONPLAN: AWS Backup 계획 미존재 시 Lambda 자동 점검 및 Slack 알림
+  # lambda 폴더에 있는 람다를 배포해 조치 가능
+  # - name: backup-plans-exist
+  #   resource: aws.account
+  #   description: "Alert: No Backup Plan"
+  #   mode:
+  #     type: periodic
+  #     schedule: "rate(1 hour)"
+  #     role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+  #   actions:
+  #     - type: invoke-lambda
+  #       function: arn:aws:lambda:ap-northeast-2:${ACCOUNT_ID}:function:custodian-backup-plans-exist-2
+  #     - type: notify
+  #       slack_template: slack_default
+  #       slack_msg_color: warning
+  #       violation_desc: |
+  #         *** CHECKID: backup_plans_exist ***
+  #         • AWS Backup 계획이 미존재하거나 일부 리소스에 백업 플랜이 적용되지 않았습니다.
+  #       action_desc: |
+  #         1. Lambda를 호출하여 백업 계획 존재여부를 자동 점검하였습니다.
+  #         2. 미설정 리소스가 있다면 백업 플랜을 추가 적용하세요.
+  #       to:
+  #         - https://hooks.slack.com/services/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
+  #       transport:
+  #         type: sqs
+  #         queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-
-# # CHECKID: backup_reportplans_exist
-# # ACTIONPLAN: AWS Backup 리포트 플랜을 생성하여 백업 실행 및 결과 모니터링
-# # ACTIONPLAN: AWS Backup Report Plan을 활성화하여 백업 이행 상태 자동 보고
-# # Custodian으로는 없는 리소스에 대해서는 점검 불가 -> 람다 실행
-#   - name: backup-reportplans-exist
-#     resource: aws.account
-#     description: "Alert: No Backup Report Plan"
-#     mode:
-#       type: periodic
-#       schedule: "rate(5 minutes)"
-#       role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
-#     actions:
-#       - type: invoke-lambda
-#         function: arn:aws:lambda:ap-northeast-2:${ACCOUNT_ID}:function:custodian-backup-reportplans-exist-2
+  # # CHECKID: backup_reportplans_exist
+  # # ACTIONPLAN: AWS Backup 리포트 플랜 미존재 시 Lambda 자동 점검 및 Slack 알림
+  # lambda 폴더에 있는 람다를 배포해 조치 가능
+  # - name: backup-reportplans-exist
+  #   resource: aws.account
+  #   description: "Alert: No Backup Report Plan"
+  #   mode:
+  #     type: periodic
+  #     schedule: "rate(1 hour)"
+  #     role: arn:aws:iam::${ACCOUNT_ID}:role/custodian-lambda-role
+  #   actions:
+  #     - type: invoke-lambda
+  #       function: arn:aws:lambda:ap-northeast-2:${ACCOUNT_ID}:function:custodian-backup-reportplans-exist-2
+  #     - type: notify
+  #       slack_template: slack_default
+  #       slack_msg_color: warning
+  #       violation_desc: |
+  #         *** CHECKID: backup_reportplans_exist ***
+  #         • AWS Backup Report Plan이 미존재하여 백업 실행/결과 보고가 누락될 수 있습니다.
+  #       action_desc: |
+  #         1. Lambda를 호출하여 Report Plan 존재여부를 자동 점검하였습니다.
+  #         2. 미설정 리소스가 있다면 Report Plan을 추가 적용하세요.
+  #       to:
+  #         - https://hooks.slack.com/services/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
+  #       transport:
+  #         type: sqs
+  #         queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
 
   # CHECKID: backup_vaults_exist

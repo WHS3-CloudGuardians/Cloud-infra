@@ -23,9 +23,9 @@ policies:
             EncryptionConfiguration:
               EncryptionOption: SSE_S3
       - type: notify
-        template: default
+        slack_template: slack_default
         priority_header: 2
-        slack_msg_color: danger
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: athena_workgroup_encryption ***
           • Athena 워크그룹이 쿼리 결과 암호화를 사용하지 않아 자동으로 SSE_S3 암호화가 적용되었습니다.
@@ -60,9 +60,9 @@ policies:
         config:
           EnforceWorkGroupConfiguration: true
       - type: notify
-        template: default
+        slack_template: slack_default
         priority_header: 2
-        slack_msg_color: danger
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: athena_workgroup_enforce_configuration ***
           • Athena 워크그룹의 "구성 적용 옵션"이 꺼져 있어 활성화 조치가 실행되었습니다.

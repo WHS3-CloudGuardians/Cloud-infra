@@ -58,7 +58,7 @@ policies:
         enabled: true
       - type: notify
         slack_template: slack_default
-        slack_msg_color: danger
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: cloudtrail_cloudwatch_logging_enabled ***
           • CloudTrail 트레일이 CloudWatch Logs와 연동되지 않고 로깅이 비활성화된 상태로 탐지되어, 연동과 로깅을 자동으로 활성화하였습니다.

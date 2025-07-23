@@ -20,7 +20,7 @@ policies:
           value: false
     actions:
       - type: notify
-        template: default
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: config_recorder_all_regions_enabled ***

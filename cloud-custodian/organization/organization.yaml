@@ -70,7 +70,7 @@ policies:
                     - ap-northeast-2
       - type: notify
         slack_template: slack_default
-        slack_msg_color: warning
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: organizations_scp_check_deny_regions ***
           • 허가되지 않은 리전 사용 차단 SCP가 미적용된 계정이 감지되었습니다.
@@ -115,7 +115,7 @@ policies:
                   - "2001"
       - type: notify
         slack_template: slack_default
-        slack_msg_color: warning
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: organizations_tags_policies_enabled_and_attached ***
           • 조직 태그 정책(TAG_POLICY)이 미적용된 계정이 감지되었습니다.

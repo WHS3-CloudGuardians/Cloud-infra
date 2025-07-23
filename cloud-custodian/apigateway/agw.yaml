@@ -16,8 +16,7 @@ policies:
         value: false
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: apigateway_restapi_client_certificate_enabled ***
@@ -47,8 +46,7 @@ policies:
         value: null
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: apigateway_restapi_logging_enabled ***
@@ -76,8 +74,7 @@ policies:
       - type: cross-account
     actions:
       - type: notify
-        template: default
-        template_format: slack
+        slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
           *** CHECKID: apigateway_restapi_public ***

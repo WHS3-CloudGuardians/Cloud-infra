@@ -11,7 +11,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::123456789012:role/custodian-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: value
         key: KeyState
@@ -26,9 +26,9 @@ policies:
         key: cmk-unused-90d
         value: "true"
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
         slack_msg_color: danger
+        priority_header: 2
         violation_desc: |
           *** CHECKID: kms_cmk_are_used ***
           • 90일 이상 사용되지 않은 KMS 키가 발견되었습니다.
@@ -53,7 +53,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::123456789012:role/custodian-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters:
       - type: cross-account
         everyone_only: true
@@ -62,7 +62,7 @@ policies:
         key: public-accessible
         value: "true"
       - type: notify
-        template: default
+        slack_template: slack_default
         priority_header: 2
         slack_msg_color: danger
         violation_desc: |
@@ -79,7 +79,7 @@ policies:
 
   # CHECKID: kms_cmk_not_deleted_unintentionally
   # ACTIONPLAN: 삭제 대기 중인 KMS 키 태깅 후 알림, 의도치 않은 삭제 방지 정책 및 삭제 대기 기간 설정 권고. 삭제 일정 및 보관 필요성 재점검 안내.
-  # [주의] PendingDeletion 상태인 키만 탐지. 실행 중 관련 리소스 에러가 발생할 수 있음. 실제 삭제 방지는 수동 조치 필요.
+  # [주의] PendingDeletion 상태인 키만 탐지하므로, 해당 상태인 키가 존재하지 않을 때는 람다에 배포되지 않으므로 배치 실행을 통해 확인해줘야 함.
   - name: kms_cmk_not_deleted_unintentionally
     resource: aws.kms-key
     region: all
@@ -88,7 +88,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::123456789012:role/custodian-role
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
     filters: 
       - type: value
         key: KeyState
@@ -98,7 +98,7 @@ policies:
         key: prevent-unintended-deletion
         value: "true"
       - type: notify
-        template: default
+        slack_template: slack_default
         priority_header: 2
         slack_msg_color: warning
         violation_desc: |
@@ -143,9 +143,9 @@ policies:
       - type: set-rotation
         state: true
       - type: notify
-        template: default
+        slack_template: slack_default
         priority_header: 2
-        slack_msg_color: danger
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: kms_cmk_rotation_enabled ***
           • CMK의 키 자동 회전 기능이 비활성화되어 있었습니다.
