@@ -363,33 +363,33 @@ policies:
     resource: aws.cloudtrail
     description: |
       Detect CloudTrail trails without S3 read data event logging.
+
     mode:
       type: periodic
       schedule: "rate(1 day)"
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
-      events:
-        - source: cloudtrail.amazonaws.com
-          event: PutEventSelectors
-          ids: "requestParameters.name"
+
     filters:
       - type: event-selectors
         key: 'DataResources[?Type==`AWS::S3::Object`]|[?ReadWriteType==`ReadOnly`]'
         op: equal
         value: null
+
     actions:
       - type: notify
         template: default
         template_format: slack
         violation_desc: |
           *** CHECKID: "cloudtrail_s3_dataevents_read_enabled" ***
-          CloudTrail이 S3 객체 읽기 이벤트를 로깅하지 않고 있습니다.
+          CloudTrail에서 S3 객체 수준의 읽기 이벤트 로깅이 비활성화되어 데이터 접근 추적이 불가능합니다. 
         action_desc: |
-          CloudTrail에서 S3 읽기 데이터 이벤트 로깅을 활성화하세요.
+          CloudTrail 설정에서 S3 객체 수준(Read) 데이터 이벤트 로깅을 활성화하세요.
         to:
           - "${SLACK_WEBHOOK_URL}"
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
 ---
 # 11-cloudtrail_s3_dataevents_write_enabled.yml
 
