@@ -6,11 +6,12 @@ policies:
   - name: kms_cmk_are_used
     resource: aws.kms-key
     description: |
+
       Detect enabled customer-managed KMS keys that have not been used for over 90 days.
     mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      role: arn:aws:iam::123456789012:role/custodian-role
     filters:
       - type: value
         key: KeyState
@@ -35,6 +36,7 @@ policies:
           1. 해당 KMS 키는 장기간 사용되지 않아 보안·운영상 위험이 있습니다.
           2. 불필요하다면 비활성화하거나 삭제 예약을 진행하세요.
           3. 연 1회 이상 전체 KMS 키 사용현황을 재점검하세요.
+
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -51,7 +53,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      role: arn:aws:iam::123456789012:role/custodian-role
     filters:
       - type: cross-account
         everyone_only: true
@@ -86,7 +88,7 @@ policies:
     mode:
       type: periodic
       schedule: "rate(1 day)"
-      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      role: arn:aws:iam::123456789012:role/custodian-role
     filters: 
       - type: value
         key: KeyState
@@ -106,6 +108,7 @@ policies:
           1. 삭제가 필요한 키인지 재확인 후, 필요시 삭제 대기 기간(Waiting Period)을 충분히 설정하세요.
           2. 실수로 인한 삭제 방지를 위해 키 관리 정책(삭제 방지 태그/키 정책)을 추가하세요.
           3. 키 삭제 일정 및 실제 보관 필요성을 담당자가 별도 점검해야 합니다.
+
         to:
           - https://hooks.slack.com/services/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
         transport:
@@ -149,6 +152,7 @@ policies:
         action_desc: |
           1. 키 자동 회전 기능을 자동으로 활성화하였습니다.
           2. 전체 KMS 키에 대해 연 1회 이상 회전 정책이 적용되어 있는지 점검하세요.
+
         to:
           - https://hooks.slack.com/services/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
         transport:

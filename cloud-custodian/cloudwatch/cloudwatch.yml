@@ -1,0 +1,689 @@
+# 1-cloudwatch_changes_to_network_acls_alarm_configured.yml
+
+policies:
+  - name: cloudtrail-enable-cloudwatch-logs
+    description: |
+      Automatically enables CloudWatch Logs integration for CloudTrail trails
+      if they are not configured properly.
+    resource: aws.cloudtrail
+
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: cloudtrail.amazonaws.com
+          event: UpdateTrail
+          ids: "requestParameters.name"
+
+    filters:
+      - type: value
+        key: CloudWatchLogsLogGroupArn
+        value: absent
+      - type: status
+        key: IsLogging
+        value: False
+
+    actions:
+      - type: update-trail
+        attributes:
+          CloudWatchLogsLogGroupArn: arn:aws:logs:ap-northeast-2:311278774159:log-group:/aws/cloudtrail/security-audit
+          CloudWatchLogsRoleArn: arn:aws:iam::311278774159:role/CloudTrail_CloudWatchLogs_Role
+
+      - type: set-logging
+        enabled: True
+
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: "cloudwatch_changes_to_network_acls_alarm_configured" ***
+          CloudTrail 트레일이 CloudWatch Logs와 연동되어 있지 않습니다.
+        action_desc: |
+          로그 연동 및 로깅을 자동으로 활성화했습니다. 추가로 경보 설정을 구성하세요.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+  - name: nacl-overly-permissive
+    description: |
+      Detects overly permissive Network ACL rules (e.g. allowing 0.0.0.0/0) and notifies for manual remediation.
+    resource: aws.network-acl
+
+    mode:
+      type: periodic
+      schedule: "rate(24 hours)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+
+    filters:
+      - type: value
+        key: Entries[?CidrBlock=='0.0.0.0/0' && Egress==`true` && RuleAction=='allow']
+        value_type: size
+        op: gt
+        value: 0
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: "cloudwatch_changes_to_network_acls_alarm_configured" ***
+           모든 IP(0.0.0.0/0)를 허용하는 NACL 규칙이 감지되었습니다.
+        action_desc: |
+           NACL 규칙을 검토하여 CIDR 범위를 제한하세요.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 2-cloudwatch_changes_to_network_route_tables_alarm_configured.yml
+
+policies:
+  - name: monitor-route-table-changes
+    resource: aws.account
+    description: Monitor route table changes that may pose a risk of unauthorized network routing.
+    
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: ec2.amazonaws.com
+          event: CreateRoute
+          ids: "requestParameters.routeTableId"
+        - source: ec2.amazonaws.com
+          event: ReplaceRoute
+          ids: "requestParameters.routeTableId"
+        - source: ec2.amazonaws.com
+          event: DeleteRoute
+          ids: "requestParameters.routeTableId"
+          
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: "cloudwatch_changes_to_network_route_tables_alarm_configured" ***
+          라우팅 테이블의 무단 변경으로 인한 네트워크 트래픽 우회 및 데이터 유출 위험이 있다. 
+        action_desc: |
+          해당 라우팅 테이블에 대해 CreateRoute, ReplaceRoute, DeleteRoute 등의 변경 이벤트가 감지되었습니다.
+          변경된 경로 설정은 네트워크 트래픽의 우회 또는 외부 유출 가능성이 있으므로 관리자 검토가 필요합니다.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 3-cloudwatch_changes_to_network_gateways_alarm_configured.yml
+
+# a. Automatically connects CloudTrail to a CloudWatch Logs group if not already configured.
+policies: 
+
+  - name: cloudtrail-cloudwatch-logs-attach 
+    resource: aws.cloudtrail  
+    description: Automatically connects CloudTrail to CloudWatch Logs if not configured.
+
+    mode:
+      type: periodic
+      schedule: "rate(24 hours)" 
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role 
+
+    filters:
+      - type: value
+        key: CloudWatchLogsLogGroupArn 
+        value: absent  
+
+    actions:
+      - type: update-trail 
+        attributes:
+          CloudWatchLogsLogGroupArn: arn:aws:logs:ap-northeast-2:311278774159:log-group:/aws/cloudtrail/network-activity  
+          CloudWatchLogsRoleArn: arn:aws:iam::311278774159:role/CloudTrail_CloudWatchLogs_Role  
+
+  # b. Configures the following filters and alarms on the specified CloudWatch Logs group.
+  - name: monitor-network-gateway-changes
+    resource: aws.cloudtrail
+    description: Detect changes to Internet and NAT gateways using CloudTrail events.
+
+    mode:
+      type: cloudtrail  
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: ec2.amazonaws.com
+          event: CreateInternetGateway
+          ids: "responseElements.internetGateway.internetGatewayId"
+        - source: ec2.amazonaws.com
+          event: DeleteInternetGateway
+          ids: "requestParameters.internetGatewayId"
+        - source: ec2.amazonaws.com
+          event: AttachInternetGateway
+          ids: "requestParameters.internetGatewayId"
+        - source: ec2.amazonaws.com
+          event: DetachInternetGateway
+          ids: "requestParameters.internetGatewayId"
+        - source: ec2.amazonaws.com
+          event: CreateNatGateway
+          ids: "responseElements.natGateway.natGatewayId"
+        - source: ec2.amazonaws.com
+          event: DeleteNatGateway
+          ids: "requestParameters.natGatewayId"
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: "cloudwatch_changes_to_network_gateways_alarm_configured" ***
+          인터넷 게이트웨이 또는 NAT 게이트웨이에 대한 변경이 감지되었습니다.
+        action_desc: |
+          변경된 리소스를 확인하고 의도되지 않은 설정이면 수동으로 롤백하거나 권한 정책을 점검하세요.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 4-cloudwatch_changes_to_vpcs_alarm_configured.yml
+
+policies:
+  - name: cloudwatch-changes-to-vpcs-alarm-configured
+    resource: aws.ec2
+    description: |
+      Missing real-time alerting for sensitive VPC configuration changes violates monitoring and change management requirements.
+
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: ec2.amazonaws.com
+          event: CreateVpc
+          ids: "responseElements.vpc.vpcId"
+        - source: ec2.amazonaws.com
+          event: DeleteVpc
+          ids: "requestParameters.vpcId"
+        - source: ec2.amazonaws.com
+          event: ModifyVpcTenancy
+          ids: "requestParameters.vpcId"
+        - source: ec2.amazonaws.com
+          event: ModifyVpcAttribute
+          ids: "requestParameters.vpcId"
+
+    filters:
+      - type: value
+        key: isDefault
+        value: false
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID : "cloudwatch_changes_to_vpcs_alarm_configured" ***
+          VPC 생성·삭제·속성 변경 감지되었습니다. 
+        action_desc: |
+          변경 의도를 확인하고 보안 그룹 및 라우팅 구성을 검토하세요.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 5-cloudwatch_cross_account_sharing_disabled.yml
+
+policies:
+  - name: disable-cross-account-sharing-cloudwatch-logs
+    resource: aws.log-group
+    description: Detect and notify when CloudWatch Logs resource policy allows cross-account access.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+
+    filters:
+      - type: cross-account
+        whitelist:
+          - "311278774159"
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID : "cloudwatch_cross_account_sharing_disabled" ***
+          CloudWatch Logs 리소스 정책에 불허된 교차 계정 접근이 감지되었습니다.
+        action_desc: |
+          리소스 정책에서 외부 계정에 대한 접근을 제거하거나, 승인된 계정만 허용하도록 업데이트하세요.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 6-cloudwatch_log_metric_filter_and_alarm_for_aws_config_configuration_changes_enabled.yml
+
+policies:
+  - name: notify-aws-config-changes
+    description: Detects when AWS Config recorder settings are modified.
+    
+    resource: aws.account
+
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: config.amazonaws.com
+          event: StopConfigurationRecorder
+          ids: "requestParameters.configurationRecorderName"
+        - source: config.amazonaws.com
+          event: DeleteConfigurationRecorder
+          ids: "requestParameters.configurationRecorderName"
+        - source: config.amazonaws.com
+          event: PutConfigurationRecorder
+          ids: "requestParameters.configurationRecorder.name"
+        - source: config.amazonaws.com
+          event: PutDeliveryChannel
+          ids: "requestParameters.deliveryChannel.name"
+        - source: config.amazonaws.com
+          event: DeleteDeliveryChannel
+          ids: "requestParameters.deliveryChannelName"
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID : "cloudwatch_log_metric_filter_and_alarm_for_aws_config_configuration_changes_enabled" ***
+          AWS Config 설정이 변경되었습니다.
+        action_desc: |
+          AWS Config Recorder 또는 Delivery Channel 설정 변경 여부를 확인하고, 필요 시 재구성하십시오.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 7-cloudwatch_log_metric_filter_root_usage.yml
+
+policies:
+  - name: alert-on-root-account-usage
+    resource: aws.account
+    description: AWS root account is used for console login.
+
+    mode:
+      type: cloudtrail     
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role 
+      events:
+        - source: signin.amazonaws.com       
+          event: ConsoleLogin                   
+          selector: "$.userIdentity.type == 'Root'"  
+          ids: "userIdentity.accountId"         
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: "cloudwatch_log_metric_filter_root_usage" ***
+          루트 계정으로 AWS 콘솔에 로그인한 이벤트가 감지되었습니다.
+        action_desc: |
+          관리자 또는 보안 담당자가 로그인 내역(IP, 시간 등)을 확인하고 필요 시 계정 접근을 제한하거나 비밀번호를 변경하세요.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 8-cloudwatch_log_metric_filter_unauthorized_api_calls.yml
+
+policies:
+  - name: alert-unauthorized-api-calls 
+    resource: account  
+    description: Missing CloudWatch metric filter and alarm for unauthorized API calls, violating security monitoring and access control requirements.
+
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: "*"
+          event: "*"
+          ids: "eventID"
+
+    filters:
+      - type: event  
+        key: errorCode  
+        value: "*UnauthorizedOperation*"  
+        op: glob  
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: "cloudwatch_log_metric_filter_unauthorized_api_calls" ***
+          비인가 API 호출이 탐지되었습니다. 계정 또는 역할의 접근 권한을 점검하시기 바랍니다.
+        action_desc: |
+          이미 발생한 비인가 API 호출에 대한 이벤트로 실시간 차단이 불가능합니다.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 9-cloudwatch_log_metric_filter_authentication_failures.yml
+
+policies:
+  - name: notify-console-auth-failures 
+    resource: aws.cloudtrail
+    description: Detection of a failed AWS Console login event.
+    
+    mode:
+      type: cloudtrail 
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role  
+      events:
+        - source: signin.amazonaws.com  
+          event: ConsoleLogin  
+          ids: "userIdentity.arn"  
+
+    filters:
+      - type: value  
+        key: errorMessage 
+        value: "Failed authentication"  
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: "cloudwatch_log_metric_filter_authentication_failures" ***
+          AWS 콘솔 로그인 인증 실패 이벤트가 발생했습니다.
+        action_desc: |
+          이 이벤트는 설정 변경으로 사전에 차단할 수 없어 보안 담당자의 수동 확인 및 대응이 필요합니다.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 10-cloudwatch_log_metric_filter_aws_organizations_changes.yml
+
+policies:
+  - name: monitor-aws-organizations-changes 
+    resource: aws.account 
+    description: Notification on AWS Organizations change events.
+
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: organizations.amazonaws.com
+          event: CreateAccount
+          ids: requestParameters.accountName
+        - source: organizations.amazonaws.com
+          event: InviteAccountToOrganization
+          ids: requestParameters.target.email
+        - source: organizations.amazonaws.com
+          event: AttachPolicy
+          ids: requestParameters.policyId
+        - source: organizations.amazonaws.com
+          event: DetachPolicy
+          ids: requestParameters.policyId
+        - source: organizations.amazonaws.com
+          event: DeleteOrganization
+          ids: eventSource
+        - source: organizations.amazonaws.com
+          event: CreateOrganizationalUnit
+          ids: requestParameters.name
+        - source: organizations.amazonaws.com
+          event: DeleteOrganizationalUnit
+          ids: requestParameters.organizationalUnitId 
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: "cloudwatch_log_metric_filter_aws_organizations_changes" ***
+          AWS Organizations 리소스에 변경 이벤트 발생했다. 
+        action_desc: |
+          Organizations는 민감한 리소스로 자동조치 불가하다. 보안 담당자가 확인하여 수동조치 한다. 
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 11-cloudwatch_log_metric_filter_and_alarm_for_cloudtrail_configuration_changes_enabled.yml
+
+policies:
+  - name: notify-cloudtrail-config-change
+    description: Detects CloudTrail configuration changes like update, stop, or delete trail.
+
+    resource: aws.account
+
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: cloudtrail.amazonaws.com
+          event: UpdateTrail
+          ids: "requestParameters.name"
+        - source: cloudtrail.amazonaws.com
+          event: StopLogging
+          ids: "requestParameters.name"
+        - source: cloudtrail.amazonaws.com
+          event: DeleteTrail
+          ids: "requestParameters.name"
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID : "cloudwatch_log_metric_filter_and_alarm_for_cloudtrail_configuration_changes_enabled" ***
+          CloudTrail 설정 변경(중지, 삭제, 수정) 이벤트가 발생했습니다.
+        action_desc: |
+          CloudTrail 변경은 보안 로그 누락 위험이 있으므로 보안 담당자가 즉시 검토하고 필요 시 설정을 원복해야 합니다.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 12-cloudwatch_log_metric_filter_disable_or_scheduled_deletion_of_kms_cmk.yml
+
+policies:
+  - name: monitor-kms-key-deletion-or-disable  
+    description: Detect KMS key disable or scheduled deletion events and notify for manual review.
+
+    resource: aws.kms-key  
+
+    mode:
+      type: cloudtrail 
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role  
+      events:
+        - source: kms.amazonaws.com  
+          event: DisableKey  
+          ids: "requestParameters.keyId"  
+        - source: kms.amazonaws.com
+          event: ScheduleKeyDeletion  
+          ids: "requestParameters.keyId"
+
+    filters:
+      - type: value
+        key: KeyState  
+        value: "Enabled"  
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: "cloudwatch_log_metric_filter_disable_or_scheduled_deletion_of_kms_cmk" ***
+            KMS 키가 비활성화되었거나 삭제 예약되었습니다.
+        action_desc: |
+           삭제/비활성화가 의도된 작업인지 검토 후 필요 시 `CancelKeyDeletion` 또는 키 재활성화를 수동으로 수행하세요.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 13-cloudwatch_log_metric_filter_for_s3_bucket_policy_changes.yml
+
+policies:
+  - name: notify-on-s3-bucket-policy-change 
+    resource: aws.s3 
+    description: Notify when S3 bucket policy is added or removed via CloudTrail
+
+    mode:
+      type: cloudtrail  
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role  
+      events:
+        - source: s3.amazonaws.com  
+          event: PutBucketPolicy 
+          ids: "requestParameters.bucketName" 
+        - source: s3.amazonaws.com
+          event: DeleteBucketPolicy 
+          ids: "requestParameters.bucketName"
+
+    filters:
+      - type: value
+        key: BucketPolicy
+        value: not-null  
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID: "cloudwatch_log_metric_filter_for_s3_bucket_policy_changes" ***
+          S3 버킷 정책이 생성되거나 삭제되었습니다.
+        action_desc: |
+          변경이 의도된 것인지 확인하고 필요한 경우 버킷 정책을 검토하거나 이전 상태로 복구하십시오.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 14-cloudwatch_log_metric_filter_sign_in_without_mfa.yml
+
+policies:
+  - name: alert-console-login-without-mfa
+    resource: aws.cloudtrail  
+    description: Missing log filter and alarm for successful console login events without MFA,
+    
+    mode:
+      type: cloudtrail 
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: signin.amazonaws.com
+          event: ConsoleLogin
+          ids: "userIdentity.arn"
+    
+    filters:
+      - type: event
+        key: "additionalEventData.MFAUsed"
+        value: "No"
+      - type: event 
+        key: "responseElements.ConsoleLogin"
+        value: "Success"
+      - type: event  
+        key: "userIdentity.type"
+        value: "IAMUser"
+
+    actions:
+      - type: notify
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID : "cloudwatch_log_metric_filter_sign_in_without_mfa" ***
+            MFA 없이 성공적인 콘솔 로그인 이벤트에 대한 로그 필터 및 경보가 설정되지 않았다. 
+        action_desc: |
+            MFA 없이 로그인한 사용자에 대해 보안 점검을 수행하고, MFA 활성화를 권고하십시오.
+        to:
+          - "${SLACK_WEBHOOK_URL}"
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
+
+# 15-cloudwatch_log_metric_filter_policy_changes.yml
+
+policies: 
+  - name: notify-on-iam-policy-change  
+    resource: aws.cloudtrail  
+    description: Detects IAM policy changes such as creation, deletion, or updates to user, group, or role policies.
+
+    mode:
+      type: cloudtrail 
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role  
+      events:
+        - source: iam.amazonaws.com  
+          event: PutGroupPolicy  
+          ids: "requestParameters.groupName" 
+        - source: iam.amazonaws.com
+          event: PutRolePolicy 
+          ids: "requestParameters.roleName"
+        - source: iam.amazonaws.com
+          event: PutUserPolicy 
+          ids: "requestParameters.userName"
+        - source: iam.amazonaws.com
+          event: CreatePolicy  
+          ids: "requestParameters.policyName"
+        - source: iam.amazonaws.com
+          event: DeletePolicy  
+          ids: "requestParameters.policyArn"
+
+    actions:
+      - type: notify  
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID : "cloudwatch_log_metric_filter_policy_changes" ***
+          IAM 정책이 생성, 수정 또는 삭제되었습니다.
+        action_desc: |
+          정책 변경 내용을 검토하고 이상 여부를 확인하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+# 16-cloudwatch_log_metric_filter_security_group_changes.yml
+
+policies:
+  - name: remediate-open-sg-ingress
+    resource: aws.security-group
+    description: Detects when a security group ingress rule allows public (0.0.0.0/0) access and removes it.
+
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: ec2.amazonaws.com
+          event: AuthorizeSecurityGroupIngress
+          ids: "requestParameters.groupId"
+
+    filters:
+      - type: ingress
+        Cidr:
+          value: 0.0.0.0/0
+          op: eq
+
+    actions:
+      - type: remove-permissions
+        ingress: matched
+
+      - type: notify  
+        template: default
+        template_format: slack
+        violation_desc: |
+          *** CHECKID : "cloudwatch_log_metric_filter_security_group_changes" ***
+          공개(0.0.0.0/0) 인그레스가 제거되었습니다.
+        action_desc: |
+          자동으로 공개 인그레스 룰을 제거했습니다. 필요 시 재검토해주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
