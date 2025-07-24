@@ -23,8 +23,8 @@ policies:
             EncryptionConfiguration:
               EncryptionOption: SSE_S3
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** athena_workgroup_encryption ***
            • Athena 워크그룹이 쿼리 결과 암호화를 사용하지 않고 있습니다.
@@ -56,8 +56,8 @@ policies:
         config:
           EnforceWorkGroupConfiguration: true
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** athena_workgroup_enforce_configuration ***
           • Athena 워크그룹이 구성 적용 옵션을 사용하지 않습니다.
