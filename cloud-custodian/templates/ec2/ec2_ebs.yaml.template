@@ -35,7 +35,6 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-
   # CHECKID: ec2_ebs_volume_encryption
   # ACTIONPLAN: 비암호화된 EBS 볼륨 감지 시 알림 전송 및 스냅샷 생성
   - name: ec2_ebs_volume_encryption
@@ -49,8 +48,7 @@ policies:
       - Encrypted: false
     actions:
       - type: snapshot
-        copy-tags:
-          - "*"
+        copy-volume-tags: true
       - type: notify
         slack_template: slack_default
         slack_msg_color: danger
@@ -112,10 +110,13 @@ policies:
     filters:
       - type: snapshots
         count: 0
+      - type: value
+        key: State
+        op: eq
+        value: in-use
     actions:
       - type: snapshot
-        copy-tags:
-          - "*"
+        copy-volume-tags: true
       - type: notify
         slack_template: slack_default
         slack_msg_color: good
