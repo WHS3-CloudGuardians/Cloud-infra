@@ -16,7 +16,7 @@ policies:
   #      slack_template: slack_default
   #      slack_msg_coler: good
   #      violation_desc: |
-  #        *** organizations_account_part_of_organizations ***
+  #        *** CHECKID: rganizations_account_part_of_organizations ***
   #        • AWS Organizations에 소속되지 않은 독립 실행형 계정이 있습니다.
   #      action_desc: |
   #        1. 독립 실행형 계정을 AWS Organizations에 가입시켜 중앙에서 정책을 관리하세요.
@@ -62,7 +62,7 @@ policies:
         slack_template: slack_default
         slack_msg_coler: good
         violation_desc: |
-          *** organizations_scp_check_deny_regions ***
+          *** CHECKID: organizations_scp_check_deny_regions ***
           • 허가되지 않은 리전 사용 차단에 대한 SCP가 적용되지 않았습니다.
         action_desc: |
           1. SCP를 사용하여 허가된 리전 외의 사용을 차단합니다.
@@ -105,7 +105,7 @@ policies:
         slack_template: slack_default
         slack_msg_coler: good
         violation_desc: |
-          *** organizations_tags_policies_enabled_and_attached ***
+          *** CHECKID: organizations_tags_policies_enabled_and_attached ***
           • 태그 정책이 비활성화되어있습니다.
         action_desc: |
           1. 태그 정책을 활성화하고 적용합니다.
