@@ -851,20 +851,24 @@ policies:
       type: periodic
       schedule: "rate(7 days)" 
       role: ${LAMBDA_ROLE}
-    filters: []
+    filters:
+    - type: value
+      key: RoleName
+      op: eq
+      value: SecurityAudit
     actions:
       # - type: invoke-lambda
       #   function: arn:aws:lambda:${AWS_REGION}:${ACCOUNT_ID}:function:ensureSecurityAuditFunction
       - type: notify
         slack_template: slack_default
-        slack_msg_color: good
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: iam_securityaudit_role_created ***
           • SecurityAudit 역할이 존재하지 않아 자동으로 생성하였습니다.
         action_desc: |
           1. SecurityAudit 역할이 정상적으로 생성/유지되고 있는지 관리하세요.
         to:
-          - ${GOOD_SLACK}
+          - ${WARNING_SLACK}
         transport:
           type: sqs
           queue: ${QUEUE_URL}
@@ -880,20 +884,24 @@ policies:
       type: periodic
       schedule: "rate(7 days)" 
       role: ${LAMBDA_ROLE}
-    filters: []
+    filters:
+    - type: value
+      key: RoleName
+      op: eq
+      value: AWSServiceRoleForSupport
     actions:
       # - type: invoke-lambda
       #   function: arn:aws:lambda:${AWS_REGION}:${ACCOUNT_ID}:function:ensureSupportRoleFunction
       - type: notify
         slack_template: slack_default
-        slack_msg_color: good
+        slack_msg_color: warning
         violation_desc: |
           *** CHECKID: iam_support_role_created ***
           • Support 역할이 존재하지 않아 자동으로 생성하였습니다.
         action_desc: |
           1. Support 역할이 정상적으로 생성/유지되고 있는지 관리하세요.
         to:
-          - ${GOOD_SLACK}
+          - ${WARNING_SLACK}
         transport:
           type: sqs
           queue: ${QUEUE_URL}
