@@ -14,7 +14,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         violation_desc: |
           *** CHECKID: s3_account_level_public_access_blocks ***
           • 계정 수준에서 S3 퍼블릭 접근 차단 설정이 비활성화가 감지되었습니다.
@@ -48,7 +47,6 @@ policies:
         value: exist
       - type: notify
         template: slack-default
-        template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_acl_prohibited ***
           • S3 버킷에서 ACL 설정이 감지되었습니다.
@@ -80,7 +78,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_cross_region_replication ***
@@ -113,7 +110,6 @@ policies:
         crypto: AES256
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: good
         violation_desc: |
           *** CHECKID: s3_bucket_default_encryption ***
@@ -144,7 +140,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_default_encryption ***
           • S3 버킷에서 KMS 암호화 비활성화가 감지되었습니다.
@@ -181,7 +176,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_level_public_access_block ***
           • S3 버킷에 퍼블릭 접근 차단 설정 비활성화가 감지되었습니다.
@@ -213,7 +207,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_lifecycle_enabled ***
@@ -245,7 +238,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_no_mfa_delete ***
@@ -279,7 +271,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_object_lock ***
@@ -313,7 +304,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_object_versioning ***
@@ -348,7 +338,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_policy_public_write_access ***
           • S3 버킷에 퍼블릭 쓰기 허용 설정이 감지되었습니다.
@@ -392,7 +381,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_public_access ***
           • S3 버킷에 전체 공개 설정이 감지되었습니다.
@@ -423,7 +411,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_public_list_acl ***
           • S3 버킷에 대한 리스트 권한 공개가 감지되었습니다.
@@ -455,7 +442,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         violation_desc: |
           *** CHECKID: s3_bucket_secure_transport_policy ***
           • S3 버킷에 쓰기 권한 공개 ACL이 감지되었습니다.
@@ -499,7 +485,6 @@ policies:
       #           "aws:SecureTransport": "false"
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_secure_transport_policy ***
@@ -530,7 +515,6 @@ policies:
     actions:
       - type: notify
         template: slack-default
-        template_format: slack
         slack_msg_color: warning
         violation_desc: |
           *** CHECKID: s3_bucket_server_access_logging_enabled ***

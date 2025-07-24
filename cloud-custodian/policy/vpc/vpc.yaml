@@ -115,7 +115,7 @@ policies:
       # 2) Slack 알림
       - type: notify
         slack_template: slack_default
-        slack_msg_color: warning
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: vpc_subnet_no_public_ip_by_default ***
           • 서브넷이 기본적으로 퍼블릭 IP를 할당하도록 설정되어 있습니다.
