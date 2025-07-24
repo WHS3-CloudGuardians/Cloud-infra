@@ -1,0 +1,132 @@
+policies:
+  #CHECKID: kms_cmk_are_used
+  #ACTIONPLAN: 장기간 사용되지 않은 KMS 키가 발견된 경우, 키를 비활성화하거나 삭제를 예약하여 관리합니다.
+  - name: kms_cmk_are_used
+    resource: aws.kms-key
+    description: |
+      A customer-managed CMK that has remained unused for over 90 days since creation and is currently in the Enabled state is scheduled for deletion in 7 days
+    mode: 
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: KeyState
+        value: Enabled
+        op: eq
+      - type: value
+        key: CreationDate
+        value: '2025-04-17T00:00:00+00:00'
+        op: lt
+    actions:
+      - type: tag
+        key: cmk-unused-90d
+        value: "true"
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** kms_cmk_are_used ***
+          • 90일 이상 사용되지 않은 KMS 키가 발견되었습니다.
+        action_desc: |
+          1. 장기간 사용되지 않은 KMS 키를 비활성화하거나 삭제를 예약하세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  #CHECKID: kms_key_not_publicly_accessible
+  #ACTIONPLAN: KMS 키 정책이 외부에 노출된 경우, 정책을 수정하여 신뢰된 계정만 접근하도록 제한합니다.
+  - name: kms_key_not_publicly_accessible
+    resource: aws.kms-key
+    description: |
+      If the KMS key policy is exposed externally, modify the policy to restrict access to trusted accounts only
+    mode: 
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: cross-account
+        everyone_only: true
+    actions:
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** kms_key_not_publicly_accessible ***
+          • KMS 키 정책이 외부에 노출된 상태입니다.
+        action_desc: |
+          1. KMS 키 외부에 노출된 정책을 수정하여 신뢰된 계정만 접근하도록 제한하세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  #CHECKID: kms_cmk_not_deleted_unintentionally
+  #ACTIONPLAN: KMS 키에 삭제 대기 기간을 설정하거나 삭제 방지 정책 추가
+  - name: kms_cmk_not_deleted_unintentionally
+    resource: aws.kms-key
+    region: all
+    description: |
+      Configure a deletion waiting period for the KMS key or add a deletion protection policy
+    mode: 
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters: 
+      - type: value
+        key: KeyState
+        value: PendingDeletion
+    actions:
+      - type: tag
+        key: prevent-unintended-deletion
+        value: "true"
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** kms_cmk_not_deleted_unintentionally ***
+          • 의도치 않은 cmk 삭제가 발생할 수 있습니다.
+        action_desc: |
+          1. KMS 키에 삭제 대기 기간을 설정하거나 삭제 방지 정책 추가하세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  #CHECKID: kms_cmk_rotation_enabled
+  #ACTIONPLAN: CMK의 키 자동 회전 기능을 활성화하는 정책 적용
+  - name: kms_cmk_rotation_enabled
+    resource: aws.kms-key
+    description: |
+      Ensure that automatic rotation is enabled for all CMKs
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: KeyState
+        value: Enabled
+      - type: value
+        key: RotationEnabled
+        value: false
+    actions:
+      - type: set-rotation
+        state: true
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** kms_cmk_rotation_enabled ***
+          • CMK의 키 자동 회전 기능이 비활성화되어 있습니다.
+        action_desc: |
+          1. CMK의 키 자동 회전 기능을 활성화하는 정책 적용합니다.
+        to:
+          - ${GOOD_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
