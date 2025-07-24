@@ -850,7 +850,11 @@ policies:
       type: periodic
       schedule: "rate(7 days)" 
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
-    filters: []
+    filters:
+    - type: value
+      key: RoleName
+      op: eq
+      value: SecurityAudit
     actions:
       # - type: invoke-lambda
       #   function: arn:aws:lambda:ap-northeast-2:311278774159:function:ensureSecurityAuditFunction
@@ -878,7 +882,11 @@ policies:
       type: periodic
       schedule: "rate(7 days)" 
       role: arn:aws:iam::311278774159:role/custodian-lambda-role
-    filters: []
+    filters:
+    - type: value
+      key: RoleName
+      op: eq
+      value: AWSServiceRoleForSupport
     actions:
       # - type: invoke-lambda
       #   function: arn:aws:lambda:ap-northeast-2:311278774159:function:ensureSupportRoleFunction
