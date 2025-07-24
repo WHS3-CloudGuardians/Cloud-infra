@@ -1,5 +1,7 @@
 policies:
-  - name: enforce-emr-cluster-no-public-access
+  #CHECKID: emr_cluster_account_public_block_enabled
+  #ACTIONPLAN: 퍼블릭 액세스가 설정된 EMR 클러스터를 탐지하고 관리자 알림 또는 태깅으로 조치를 유도
+  - name: emr_cluster_account_public_block_enabled
     resource: aws.emr
     description: |
       Terminates EMR clusters with VisibleToAllUsers=true to eliminate the risk of public access exposure.
