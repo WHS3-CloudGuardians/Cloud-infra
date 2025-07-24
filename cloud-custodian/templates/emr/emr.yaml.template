@@ -17,8 +17,8 @@ policies:
     actions:
       - type: terminate
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** emr_cluster_account_public_block_enabled ***
           • EMR의 퍼블릭 액세스 차단이 비활성화되어 있습니다.
