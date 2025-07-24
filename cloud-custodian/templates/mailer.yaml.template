@@ -1,0 +1,3 @@
+queue_url: ${QUEUE_URL}
+role: ${MAILER_ROLE}
+region: ${AWS_REGION}
