@@ -29,7 +29,7 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}${LAMBDA_ROLE}
 
-  #CHECKID: account_maintain_different_contact_details_to_security_billing_and_operations
+  #CHECKID: account_maintain_different_contact_details_security_bill_op
   #ACTIONPLAN: 보안, 결제, 운영 담당 팀의 연락처 세부 정보가 동일하다면, 각 역할에 맞는 개별 연락처를 등록합니다.
   - name: account_maintain_different_contact_details_to #이름 길이가 64자를 넘음
     resource: aws.org-account
