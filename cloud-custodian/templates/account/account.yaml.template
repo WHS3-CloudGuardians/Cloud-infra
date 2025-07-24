@@ -16,8 +16,8 @@ policies:
         value: "example@example.com"   # ← 실제 허용 이메일 리스트로 교체 필요
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** account_maintain_current_contact_details ***
           • AWS 계정의 연락처 정보가 최신이 아닙니다.
@@ -55,8 +55,8 @@ policies:
             value: "security3@example.com"
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** account_maintain_different_contact_details_to_security_billing_and_operations ***
           • 보안, 결제, 운영 담당 팀의 연락처 세부 정보가 동일합니다.
@@ -85,8 +85,8 @@ policies:
         value: ""
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** account_security_contact_information_is_registered ***
           • AWS 계정에 보안 연락처 정보가 등록되지 않았습니다.
@@ -115,8 +115,8 @@ policies:
         value: ""
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** account_security_questions_are_registered_in_the_aws_account ***
           • AWS 계정에 보안 질문이 설정되지 않았습니다.
