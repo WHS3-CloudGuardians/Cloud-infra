@@ -1,0 +1,59 @@
+policies:
+
+  # CHECKID: dynamodb_tables_kms_cmk_encryption_enabled
+  # ACTIONPLAN: AWS 관리형 키(alias/aws/dynamodb) 사용시 Slack 알림 전송, 담당자가 고객 관리형 KMS 키(CMK)로 직접 암호화 방식 변경 안내(알림만)
+  - name: dynamodb_tables_kms_cmk_encryption_enabled
+    resource: aws.dynamodb-table
+    description: |
+      Ensure DynamoDB tables use customer managed KMS keys (CMK) for encryption at rest.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: kms-key
+        key: AliasName
+        value: alias/aws/dynamodb
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: dynamodb_tables_kms_cmk_encryption_enabled ***
+          • DynamoDB 테이블이 고객 관리형 KMS 키(CMK)로 암호화되어 있지 않습니다.
+        action_desc: |
+          1. DynamoDB 테이블의 암호화 방식이 '고객 관리형 KMS 키(CMK)'로 설정되었는지 확인하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: dynamodb_tables_pitr_enabled
+  # ACTIONPLAN: PITR(Point-In-Time Recovery) 비활성 테이블 Slack 알림, 담당자에게 PITR 직접 활성화 안내(알림만)
+  - name: dynamodb_tables_pitr_enabled
+    resource: aws.dynamodb-table
+    description: |
+      Ensure DynamoDB tables have Point-In-Time Recovery (PITR) enabled.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: PointInTimeRecoveryDescription.PointInTimeRecoveryStatus
+        value: DISABLED
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: dynamodb_tables_pitr_enabled ***
+          • DynamoDB 테이블의 지점 시점 복구(Point-In-Time Recovery, PITR)가 비활성화되어 있습니다.
+        action_desc: |
+          1. 테이블의 PITR(Point-In-Time Recovery) 기능을 활성화하여 데이터 복구 가능성을 확보하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}

@@ -1,0 +1,33 @@
+policies:
+  # CHECKID: redshift_cluster_audit_logging
+  # ACTIONPLAN: 감사 로깅(Audit Logging)이 비활성화된 Redshift 클러스터를 탐지해 운영팀에 Slack 알림만 전송.
+  #             자동조치(Enable)는 지원하지 않으므로 담당자가 AWS 콘솔 또는 CLI에서 직접 활성화 및 S3 버킷 지정 필요.
+  #             미활성 상태 지속 시 감사지적, 내부통제 위반 등 중대 리스크 발생 가능.
+  - name: redshift_cluster_audit_logging
+    resource: aws.redshift
+    description: |
+      Ensure that Amazon Redshift clusters have audit logging enabled.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: LoggingStatus.LoggingEnabled
+        value: false
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: redshift_cluster_audit_logging ***
+          • Redshift 클러스터의 감사 로깅(Audit Logging)이 비활성화되어 있습니다.
+        action_desc: |
+          1. 운영팀은 Redshift 콘솔 또는 CLI를 통해 감사 로깅(Audit Logging)을 직접 활성화하세요.
+          2. 반드시 S3 버킷을 지정하고, 접근 권한 및 정책을 점검하여 감사 로그가 정상 저장되는지 확인하세요.
+          3. 로깅 상태 및 저장 경로 변경 시 보안팀과 협의 후 적용하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
