@@ -17,8 +17,8 @@ policies:
           ids: "responseElements.replicationGroup.replicationGroupId"
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: danger
         violation_desc: |
           *** elasticache_cluster_uses_public_subnet ***
           • ElastiCache에서 사용 중인 서브넷 정보입니다. 후처리로 퍼블릭 여부를 매칭하세요.
@@ -57,8 +57,8 @@ policies:
         op: eq
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** elasticache_redis_cluster_auto_minor_version_upgrades ***
           • ElastiCache Redis Replication Group에 마이너 버전 자동 업그레이드가 비활성화되어 있습니다.
@@ -97,8 +97,8 @@ policies:
         op: eq
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** elasticache_redis_cluster_backup_enabled ***
           • ElastiCache Redis Replication Group에 자동 백업이 비활성화되어 있습니다.
@@ -137,8 +137,8 @@ policies:
         op: eq
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: danger
         violation_desc: |
           *** elasticache_redis_cluster_in_transit_encryption_enabled ***
           • ElastiCache Redis Replication Group에 전송 중 암호화가 비활성화되어 있습니다.
@@ -176,8 +176,8 @@ policies:
         value: "disabled"
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** elasticache_redis_cluster_multi_az_enabled ***
           • ElastiCache Redis Replication Group에 Multi-AZ가 비활성화되어 있습니다.
@@ -216,8 +216,8 @@ policies:
         op: eq
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: danger
         violation_desc: |
           *** elasticache_redis_cluster_rest_encryption_enabled ***
           • ElastiCache Redis Replication Group에 저장 시 암호화가 비활성화되어 있습니다.
