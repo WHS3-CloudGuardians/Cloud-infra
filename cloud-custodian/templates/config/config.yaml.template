@@ -20,8 +20,8 @@ policies:
           value: false
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** config_recorder_all_regions_enabled ***
           • Config recorder가 모든 리전을 기록하지 않습니다.
