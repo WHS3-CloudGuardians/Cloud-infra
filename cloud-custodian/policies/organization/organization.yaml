@@ -17,7 +17,6 @@ policies:
   #       op: ne
   #       value: ACTIVE
   #       # 실제로 aws.org-account로 단독(standalone) 계정만을 선별할 수 없음.
-  #       # 예시용 필터입니다. (실동작 불가, Lambda 연동 필요)
   #   actions:
   #     - type: notify
   #       slack_template: slack_default
