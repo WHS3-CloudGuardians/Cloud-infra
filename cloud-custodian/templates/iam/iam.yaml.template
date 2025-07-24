@@ -69,7 +69,7 @@ policies:
 
   # CHECKID: iam_aws_attached_policy_no_administrative_privileges
   # ACTIONPLAN: AWS 관리형 관리자 권한 정책이 붙은 사용자 탐지 시 Slack 알림 발송
-  - name: iam_aws_attached_policy_no_admin_privs
+  - name: iam_aws_attached_policy_no_administrative_privileges
     description: Detect users with AWS-managed AdministratorAccess and send Slack alert.
     resource: aws.iam-user
     mode:
@@ -127,7 +127,7 @@ policies:
 
   # CHECKID: iam_customer_attached_policy_no_administrative_privileges
   # ACTIONPLAN: 관리자 권한(*:*)이 포함된 고객 관리형 정책이 부착된 경우 Slack 알림 발송
-  - name: iam_cust_attached_no_admin
+  - name: iam_customer_attached_policy_no_adminis
     description: Detect attached customer-managed policies with '*:*' privilege, then send Slack alert.
     resource: aws.iam-policy
     mode:
@@ -164,7 +164,7 @@ policies:
 
   # CHECKID: iam_customer_unattached_policy_no_administrative_privileges
   # ACTIONPLAN: 관리자 권한(*:*)이 포함된 고객 관리형 정책이 미부착(Unattached) 상태로 탐지 시 Slack 알림 발송
-  - name: iam_cust_unattached_no_admin
+  - name: iam_customer_unattached_policy_no_adminis
     description: Detect unattached customer-managed policies that allow all actions, then send Slack alert.
     resource: aws.iam-policy
     mode:
@@ -253,7 +253,7 @@ policies:
 
   # CHECKID: iam_inline_policy_no_administrative_privileges
   # ACTIONPLAN: *:* 권한이 포함된 인라인 정책 탐지 시 Slack 알림 발송
-  - name: iam_inline_no_admin_privs
+  - name: iam_inline_policy_no_administrative_privileges
     description: Detect inline policies with '*:*' actions and send Slack alert.
     resource: aws.iam-user
     mode:
@@ -340,7 +340,7 @@ policies:
 
   # CHECKID: iam_no_custom_policy_permissive_role_assumption
   # ACTIONPLAN: sts:AssumeRole을 *에 허용하는 커스텀 정책을 탐지해 Slack 알림 발송
-  - name: iam_no_custom_permissive_role_assumption
+  - name: iam_no_custom_policy_permissive_role_assumption
     description: Detect custom IAM policies that allow sts:AssumeRole on all resources, then send Slack alert.
     resource: aws.iam-policy
     mode:
@@ -399,7 +399,7 @@ policies:
 
   # CHECKID: iam_password_policy_expires_passwords_within_90_days_or_less
   # ACTIONPLAN: 비밀번호 만료 주기가 90일 초과된 경우 Slack 경고 알림 발송
-  - name: iam_pwd_exp_90d
+  - name: iam_password_policy_expires_90_days_or_less
     description: Detect AWS account password policies that do not expire passwords within 90 days, then send Slack alert.
     resource: aws.account
     mode:
