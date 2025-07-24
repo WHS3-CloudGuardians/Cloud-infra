@@ -843,6 +843,7 @@ policies:
   # CHECKID: iam_securityaudit_role_created
   # ACTIONPLAN: SecurityAudit 역할이 없을 경우 Lambda로 자동 생성 후 Slack 알림 발송
   # [주의] lambda 폴더에 있는 람다를 배포하여 자동조치 가능
+  # 자동조치를 완료했으므로 warning에서 good으로 변경
   - name: iam_securityaudit_role_created
     description: Detect absence of SecurityAudit role, create if missing, then send Slack alert.
     resource: aws.iam-role
@@ -856,14 +857,14 @@ policies:
       #   function: arn:aws:lambda:${AWS_REGION}:${ACCOUNT_ID}:function:ensureSecurityAuditFunction
       - type: notify
         slack_template: slack_default
-        slack_msg_color: warning
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: iam_securityaudit_role_created ***
           • SecurityAudit 역할이 존재하지 않아 자동으로 생성하였습니다.
         action_desc: |
           1. SecurityAudit 역할이 정상적으로 생성/유지되고 있는지 관리하세요.
         to:
-          - ${WARNING_SLACK}
+          - ${GOOD_SLACK}
         transport:
           type: sqs
           queue: ${QUEUE_URL}
@@ -871,6 +872,7 @@ policies:
   # CHECKID: iam_support_role_created
   # ACTIONPLAN: Support 역할이 없을 경우 Lambda로 자동 생성 후 Slack 알림 발송
   # [주의] lambda 폴더에 있는 람다를 배포하여 자동조치 가능
+  # 자동조치를 완료했으므로 warning에서 good으로 변경
   - name: iam_support_role_created
     description: Detect absence of Support role, create if missing, then send Slack alert.
     resource: aws.iam-role
@@ -884,14 +886,14 @@ policies:
       #   function: arn:aws:lambda:${AWS_REGION}:${ACCOUNT_ID}:function:ensureSupportRoleFunction
       - type: notify
         slack_template: slack_default
-        slack_msg_color: warning
+        slack_msg_color: good
         violation_desc: |
           *** CHECKID: iam_support_role_created ***
           • Support 역할이 존재하지 않아 자동으로 생성하였습니다.
         action_desc: |
           1. Support 역할이 정상적으로 생성/유지되고 있는지 관리하세요.
         to:
-          - ${WARNING_SLACK}
+          - ${GOOD_SLACK}
         transport:
           type: sqs
           queue: ${QUEUE_URL}
