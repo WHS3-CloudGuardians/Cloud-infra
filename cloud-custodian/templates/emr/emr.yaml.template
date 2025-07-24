@@ -1,0 +1,31 @@
+policies:
+  #CHECKID: emr_cluster_account_public_block_enabled
+  #ACTIONPLAN: EMR의 퍼블릭 액세스 차단이 비활성화된 경우, 즉시 활성화하여 S3 데이터 유출을 방지합니다.
+  - name: enforce-emr-cluster-no-public-access
+    resource: aws.emr
+    description: |
+      Find and terminate EMR clusters with VisibleToAllUsers=true to eliminate the risk of public access.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: VisibleToAllUsers
+        op: eq
+        value: true
+    actions:
+      - type: terminate
+      - type: notify
+        template: default
+        priority_header: 2
+        violation_desc: |
+          *** emr_cluster_account_public_block_enabled ***
+          • EMR의 퍼블릭 액세스 차단이 비활성화되어 있습니다.
+        action_desc: |
+          1. EMR의 퍼블릭 액세스 차단을 활성화하여 S3 데이터 유출을 방지합니다.
+        to:
+          - ${GOOD_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
