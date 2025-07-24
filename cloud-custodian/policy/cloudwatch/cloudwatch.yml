@@ -1,4 +1,6 @@
-# 1-cloudwatch_changes_to_network_acls_alarm_configured.yml
+# CHECKID : cloudwatch_changes_to_network_acls_alarm_configured
+# ACTIONPLAN : 1. CloudTrail 트레일의 로그 그룹 연동 상태를 점검하고 누락 시 자동으로 CloudWatch Logs 연동 및 로깅을 활성화합니다.
+#              2. 모든 IP를 허용하는 NACL 규칙이 탐지되면 Slack 알림을 발송합니다. 수동으로 NACL 규칙을 검토하고 CIDR 범위를 제한해야 합니다.
 
 policies:
   - name: cloudtrail-enable-cloudwatch-logs
@@ -78,7 +80,8 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 2-cloudwatch_changes_to_network_route_tables_alarm_configured.yml
+# CHECKID : cloudwatch_changes_to_network_route_tables_alarm_configured
+# ACTIONPLAN : 라우팅 테이블의 경로 생성·수정·삭제 이벤트를 감지하고 Slack 알림을 전송합니다. 
 
 policies:
   - name: monitor-route-table-changes
@@ -115,9 +118,9 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 3-cloudwatch_changes_to_network_gateways_alarm_configured.yml
+# CHECKID : cloudwatch_changes_to_network_gateways_alarm_configured.yml
+# ACTIONPLAN : 인터넷 게이트웨이 및 NAT 게이트웨이의 생성/삭제/연결/해제 이벤트를 감지하고 Slack 알림을 전송합니다.
 
-# a. Automatically connects CloudTrail to a CloudWatch Logs group if not already configured.
 policies: 
 
   - name: cloudtrail-cloudwatch-logs-attach 
@@ -140,7 +143,6 @@ policies:
           CloudWatchLogsLogGroupArn: arn:aws:logs:ap-northeast-2:311278774159:log-group:/aws/cloudtrail/network-activity  
           CloudWatchLogsRoleArn: arn:aws:iam::311278774159:role/CloudTrail_CloudWatchLogs_Role  
 
-  # b. Configures the following filters and alarms on the specified CloudWatch Logs group.
   - name: monitor-network-gateway-changes
     resource: aws.cloudtrail
     description: Detect changes to Internet and NAT gateways using CloudTrail events.
@@ -183,7 +185,8 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 4-cloudwatch_changes_to_vpcs_alarm_configured.yml
+# CHECKID : cloudwatch_changes_to_vpcs_alarm_configured.yml
+# ACTIONPLAN : VPC의 생성·삭제·속성 변경 이벤트를 감지하고 Slack 알림을 전송합니다.
 
 policies:
   - name: cloudwatch-changes-to-vpcs-alarm-configured
@@ -228,7 +231,9 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 5-cloudwatch_cross_account_sharing_disabled.yml
+# CHECKID: cloudwatch_cross_account_sharing_disabled
+# ACTIONPLAN: CloudWatch Logs 리소스에 대한 교차 계정 접근을 탐지하고 Slack 알림을 전송합니다. 
+#             승인되지 않은 계정 접근은 리소스 정책에서 제거해야 합니다.
 
 policies:
   - name: disable-cross-account-sharing-cloudwatch-logs
@@ -259,7 +264,9 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 6-cloudwatch_log_metric_filter_and_alarm_for_aws_config_configuration_changes_enabled.yml
+# CHECKID :cloudwatch_log_metric_filter_and_alarm_for_aws_config_configuration_changes_enabled.yml
+# ACTIONPLAN : AWS Config 설정 변경 이벤트를 탐지하고 Slack 알림을 전송합니다. 
+#              Recorder나 Delivery Channel이 비활성화되었을 경우 보안 감사 기능 유지를 위해 설정을 재검토해야 합니다.
 
 policies:
   - name: notify-aws-config-changes
@@ -302,7 +309,8 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 7-cloudwatch_log_metric_filter_root_usage.yml
+# CHECKID :cloudwatch_log_metric_filter_root_usage.yml
+# ACTIONPLAN : AWS 루트 계정으로 콘솔 로그인이 발생했을 때 이를 CloudTrail을 통해 탐지하고 Slack으로 즉시 알림을 전송합니다.
 
 policies:
   - name: alert-on-root-account-usage
@@ -333,7 +341,8 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 8-cloudwatch_log_metric_filter_unauthorized_api_calls.yml
+# CHECKID :cloudwatch_log_metric_filter_unauthorized_api_calls.yml
+# ACTIONPLAN : 비인가 API 호출 발생 시 이를 탐지해 알림을 전송하고, 관련 계정의 접근 권한을 점검하도록 유도합니다.
 
 policies:
   - name: alert-unauthorized-api-calls 
@@ -369,7 +378,9 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 9-cloudwatch_log_metric_filter_authentication_failures.yml
+# CHECKID :cloudwatch_log_metric_filter_authentication_failures.yml
+# ACTIONPLAN : WS 콘솔 로그인 인증 실패 이벤트를 탐지하고 Slack 알림을 전송합니다. 
+#              반복적인 실패가 발생할 경우 계정 도용 가능성을 고려하여 수동 점검 및 대응이 필요합니다.
 
 policies:
   - name: notify-console-auth-failures 
@@ -404,7 +415,8 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 10-cloudwatch_log_metric_filter_aws_organizations_changes.yml
+# CHECKID :cloudwatch_log_metric_filter_aws_organizations_changes.yml
+# ACTIONPLAN :AWS Organizations에 대한 계정 생성, 정책 변경, OU 생성·삭제 등의 이벤트를 탐지하고 Slack 알림을 전송합니다. 
 
 policies:
   - name: monitor-aws-organizations-changes 
@@ -452,7 +464,8 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 11-cloudwatch_log_metric_filter_and_alarm_for_cloudtrail_configuration_changes_enabled.yml
+# CHEKCID : cloudwatch_log_metric_filter_and_alarm_for_cloudtrail_configuration_changes_enabled.yml
+# ACTIONPLAN : CloudTrail 설정 변경(중지·삭제·수정) 이벤트를 탐지하고 Slack 알림을 전송합니다. 
 
 policies:
   - name: notify-cloudtrail-config-change
@@ -489,7 +502,9 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 12-cloudwatch_log_metric_filter_disable_or_scheduled_deletion_of_kms_cmk.yml
+# CHECKID :cloudwatch_log_metric_filter_disable_or_scheduled_deletion_of_kms_cmk.yml
+# ACTIONPLAN : KMS 키의 비활성화 또는 삭제 예약 이벤트를 탐지하고 Slack 알림을 전송합니다. 
+#              중요 키의 손실을 방지하기 위해 작업의 적절성을 검토하고 필요 시 키를 복원하거나 삭제 예약을 취소해야 합니다.
 
 policies:
   - name: monitor-kms-key-deletion-or-disable  
@@ -528,7 +543,9 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 13-cloudwatch_log_metric_filter_for_s3_bucket_policy_changes.yml
+# CHECKID :cloudwatch_log_metric_filter_for_s3_bucket_policy_changes.yml
+# ACTIONPLAN : S3 버킷 정책의 생성 또는 삭제 이벤트를 탐지하고 Slack 알림을 전송합니다. 
+#              접근 권한 변경이 의도된 것인지 검토하고 필요 시 정책을 복구하거나 수정해야 합니다.
 
 policies:
   - name: notify-on-s3-bucket-policy-change 
@@ -566,7 +583,8 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 14-cloudwatch_log_metric_filter_sign_in_without_mfa.yml
+# CHECKID :cloudwatch_log_metric_filter_sign_in_without_mfa.yml
+# ACTIONPLAN : IAM 사용자의 MFA 없이 콘솔 로그인 시 이를 탐지해 알림을 전송하고 보안 점검 및 MFA 활성화를 유도합니다.
 
 policies:
   - name: alert-console-login-without-mfa
@@ -607,7 +625,8 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/${ACCOUNT_ID}/custodian-notify-queue
 
-# 15-cloudwatch_log_metric_filter_policy_changes.yml
+# CHECKID :cloudwatch_log_metric_filter_policy_changes.yml
+# ACTIONPLAN : IAM 정책 생성, 수정, 삭제 이벤트를 CloudTrail로 실시간 탐지하고 Slack으로 알림을 전송합니다.
 
 policies: 
   - name: notify-on-iam-policy-change  
@@ -649,7 +668,9 @@ policies:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
 
-# 16-cloudwatch_log_metric_filter_security_group_changes.yml
+# CHECKID :cloudwatch_log_metric_filter_security_group_changes.yml
+# ACTIONPLAN : Security Group에 공개 인그레스(0.0.0.0/0)가 추가되는 이벤트를 CloudTrail로 실시간 탐지합니다.
+#              탐지 시 자동으로 해당 인그레스 룰을 제거하고 Slack으로 알림을 전송합니다
 
 policies:
   - name: remediate-open-sg-ingress
