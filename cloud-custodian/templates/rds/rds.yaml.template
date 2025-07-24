@@ -19,8 +19,8 @@ policies:
           - property: BackupRetentionPeriod
             value: 7
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** rds_instance_backup_enabled ***
           • RDS 인스턴스에 백업이 비활성화되어 있습니다.
@@ -57,8 +57,8 @@ policies:
           - property: CertificateRotationRestart
             value: true
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** rds_instance_certificate_expiration ***
           • 만료된 RDS 인증서가 발견되었습니다.
@@ -88,8 +88,8 @@ policies:
     actions:
       - type: set-snapshot-copy-tags
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** rds_instance_copy_tags_to_snapshots ***
           • RDS 인스턴스에 태그 복사 기능이 비활성화되어 있습니다.
@@ -125,8 +125,8 @@ policies:
           value: administrator
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** rds_instance_default_admin ***
           • RDS 인스턴스의 마스터 사용자 이름이 'admin', 'postgres' 등 추측하기 쉬운 기본값입니다.
@@ -159,8 +159,8 @@ policies:
           - property: DeletionProtection
             value: true
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** rds_instance_deletion_protection ***
           • RDS 인스턴스에서 삭제 보호가 비활성화되어 있습니다.
@@ -193,8 +193,8 @@ policies:
         value: 8.0.36
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** rds_instance_deprecated_engine_version ***
           • 지원이 중단된 엔진 버전을 사용하는 RDS 인스턴스가 존재합니다.
@@ -228,8 +228,8 @@ policies:
       #    - property: MonitoringRoleARN
       #      value: arn:aws:iam::${ACCOUNT_ID}:role/rds-monitoring-role
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** rds_instance_enhanced_monitoring_enabled ***
           • RDS 인스턴스의 enhanced monitoring이 비활성화되어 있습니다.
@@ -264,8 +264,8 @@ policies:
           - failure
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** rds_instance_event_subscription_security_groups ***
           • RDS 이벤트 구독이 DB security group change 등 중요 이벤트를 포함하지 않습니다.
@@ -297,8 +297,8 @@ policies:
           - property: EnableIAMDatabaseAuthentication
             value: true
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** rds_instance_iam_authentication_enabled ***
           • IAM 인증이 비활성화된 RDS 인스턴스가 존재합니다.
@@ -335,8 +335,8 @@ policies:
                 - general
                 - slowquery
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** rds_instance_integration_cloudwatch_logs ***
           • RDS 로그가 CloudWatch에 연동되어 있지 않습니다.
@@ -370,8 +370,8 @@ policies:
           - property: AutoMinorVersionUpgrade
             value: true
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** rds_instance_minor_version_upgrade_enabled ***
           • RDS 인스턴스의 마이너 버전 자동 업그레이드가 비활성화되어 있습니다.
@@ -403,8 +403,8 @@ policies:
           - property: MultiAZ
             value: true
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** rds_instance_multi_az ***
           • Multi-AZ 배포가 비활성화된 RDS 인스턴스가 존재합니다.
@@ -438,8 +438,8 @@ policies:
             value: false
         immediate: true
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** rds_instance_no_public_access ***
           • 퍼블릭 액세스가 가능한 RDS 인스턴스가 존재합니다.
@@ -467,8 +467,8 @@ policies:
         value: false
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** rds_instance_storage_encrypted ***
           • 암호화되지 않은 RDS 인스턴스 스토리지가 존재합니다.
@@ -505,8 +505,8 @@ policies:
           - property: CACertificateIdentifier
             value: rds-ca-rsa2048-g1
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** elasticache_cluster_uses_public_subnet ***
           • RDS 인스턴스의 CA 인증서가 최신(rds-ca-2019)이 아닙니다.
@@ -535,8 +535,8 @@ policies:
         value: false
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** rds_snapshots_encrypted ***
           • RDS 스냅샷이 암호화되지 않았습니다.
@@ -566,8 +566,8 @@ policies:
       - type: set-permissions
         remove: ["all"]
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: danger
         violation_desc: |
           *** rds_snapshots_public_access ***
           • RDS 스냅샷이 퍼블릭으로 공개되어 있습니다.
