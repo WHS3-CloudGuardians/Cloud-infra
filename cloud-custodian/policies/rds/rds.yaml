@@ -22,7 +22,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** rds_instance_backup_enabled ***
+          *** CHECKID: rds_instance_backup_enabled ***
           • 백업이 비활성화된 RDS 인스턴스가 탐지되어 백업(7일 보존)을 자동으로 활성화하였습니다.
         action_desc: |
           1. RDS 백업 설정(보존 기간 포함)이 주기적으로 비활성화되지 않는지 점검하세요.
@@ -62,7 +62,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** rds_instance_certificate_expiration ***
+          *** CHECKID: rds_instance_certificate_expiration ***
           • 만료된 RDS 인증서를 탐지하여 새로운 인증서로 자동 교체(재시작 포함)하였습니다.
         action_desc: |
           1. 교체된 인증서 적용 결과 및 연결 정상 여부를 반드시 점검하세요.
@@ -93,7 +93,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** rds_instance_copy_tags_to_snapshots ***
+          *** CHECKID: rds_instance_copy_tags_to_snapshots ***
           • RDS 인스턴스에서 스냅샷 태그 복사 기능 미설정이 탐지되어 자동으로 활성화하였습니다.
         action_desc: |
           1. 태그 복사 기능 활성화 이후에도 스냅샷 식별이 정확히 이루어지는지 주기적으로 점검하세요.
@@ -130,8 +130,8 @@ policies:
         slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
-          *** rds_instance_default_admin ***
-          • 추측이 쉬운 기본 관리자 계정명('admin', 'root', 'administrator' 등)이 탐지되었습니다.
+          *** CHECKID: rds_instance_default_admin ***
+          • 추측이 쉬운 기본 관리자 계정명(admin, root, administrator 등)이 탐지되었습니다.
         action_desc: |
           1. 마스터 사용자 계정명을 유추하기 어려운 이름으로 즉시 변경하세요.
           2. 모든 RDS 인스턴스의 관리자 계정명 정책 준수 상태를 주기적으로 점검하세요.
@@ -164,7 +164,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** rds_instance_deletion_protection ***
+          *** CHECKID: rds_instance_deletion_protection ***
           • 삭제 방지 비활성 RDS 인스턴스를 탐지하여 삭제 방지 설정을 자동 적용하였습니다.
         action_desc: |
           1. 모든 RDS 인스턴스의 삭제 방지 설정이 지속적으로 유지되는지 정기적으로 점검하세요.
@@ -198,7 +198,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
-          *** rds_instance_deprecated_engine_version ***
+          *** CHECKID: rds_instance_deprecated_engine_version ***
           • 지원이 종료된 RDS 엔진 버전 사용 인스턴스가 탐지되었습니다.
         action_desc: |
           1. 담당자는 반드시 지원되는 최신 버전으로 업그레이드 하세요.
@@ -234,7 +234,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** rds_instance_enhanced_monitoring_enabled ***
+          *** CHECKID: rds_instance_enhanced_monitoring_enabled ***
           • 향상된 모니터링이 비활성화된 RDS 인스턴스를 탐지하여 자동으로 활성화하였습니다.
         action_desc: |
           1. 모니터링 설정이 잘 적용되어 실시간 성능 진단이 가능한지 주기적으로 확인하세요.
@@ -270,7 +270,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
-          *** rds_instance_event_subscription_security_groups ***
+          *** CHECKID: rds_instance_event_subscription_security_groups ***
           • RDS 이벤트 구독에 보안 그룹 변경 등 주요 이벤트 미포함 상태가 탐지되었습니다.
         action_desc: |
           1. 이벤트 구독이 중요한 보안 이벤트를 반드시 포함하도록 담당자가 직접 수정하세요.
@@ -304,7 +304,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** rds_instance_iam_authentication_enabled ***
+          *** CHECKID: rds_instance_iam_authentication_enabled ***
           • IAM 인증 미설정 RDS 인스턴스를 탐지하여 자동으로 IAM 인증을 활성화하였습니다.
         action_desc: |
           1. IAM 인증 활성화가 잘 적용되었는지 주기적으로 점검하세요.
@@ -343,7 +343,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** rds_instance_integration_cloudwatch_logs ***
+          *** CHECKID: rds_instance_integration_cloudwatch_logs ***
           • CloudWatch Logs 미연동 RDS 인스턴스를 탐지하여 자동으로 로그 연동을 구성하였습니다.
         action_desc: |
           1. 로그 연동 결과가 정상적으로 적용되어 있는지 점검하세요.
@@ -379,7 +379,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** rds_instance_minor_version_upgrade_enabled ***
+          *** CHECKID: rds_instance_minor_version_upgrade_enabled ***
           • 마이너 버전 자동 업그레이드 미설정 RDS 인스턴스를 탐지하여 자동으로 활성화하였습니다.
         action_desc: |
           1. 자동 업그레이드가 잘 적용되고 있는지 주기적으로 점검하세요.
@@ -413,7 +413,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** rds_instance_multi_az ***
+          *** CHECKID: rds_instance_multi_az ***
           • 단일 AZ RDS 인스턴스를 탐지하여 Multi-AZ 배포를 자동으로 활성화하였습니다.
         action_desc: |
           1. Multi-AZ 전환 이후에도 장애 복구, 고가용성 정책이 잘 적용되고 있는지 정기적으로 점검하세요.
@@ -449,7 +449,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** rds_instance_no_public_access ***
+          *** CHECKID: rds_instance_no_public_access ***
           • 외부 공개(퍼블릭) 접근이 가능한 RDS 인스턴스를 탐지하여 퍼블릭 접근을 자동으로 차단하였습니다.
         action_desc: |
           1. 퍼블릭 접근 차단 이후에도 VPC/보안그룹 등 외부 노출 경로가 완전히 차단됐는지 추가 점검하세요.
@@ -479,7 +479,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
-          *** rds_instance_storage_encrypted ***
+          *** CHECKID: rds_instance_storage_encrypted ***
           • 암호화 미설정 RDS 인스턴스 스토리지가 탐지되었습니다.
         action_desc: |
           1. 스냅샷 복원 방식 등으로 암호화된 RDS 인스턴스로 직접 마이그레이션하세요.
@@ -518,7 +518,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: good
         violation_desc: |
-          *** enforce-rds-transport-encryption ***
+          *** CHECKID: enforce-rds-transport-encryption ***
           • 최신 CA 인증서 미적용 RDS 인스턴스를 탐지하여 최신 인증서로 자동 교체하였습니다.
         action_desc: |
           1. 교체 후 모든 DB 연결에 SSL/TLS가 정상적으로 강제되는지 확인하세요.
@@ -548,7 +548,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
-          *** rds_snapshots_encrypted ***
+          *** CHECKID: rds_snapshots_encrypted ***
           • 암호화 미적용 RDS 스냅샷이 탐지되었습니다.
         action_desc: |
           1. 스냅샷 삭제, 암호화 스냅샷 재생성 등 수동 마이그레이션을 반드시 진행하세요.
@@ -578,7 +578,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
-          *** rds_snapshots_public_access ***
+          *** CHECKID: rds_snapshots_public_access ***
           • 퍼블릭 공유 RDS 스냅샷이 탐지되었습니다.
         action_desc: |
           1. 스냅샷 공유 설정에서 '모든 AWS 계정' 공유를 반드시 직접 해제하세요.
