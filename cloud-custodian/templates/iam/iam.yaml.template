@@ -67,7 +67,7 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-  # CHECKID: iam_aws_attached_policy_no_admin_privs
+  # CHECKID: iam_aws_attached_policy_no_administrative_privileges
   # ACTIONPLAN: AWS 관리형 관리자 권한 정책이 붙은 사용자 탐지 시 Slack 알림 발송
   - name: iam_aws_attached_policy_no_admin_privs
     description: Detect users with AWS-managed AdministratorAccess and send Slack alert.
@@ -86,7 +86,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
-          *** CHECKID: iam_aws_attached_policy_no_admin_privs ***
+          *** CHECKID: iam_aws_attached_policy_no_administrative_privileges ***
           • AWS 관리형 AdministratorAccess 정책이 할당된 사용자가 탐지되었습니다.
         action_desc: |
           1. 해당 계정의 필요성 검토 후, 정책을 해제하세요.
@@ -125,7 +125,7 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-  # CHECKID: iam_cust_attached_no_admin
+  # CHECKID: iam_customer_attached_policy_no_administrative_privileges
   # ACTIONPLAN: 관리자 권한(*:*)이 포함된 고객 관리형 정책이 부착된 경우 Slack 알림 발송
   - name: iam_cust_attached_no_admin
     description: Detect attached customer-managed policies with '*:*' privilege, then send Slack alert.
@@ -152,7 +152,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
-          *** CHECKID: iam_cust_attached_no_admin ***
+          *** CHECKID: iam_customer_attached_policy_no_administrative_privileges ***
           • 관리자 권한(*:*)이 부여된 고객 관리형 정책이 부착된 상태로 탐지되었습니다.
         action_desc: |
           1. 불필요한 전체 권한 정책은 분리 및 삭제를 권고합니다.
@@ -162,7 +162,7 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-  # CHECKID: iam_cust_unattached_no_admin
+  # CHECKID: iam_customer_unattached_policy_no_administrative_privileges
   # ACTIONPLAN: 관리자 권한(*:*)이 포함된 고객 관리형 정책이 미부착(Unattached) 상태로 탐지 시 Slack 알림 발송
   - name: iam_cust_unattached_no_admin
     description: Detect unattached customer-managed policies that allow all actions, then send Slack alert.
@@ -182,7 +182,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
-          *** CHECKID: iam_cust_unattached_no_admin ***
+          *** CHECKID: iam_customer_unattached_policy_no_administrative_privileges ***
           • 관리자 권한(*:*)이 부여된 고객 관리형 정책이 미부착 상태로 탐지되었습니다.
         action_desc: |
           1. 해당 정책의 필요성을 재검토하고, 불필요시 삭제하세요.
@@ -251,7 +251,7 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-  # CHECKID: iam_inline_no_admin_privs
+  # CHECKID: iam_inline_policy_no_administrative_privileges
   # ACTIONPLAN: *:* 권한이 포함된 인라인 정책 탐지 시 Slack 알림 발송
   - name: iam_inline_no_admin_privs
     description: Detect inline policies with '*:*' actions and send Slack alert.
@@ -270,7 +270,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
-          *** CHECKID: iam_inline_no_admin_privs ***
+          *** CHECKID: iam_inline_policy_no_administrative_privileges ***
           • 전체 권한(*:*)이 부여된 인라인 정책이 탐지되었습니다.
         action_desc: |
           1. 필요 없는 전체 권한 정책은 반드시 삭제하세요.
@@ -357,7 +357,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: danger
         violation_desc: |
-          *** CHECKID: iam_no_custom_permissive_role_assumption ***
+          *** CHECKID: iam_no_custom_policy_permissive_role_assumption ***
           • sts:AssumeRole을 모든 리소스(*)에 허용하는 커스텀 정책이 탐지되었습니다.
         action_desc: |
           1. 정책 범위를 최소한으로 제한하고, 불필요한 전체 리소스 허용은 즉시 제거하세요.
@@ -397,7 +397,7 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-  # CHECKID: iam_pwd_exp_90d
+  # CHECKID: iam_password_policy_expires_passwords_within_90_days_or_less
   # ACTIONPLAN: 비밀번호 만료 주기가 90일 초과된 경우 Slack 경고 알림 발송
   - name: iam_pwd_exp_90d
     description: Detect AWS account password policies that do not expire passwords within 90 days, then send Slack alert.
@@ -416,7 +416,7 @@ policies:
         slack_template: slack_default
         slack_msg_color: warning
         violation_desc: |
-          *** CHECKID: iam_pwd_exp_90d ***
+          *** CHECKID: iam_password_policy_expires_passwords_within_90_days_or_less ***
           • 비밀번호 만료 주기가 90일을 초과하는 패스워드 정책이 탐지되었습니다.
         action_desc: |
           1. 비밀번호 만료 주기를 90일 이하로 강제하세요.
