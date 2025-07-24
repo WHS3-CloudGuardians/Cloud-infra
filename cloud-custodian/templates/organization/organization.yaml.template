@@ -13,7 +13,8 @@ policies:
   #    role: ${LAMBDA_ROLE}
   #  actions:
   #    - type: notify
-  #      template: default
+  #      slack_template: slack_default
+  #      slack_msg_coler: good
   #      violation_desc: |
   #        *** organizations_account_part_of_organizations ***
   #        • AWS Organizations에 소속되지 않은 독립 실행형 계정이 있습니다.
@@ -58,7 +59,8 @@ policies:
                   aws:RequestedRegion:
                     - ap-northeast-2
       - type: notify
-        template: default
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** organizations_scp_check_deny_regions ***
           • 허가되지 않은 리전 사용 차단에 대한 SCP가 적용되지 않았습니다.
@@ -100,7 +102,8 @@ policies:
                   - "1001"
                   - "2001"
       - type: notify
-        template: default
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** organizations_tags_policies_enabled_and_attached ***
           • 태그 정책이 비활성화되어있습니다.
