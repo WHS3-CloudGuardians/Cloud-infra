@@ -23,7 +23,7 @@ policies:
         slack_template: slack_default
         slack_msg_coler: warning
         violation_desc: |
-          *** config_recorder_all_regions_enabled ***
+          *** CHECKID: config_recorder_all_regions_enabled ***
           • Config recorder가 모든 리전을 기록하지 않습니다.
         action_desc: |
           1. AWS Config가 모든 리전에서 리소스를 기록하도록 활성화하세요.
