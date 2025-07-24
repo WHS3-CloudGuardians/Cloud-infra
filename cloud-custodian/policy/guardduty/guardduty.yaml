@@ -1,6 +1,6 @@
-# Cloud Custodian은 최신 버전으로 설치해도 aws.guard-duty 리소스를 공식적으로 지원하지 않기 때문에 GuardDuty 상태를 직접 탐지하는 정책은 작성할 수 없습니다.
-# route 53과 동일한 이유
-# 아예 커스터디언 실행을 할 수가 없음 
+# CHECKID : guardduty_is_enabled
+# ACTIONPLAN : cloud Custodian은 aws.guard-duty 리소스를 공식 지원하지 않으므로 정책 실행이 불가능합니다. 
+#              GuardDuty 상태 점검은 AWS Config 또는 Lambda 기반 커스텀 스크립트를 활용해야 합니다.
 
 policies:
   - name: alert-guardduty-disabled
