@@ -59,8 +59,8 @@ policies:
           • 비암호화된 EBS 볼륨이 감지되어 스냅샷이 생성되었습니다.
         action_desc: |
           1. 스냅샷이 정상적으로 생성되었는지 확인해 주세요.
-          2. 스냅샷을 복사하면서 암호화하여 새로운 암호화된 볼륨을 생성하세요. (스냅샷이 오래된 경우 새로운 스냅샷을 생성하여 진행)
-          3. 해당 인스턴스를 중지하고, 기존에 연결된 볼륨 해지 및 새로 생성한 암호화된 볼륨을 연결하세요.
+          2. 스냅샷을 복사하면서 암호화하여 새로운 암호화 된 볼륨을 생성하세요.(스냅샷이 오래된 경우 새로운 스냅샷을 생성하여 진행)
+          3. 해당 인스턴스를 중지하고 기존에 연결된 볼륨 해지 및 새로 생성한 암호화된 볼륨을 연결하세요.
         to:
           - ${DANGER_SLACK}
         transport:
@@ -79,6 +79,12 @@ policies:
     filters:
       - Encrypted: false
     actions:
+    # 'copy'해서 암호화 된 스냅샷 생성을 원하면 주석 풀고 사용. 기존 스냅샷 삭제까지 원하면 'delete'도 활성화
+    #  - type: copy
+    #    target_region: ap-northeast-2
+    #    encrypted: true
+    #    target_key: 암호화 키 작성 (e.g. alias/aws/ebs)
+    #  - type: delete
       - type: notify
         slack_template: slack_default
         slack_msg_color: danger
