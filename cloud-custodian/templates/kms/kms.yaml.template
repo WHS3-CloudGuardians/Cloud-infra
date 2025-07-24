@@ -23,8 +23,8 @@ policies:
         key: cmk-unused-90d
         value: "true"
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** kms_cmk_are_used ***
           • 90일 이상 사용되지 않은 KMS 키가 발견되었습니다.
@@ -51,8 +51,8 @@ policies:
         everyone_only: true
     actions:
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** kms_key_not_publicly_accessible ***
           • KMS 키 정책이 외부에 노출된 상태입니다.
@@ -84,8 +84,8 @@ policies:
         key: prevent-unintended-deletion
         value: "true"
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: warning
         violation_desc: |
           *** kms_cmk_not_deleted_unintentionally ***
           • 의도치 않은 cmk 삭제가 발생할 수 있습니다.
@@ -118,8 +118,8 @@ policies:
       - type: set-rotation
         state: true
       - type: notify
-        template: default
-        priority_header: 2
+        slack_template: slack_default
+        slack_msg_coler: good
         violation_desc: |
           *** kms_cmk_rotation_enabled ***
           • CMK의 키 자동 회전 기능이 비활성화되어 있습니다.
