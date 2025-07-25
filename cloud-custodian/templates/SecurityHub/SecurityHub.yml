@@ -4,7 +4,7 @@
 #             비활성 상태 지속 시 통합 모니터링 부재 및 ISMS-P 등 인증 위반 리스크가 있음.
 
 policies:
-  - name: notify-securityhub-disabled
+  - name: securityhub_enabled
     resource: aws.account
     description: |
       Detects AWS accounts with Security Hub disabled, resulting in lack of integrated security monitoring and ISMS-P non-compliance.
