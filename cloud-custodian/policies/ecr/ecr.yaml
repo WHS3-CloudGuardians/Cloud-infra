@@ -1,0 +1,90 @@
+policies:
+
+  # CHECKID: ecr_registry_scan_images_on_push_enabled
+  # ACTIONPLAN: ECR 레지스트리의 Scan on Push 미설정 시 담당자에게 알림
+  - name: ecr_registry_scan_images_on_push_enabled
+    resource: aws.ecr
+    description: |
+      Detect ECR registries where 'scan on push' is not enabled and send notifications.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: imageScanningConfiguration.scanOnPush
+        value: false
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: ecr_registry_scan_images_on_push_enabled ***
+          • ECR 레지스트리에 Scan on Push가 미설정되어 있습니다.
+        action_desc: |
+          1. ECR 콘솔에서 Scan on Push 설정을 활성화하세요.
+          2. 취약 이미지 유입 및 악성코드 감지 미적용 위험이 있습니다.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: ecr_repositories_lifecycle_policy_enabled
+  # ACTIONPLAN: ECR 리포지토리에 라이프사이클 정책이 없을 때 담당자에게 알림
+  - name: ecr_repositories_lifecycle_policy_enabled
+    resource: aws.ecr
+    description: |
+      Detect ECR repositories without a lifecycle policy and notify stakeholders.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: lifecycle-rule
+        state: false
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: ecr_repositories_lifecycle_policy_enabled ***
+          • ECR 리포지토리에 라이프사이클 정책이 미설정되어 있습니다.
+        action_desc: |
+          1. 이미지 라이프사이클 정책을 적용하여 불필요한 이미지가 장기간 보관되지 않도록 하세요.
+          2. 정책 미설정 시 저장 비용 증가, 이미지 관리 미흡, 보안 취약점 노출 위험이 있습니다.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: ecr_repositories_scan_images_on_push_enabled
+  # ACTIONPLAN: ECR 리포지토리의 Scan on Push 미설정 시 담당자에게 알림
+  - name: ecr_repositories_scan_images_on_push_enabled
+    resource: aws.ecr
+    description: |
+      Detect ECR repositories where 'scan on push' is not enabled and send notifications.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: imageScanningConfiguration.scanOnPush
+        value: false
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: ecr_repositories_scan_images_on_push_enabled ***
+          • ECR 리포지토리에 Scan on Push가 미설정되어 있습니다.
+        action_desc: |
+          1. ECR 콘솔에서 Scan on Push 설정을 활성화하세요.
+          2. 취약 이미지가 운영환경에 배포될 수 있으니 즉시 점검 바랍니다.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

@@ -1,0 +1,70 @@
+policies:
+  #CHECKID: athena_workgroup_encryption
+  #ACTIONPLAN: Athena 워크그룹이 쿼리 결과 암호화를 사용하지 않는 경우, 활성화하여 민감한 데이터가 저장 시 보호되도록 합니다.
+  - name: athena_workgroup_encryption
+    resource: aws.athena-work-group
+    description: |
+      The query result encryption settings of Athena Workgroups identify disabled workgroups and enable SSE_S3 encryption
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: Configuration.ResultConfiguration.EncryptionConfiguration.EncryptionOption
+        op: ne
+        value: SSE_S3
+    actions:
+      - type: update
+        config:
+          EnforceWorkGroupConfiguration: true
+          ResultConfigurationUpdates:
+            OutputLocation: "s3://noncompl-athena-no-encryption/results/"
+            EncryptionConfiguration:
+              EncryptionOption: SSE_S3
+      - type: notify
+        slack_template: slack_default
+        slack_msg_coler: good
+        violation_desc: |
+          *** CHECKID: athena_workgroup_encryption ***
+           • Athena 워크그룹이 쿼리 결과 암호화를 사용하지 않고 있습니다.
+        action_desc: |
+          1. Athena 워크그룹이 쿼리 결과 암호화를 활성화하여 민감한 데이터가 저장 시 보호되도록 합니다.
+        to:
+          - ${GOOD_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  #CHECKID: athena_workgroup_enforce_configuration
+  #ACTIONPLAN: Athena 워크그룹이 구성 적용 옵션을 사용하지 않는 경우, 활성화하여 모든 사용자가 워크그룹 설정을 따르도록 강제합니다.
+  - name: athena_workgroup_enforce_configuration
+    resource: aws.athena-work-group
+    description: |
+      enforce_work_group_configuration activates previously disabled workgroups
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: Configuration.EnforceWorkGroupConfiguration
+        op: eq
+        value: false
+    actions:
+      - type: update
+        config:
+          EnforceWorkGroupConfiguration: true
+      - type: notify
+        slack_template: slack_default
+        slack_msg_coler: good
+        violation_desc: |
+          *** CHECKID: athena_workgroup_enforce_configuration ***
+          • Athena 워크그룹이 구성 적용 옵션을 사용하지 않습니다.
+        action_desc: |
+          1. Athena Workgroup이 구성 적용 옵션을 활성화하여 모든 사용자가 Workgroup 설정을 따르도록 강제합니다.
+        to:
+          - ${GOOD_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}

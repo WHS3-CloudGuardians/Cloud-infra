@@ -1,0 +1,40 @@
+policies:
+  #CHECKID: emr_cluster_account_public_block_enabled
+  #ACTIONPLAN: EMR의 퍼블릭 액세스 차단이 비활성화된 경우, 즉시 활성화하여 S3 데이터 유출을 방지합니다.
+  - name: emr_cluster_account_public_block_enabled
+    resource: aws.emr
+    description: |
+      Terminates EMR clusters with VisibleToAllUsers=true to eliminate the risk of public access exposure.
+    mode:
+      type: cloudtrail
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+      events:
+        - source: elasticmapreduce.amazonaws.com
+          event: RunJobFlow
+          ids: "responseElements.jobFlowId"
+        - source: elasticmapreduce.amazonaws.com
+          event: SetVisibleToAllUsers
+          ids: "requestParameters.jobFlowIds"
+    filters:
+      - type: value
+        key: VisibleToAllUsers
+        op: eq
+        value: true
+    actions:
+      - type: terminate
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: good
+        priority_header: 2
+        violation_desc: |
+          *** CHECKID: emr_cluster_account_public_block_enabled ***
+          • 퍼블릭 액세스가 허용된 EMR 클러스터가 탐지되어 종료 조치 하였습니다.
+        action_desc: |
+          1. EMR 클러스터를 생성할 때 VisibleToAllUsers=false(비공개)로 반드시 설정해 주세요.
+          2. 배포 파이프라인/템플릿에서도 기본값을 비공개로 관리해 주세요.
+          3. 정기적으로 전체 클러스터의 상태를 점검해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

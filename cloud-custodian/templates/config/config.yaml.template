@@ -1,0 +1,34 @@
+policies:
+  #CHECKID: config_recorder_all_regions_enabled
+  #ACTIONPLAN: AWS Config가 모든 리전에서 리소스를 기록하도록 활성화되어 있는지 확인 (글로벌 보안 모니터링 목적)
+  #자동 조치를 위해서는 수동으로 lambda 설정이 필요
+  - name: config-recorder-all-regions-enabled
+    resource: aws.config-recorder
+    description: |
+      Check whether AWS Config is enabled to record resources in all regions.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - or:
+        - type: value
+          key: status.recording
+          value: false
+        - type: value
+          key: recordingGroup.includeGlobalResourceTypes
+          value: false
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_coler: warning
+        violation_desc: |
+          *** CHECKID: config_recorder_all_regions_enabled ***
+          • Config recorder가 모든 리전을 기록하지 않습니다.
+        action_desc: |
+          1. AWS Config가 모든 리전에서 리소스를 기록하도록 활성화하세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}

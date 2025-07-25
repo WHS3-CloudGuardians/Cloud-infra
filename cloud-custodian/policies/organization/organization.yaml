@@ -1,0 +1,129 @@
+policies:
+  # # CHECKID: organizations_account_part_of_organizations
+  # # ACTIONPLAN: Detects standalone AWS accounts (not part of AWS Organizations) and requests joining to the Organization.
+  # # Cloud Custodian의 모든 AWS 리소스 기준으로도 "조직에 소속되지 않은 계정(Standalone Account)"을 직접 탐지할 수 있는 리소스는 존재하지 않음
+  # - name: organizations_account_part_of_organizations
+  #   resource: aws.org-account
+  #   description: |
+  #     Detect AWS accounts not part of AWS Organizations (standalone accounts).
+  #     Notify security team to centrally manage such accounts by inviting them into the Organization.
+  #   mode:
+  #     type: periodic
+  #     schedule: "rate(1 day)"
+  #     role: arn:aws:iam::311278774159:role/custodian-lambda-role
+  #   filters:
+  #     - type: value
+  #       key: Status
+  #       op: ne
+  #       value: ACTIVE
+  #       # 실제로 aws.org-account로 단독(standalone) 계정만을 선별할 수 없음.
+  #   actions:
+  #     - type: notify
+  #       slack_template: slack_default
+  #       slack_msg_color: warning
+  #       violation_desc: |
+  #         *** CHECKID: organizations_account_part_of_organizations ***
+  #         • AWS Organizations에 소속되지 않은 Standalone(독립 실행형) 계정이 탐지되었습니다.
+  #       action_desc: |
+  #         1. 반드시 해당 계정을 AWS Organizations에 초대하여 중앙에서 정책을 통합 관리하세요.
+  #         2. 미조직 계정은 리스크가 크므로 즉시 조치 및 등록 현황을 주기적으로 점검하세요.
+  #         3. 등록 및 소속 처리 후 보안팀에 결과를 공유하세요.
+  #       to:
+  #         - slack
+  #       transport:
+  #         type: sqs
+  #         queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+
+  # CHECKID: organizations_scp_check_deny_regions
+  # ACTIONPLAN: 리전 사용 제한이 없는 경우, SCP를 사용하여 허가된 리전 외의 사용을 차단합니다.
+  - name: organizations_scp_check_deny_regions
+    resource: aws.org-account
+    description: |
+      Ensure every account has the 'deny-unapproved-regions' Service Control Policy (SCP) attached.
+      If missing, automatically create and attach the SCP to block API calls outside the approved region.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: AttachedPolicies[].PolicyName
+        op: not-in
+        value:
+          - deny-unapproved-regions
+    actions:
+      - type: set-policy
+        policy-type: SERVICE_CONTROL_POLICY
+        name: deny-unapproved-regions
+        contents:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: DenyOutsideApprovedRegions
+              Effect: Deny
+              Action: "*"
+              Resource: "*"
+              Condition:
+                StringNotEquals:
+                  aws:RequestedRegion:
+                    - ap-northeast-2
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: good
+        violation_desc: |
+          *** CHECKID: organizations_scp_check_deny_regions ***
+          • 허가되지 않은 리전 사용 차단 SCP가 미적용된 계정이 감지되었습니다.
+        action_desc: |
+          1. deny-unapproved-regions SCP를 자동으로 적용하여 허가되지 않은 리전의 API 사용을 차단하였습니다.
+          2. 신규 계정 생성 시에도 해당 SCP가 적용되는지 주기적으로 점검하세요.
+          3. 정책/리전 변경 시 반드시 보안팀과 사전 협의하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: organizations_tags_policies_enabled_and_attached
+  # ACTIONPLAN: 태그 정책이 비활성화된 경우, 활성화하고 적용하여 리소스에 일관된 태그를 강제합니다.
+  - name: organizations_tags_policies_enabled_and_attached
+    resource: aws.org-account
+    description: |
+      Ensure every account has the organization's Tag Policy attached.
+      If missing, automatically create and attach the Tag Policy to enforce mandatory CostCenter tagging.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: AttachedPolicies[].Type
+        op: not-in
+        value:
+          - TAG_POLICY
+    actions:
+      - type: set-policy
+        policy-type: TAG_POLICY
+        name: organization-tag-policy
+        contents:
+          tags:
+            CostCenter:
+              tag_value:
+                "@@assign":
+                  - "12345"
+                  - "1001"
+                  - "2001"
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: good
+        violation_desc: |
+          *** CHECKID: organizations_tags_policies_enabled_and_attached ***
+          • 조직 태그 정책(TAG_POLICY)이 미적용된 계정이 감지되었습니다.
+        action_desc: |
+          1. 태그 정책을 자동으로 활성화하고 CostCenter 값 기준으로 적용하였습니다.
+          2. 필수 태그 정책이 신규 계정에도 자동 적용되는지 주기적으로 점검하세요.
+          3. 태그 정책 변경 시 반드시 보안팀과 협의하세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

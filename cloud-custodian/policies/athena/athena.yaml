@@ -1,0 +1,77 @@
+policies:
+  #CHECKID: athena_workgroup_encryption
+  #ACTIONPLAN: Athena 워크그룹이 쿼리 결과 암호화를 사용하지 않는 경우, 활성화하여 민감한 데이터가 저장 시 보호되도록 합니다.
+  - name: athena_workgroup_encryption
+    resource: aws.athena-work-group
+    description: |
+      The query result encryption settings of Athena Workgroups identify disabled workgroups and enable SSE_S3 encryption
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: Configuration.ResultConfiguration.EncryptionConfiguration.EncryptionOption
+        op: ne
+        value: SSE_S3
+    actions:
+      - type: update
+        config:
+          EnforceWorkGroupConfiguration: true
+          ResultConfigurationUpdates:
+            OutputLocation: "s3://noncompl-athena-no-encryption/results/"
+            EncryptionConfiguration:
+              EncryptionOption: SSE_S3
+      - type: notify
+        slack_template: slack_default
+        priority_header: 2
+        slack_msg_color: good
+        violation_desc: |
+          *** CHECKID: athena_workgroup_encryption ***
+          • Athena 워크그룹이 쿼리 결과 암호화를 사용하지 않아 자동으로 SSE_S3 암호화가 적용되었습니다.
+        action_desc: |
+          1. 쿼리 결과가 암호화되지 않던 Athena Workgroup에 대해 암호화 설정을 활성화했습니다.
+          2. 향후 신규 워크그룹 생성/설정 시에도 쿼리 결과 암호화(SSE_S3)를 반드시 적용해 주세요.
+          3. 기존 워크그룹 설정도 정기적으로 점검해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+
+  #CHECKID: athena_workgroup_enforce_configuration
+  #ACTIONPLAN: Athena 워크그룹이 구성 적용 옵션을 사용하지 않는 경우, 활성화하여 모든 사용자가 워크그룹 설정을 따르도록 강제합니다.
+  - name: athena_workgroup_enforce_configuration
+    resource: aws.athena-work-group
+    description: |
+      enforce_work_group_configuration activates previously disabled workgroups
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: Configuration.EnforceWorkGroupConfiguration
+        op: eq
+        value: false
+    actions:
+      - type: update
+        config:
+          EnforceWorkGroupConfiguration: true
+      - type: notify
+        slack_template: slack_default
+        priority_header: 2
+        slack_msg_color: good
+        violation_desc: |
+          *** CHECKID: athena_workgroup_enforce_configuration ***
+          • Athena 워크그룹의 "구성 적용 옵션"이 꺼져 있어 활성화 조치가 실행되었습니다.
+        action_desc: |
+          1. 모든 사용자가 워크그룹의 보안/운영 정책을 강제 적용받도록 자동조치가 이루어졌습니다.
+          2. 신규 워크그룹 생성 시에도 구성 적용 옵션이 항상 활성화되도록 관리해 주세요.
+          3. 워크그룹 정책을 정기적으로 검토해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

@@ -1,0 +1,37 @@
+# CHECKID: securityhub_enabled
+# ACTIONPLAN: AWS Security Hub가 비활성화된 계정을 탐지하여 운영팀에 알림 전송.
+#             자동조치(Enable)는 지원하지 않으므로, 담당자가 직접 Security Hub를 활성화해야 함.
+#             비활성 상태 지속 시 통합 모니터링 부재 및 ISMS-P 등 인증 위반 리스크가 있음.
+
+policies:
+  - name: securityhub_enabled
+    resource: aws.account
+    description: |
+      Detects AWS accounts with Security Hub disabled, resulting in lack of integrated security monitoring and ISMS-P non-compliance.
+
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+
+    filters:
+      - type: value
+        key: "securityhub_enabled"
+        value: false
+
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: securityhub_enabled ***
+          • 해당 AWS 계정은 Security Hub가 비활성화되어 통합 보안 모니터링 및 인증 기준을 충족하지 못하고 있습니다.
+        action_desc: |
+          1. 운영팀은 Security Hub를 직접 활성화하여 계정 전체 보안 이벤트가 집계·분석되도록 설정해야 합니다.
+          2. ISMS-P 등 보안 인증 요구사항을 위해 정기적으로 Security Hub 상태를 점검하세요.
+          3. 활성화 이후에도 모든 리전에서 정상 작동 중인지 확인하고, 변경 사항 발생 시 보안팀에 즉시 공유하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}

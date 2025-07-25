@@ -1,0 +1,133 @@
+policies:
+
+  # CHECKID: ec2_ebs_default_encryption
+  # ACTIONPLAN: EBS 디폴트 암호화 설정 미적용 시 알림만 전송
+  - name: ec2_ebs_default_encryption
+    description: Automatic activation and notification transmission when default EBS encryption is turned off
+    resource: aws.account
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: ec2.amazonaws.com
+          event: DisableEbsEncryptionByDefault
+          ids: recipientAccountId
+    filters:
+      - type: default-ebs-encryption
+        state: false
+    actions:
+    # 디폴트 암호화 자동 조치를 원하면 주석 풀고 사용
+    #  - type: set-ebs-encryption
+    #    state: true
+    #    key: 암호화 키 작성
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: ec2_ebs_default_encryption ***
+          • EC2 기본 EBS 암호화 비활성화가 감지되었습니다.
+        action_desc: |
+          1. 기본 EBS 암호화 설정을 활성화 하세요.
+          2. AWS Console(EC2->설정)에서 적용 여부를 확인해 주세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: ec2_ebs_volume_encryption
+  # ACTIONPLAN: 비암호화된 EBS 볼륨 감지 시 알림 전송 및 스냅샷 생성
+  - name: ec2_ebs_volume_encryption
+    description: Send notifications and create snapshots when unencrypted EBS volumes are detected
+    resource: aws.ebs
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - Encrypted: false
+    actions:
+      - type: snapshot
+        copy-volume-tags: true
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: ec2_ebs_volume_encryption ***
+          • 비암호화된 EBS 볼륨이 감지되어 스냅샷이 생성되었습니다.
+        action_desc: |
+          1. 스냅샷이 정상적으로 생성되었는지 확인해 주세요.
+          2. 스냅샷을 복사하면서 암호화하여 새로운 암호화 된 볼륨을 생성하세요.(스냅샷이 오래된 경우 새로운 스냅샷을 생성하여 진행)
+          3. 해당 인스턴스를 중지하고 기존에 연결된 볼륨 해지 및 새로 생성한 암호화된 볼륨을 연결하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: ec2_ebs_snapshots_encrypted
+  # ACTIONPLAN: 비암호화된 스냅샷 감지 시 알림만 전송
+  - name: ec2_ebs_snapshots_encrypted
+    description: Send notification when unencrypted EBS snapshot is detected
+    resource: aws.ebs-snapshot
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - Encrypted: false
+    actions:
+    # 'copy'해서 암호화 된 스냅샷 생성을 원하면 주석 풀고 사용. 기존 스냅샷 삭제까지 원하면 'delete'도 활성화
+    #  - type: copy
+    #    target_region: ap-northeast-2
+    #    encrypted: true
+    #    target_key: 암호화 키 작성 (e.g. alias/aws/ebs)
+    #  - type: delete
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: ec2_ebs_snapshots_encrypted ***
+          • 비암호화 EBS 스냅샷이 감지되었습니다.
+        action_desc: |
+          1. 스냅샷을 복사하여 암호화 된 스냅샷을 생성해주세요.
+          2. 기존 암호화 되지 않은 스냅샷은 삭제해주세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: ec2_ebs_volume_snapshots_exists
+  # ACTIONPLAN: 스냅샷 없는 EC2 인스턴스의 볼륨 스냅샷 생성 및 태그 복사
+  - name: ec2_ebs_volume_snapshots_exists
+    description: Creating volume snapshots and copying tags for EC2 instances without snapshots
+    resource: aws.ebs
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: snapshots
+        count: 0
+      - type: value
+        key: State
+        op: eq
+        value: in-use
+    actions:
+      - type: snapshot
+        copy-volume-tags: true
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: good
+        violation_desc: |
+          *** CHECKID: ec2_ebs_volume_snapshots_exists ***
+          • 스냅샷이 존재하지 않는 EBS 볼륨이 감지되어 자동으로 스냅샷을 생성하였습니다.
+        action_desc: |
+          1. 스냅샷이 정상적으로 생성되었는지 확인해 주세요.
+          2. 복사된 태그가 정상적으로 적용됐는지 확인해 주세요.
+        to:
+          - ${GOOD_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}

@@ -1,0 +1,89 @@
+policies:
+
+  # CHECKID: apigateway_restapi_client_certificate_enabled
+  # ACTIONPLAN: 클라이언트 인증서가 적용되지 않은 API Gateway REST API 탐지 시, 담당자에게 알림 전송 및 Client Certificate Required 활성화 권고
+  - name: apigateway_restapi_client_certificate_enabled
+    resource: aws.rest-api
+    description: |
+      Ensure API Gateway REST APIs have client certificate required.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: RequireClientCertificate
+        value: false
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: apigateway_restapi_client_certificate_enabled ***
+          • API Gateway REST API에서 클라이언트 인증서 미적용이 감지되었습니다.
+        action_desc: |
+          1. 민감 API 또는 인증이 필요한 엔드포인트는 반드시 'Client Certificate Required'를 활성화해 주세요.
+          2. 신규 배포/템플릿/IaC에서도 인증서 누락이 반복되지 않도록 주기적으로 점검해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: apigateway_restapi_logging_enabled
+  # ACTIONPLAN: 접근 로그 미설정 REST API 탐지 시 담당자에게 알림, 로그 활성화 및 CloudWatch Logs 연동 권고
+  - name: apigateway_restapi_logging_enabled
+    resource: aws.rest-api
+    description: |
+      Ensure API Gateway REST APIs have access logging enabled.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: value
+        key: AccessLogSettings.DestinationArn
+        value: null
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: apigateway_restapi_logging_enabled ***
+          • API Gateway REST API에서 접근 로그 미설정이 감지되었습니다.
+        action_desc: |
+          1. CloudWatch Logs 등 로그 그룹을 지정하여 접근 로그를 활성화해 주세요.
+          2. 감사/운영 요구 사항에 맞게 로그 정책을 주기적으로 점검해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
+
+  # CHECKID: apigateway_restapi_public
+  # ACTIONPLAN: 퍼블릭/크로스계정 접근 허용 REST API 탐지 시 담당자 알림, 리소스 정책 제한 권고
+  - name: apigateway_restapi_public
+    resource: aws.rest-api
+    description: |
+      Detect API Gateway REST APIs that are publicly accessible by resource policy.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: arn:aws:iam::311278774159:role/custodian-lambda-role
+    filters:
+      - type: cross-account
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: apigateway_restapi_public ***
+          • API Gateway REST API가 퍼블릭/외부에 노출된 상태가 감지되었습니다.
+        action_desc: |
+          1. 리소스 정책을 반드시 검토하여 불필요한 퍼블릭/크로스계정 접근을 차단해 주세요.
+          2. 신규 배포, 운영 중에도 외부 노출이 재발되지 않도록 주기적으로 점검해 주세요.
+        to:
+          - https://hooks.slack.com/services/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
+        transport:
+          type: sqs
+          queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue

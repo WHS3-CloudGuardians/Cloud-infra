@@ -1,0 +1,104 @@
+policies:
+
+  # CHECKID: glue_etl_jobs_amazon_s3_encryption_enabled
+  # ACTIONPLAN: Glue Security Configuration에 S3 암호화 미적용 시 담당자에게 알림, 반드시 암호화(KMS/SSE) 적용 및 주기적 재점검 권고
+  - name: glue_etl_jobs_amazon_s3_encryption_enabled
+    resource: aws.glue-security-configuration
+    description: |
+      Detect Glue Security Configurations where Amazon S3 encryption is not enabled.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - or:
+          - type: value
+            key: EncryptionConfiguration.S3Encryptions[0].S3EncryptionMode
+            value: DISABLED
+          - type: value
+            key: EncryptionConfiguration.S3Encryptions[0].S3EncryptionMode
+            value: null
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: glue_etl_jobs_amazon_s3_encryption_enabled ***
+          • Glue Security Configuration에서 S3 암호화가 활성화되어 있지 않습니다.
+        action_desc: |
+          1. Security Configuration에 S3 암호화(SSE-S3, SSE-KMS 등)를 반드시 적용하세요.
+          2. 변경 이후에도 암호화 설정이 해제되어 있지 않은지 정기적으로 재점검하세요.
+          3. 암호화 정책이 표준에 맞는지 연 1회 이상 보안팀과 검토하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: glue_etl_jobs_cloudwatch_logs_encryption_enabled
+  # ACTIONPLAN: Glue Security Configuration에 CloudWatch 로그 암호화 미적용 시 담당자에게 알림, KMS 등 적용 및 정기 점검 안내
+  - name: glue_etl_jobs_cloudwatch_logs_encryption_enabled
+    resource: aws.glue-security-configuration
+    description: |
+      Detect Glue Security Configurations where CloudWatch Logs encryption is not enabled.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - or:
+          - type: value
+            key: EncryptionConfiguration.CloudWatchEncryption.CloudWatchEncryptionMode
+            value: DISABLED
+          - type: value
+            key: EncryptionConfiguration.CloudWatchEncryption.CloudWatchEncryptionMode
+            value: null
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: glue_etl_jobs_cloudwatch_logs_encryption_enabled ***
+          • Glue Security Configuration에서 CloudWatch 로그 암호화가 활성화되어 있지 않습니다.
+        action_desc: |
+          1. Security Configuration에 CloudWatch 로그 암호화(KMS 등)를 반드시 적용하세요.
+          2. 암호화 정책이 계속 적용되어 있는지 연 1회 이상 점검하세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: glue_etl_jobs_job_bookmark_encryption_enabled
+  # ACTIONPLAN: Glue Security Configuration에 Job Bookmark 암호화 미적용 시 담당자에게 알림, KMS 적용 및 암호화 재확인 요청
+  - name: glue_etl_jobs_job_bookmark_encryption_enabled
+    resource: aws.glue-security-configuration
+    description: |
+      Detect Glue Security Configurations where Job Bookmark encryption is not enabled.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - or:
+          - type: value
+            key: EncryptionConfiguration.JobBookmarksEncryption.JobBookmarksEncryptionMode
+            value: DISABLED
+          - type: value
+            key: EncryptionConfiguration.JobBookmarksEncryption.JobBookmarksEncryptionMode
+            value: null
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: glue_etl_jobs_job_bookmark_encryption_enabled ***
+          • Glue Security Configuration에서 Job Bookmark 암호화가 활성화되어 있지 않습니다.
+        action_desc: |
+          1. Security Configuration에 Job Bookmark 암호화(KMS 등)를 반드시 적용하세요.
+          2. 정책이 적용 후에도 계속 유지되고 있는지 정기적으로 재확인하세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}

@@ -1,0 +1,37 @@
+# CHECKID: route53_public_hosted_zones_cloudwatch_logging_enabled
+# ACTIONPLAN: Route53 공개 Hosted Zone에서 Query Logging 미활성 시 Slack 알림만 전송. 
+#             자동조치(Enable) 불가, Custodian 공식 리소스(c7n_aws)가 미지원이므로 실 운영에서는 점검 불가.
+#             정책 yaml은 관리·감사·문서용 샘플로만 활용 가능.
+
+policies:
+  - name: route53_public_hosted_zones_cloudwatch_logging_enabled
+    resource: aws.hostedzone 
+    description: |
+      Detects public Route53 hosted zones where query logging is disabled.
+      (NOTE: This resource is only available via the c7n_aws plugin; not supported in base Cloud Custodian.)
+
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+
+    filters:
+      - ConfigPublicZone: true
+      - type: query-logging-enabled
+        state: false
+
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: route53_public_hosted_zones_cloudwatch_logging_enabled ***
+          • Route53 공개 Hosted Zone에 대해 Query Logging이 비활성화되어 있습니다.
+        action_desc: |
+          1. Route53 Query Logging은 자동조치가 불가하므로 운영팀이 직접 수동으로 활성화해야 합니다.
+          2. 로그 미활성 상태에서는 도메인 질의 이력 추적이 불가능하니, 보안 요구에 따라 주기적으로 점검하세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
