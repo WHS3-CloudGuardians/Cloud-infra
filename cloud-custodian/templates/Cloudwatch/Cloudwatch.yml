@@ -26,8 +26,8 @@ policies:
     actions:
       - type: update-trail
         attributes:
-          CloudWatchLogsLogGroupArn: ${CLOUDTRAIL_LOG_GROUP_ARN}
-          CloudWatchLogsRoleArn: ${CLOUDTRAIL_LOG_ROLE_ARN}
+          CloudWatchLogsLogGroupArn: arn:aws:logs:${AWS_REGION}:${ACCOUNT_ID}:log-group:${CLOUDTRAIL_LOG_GROUP}
+          CloudWatchLogsRoleArn: arn:aws:iam::${ACCOUNT_ID}:role/${CLOUDTRAIL_LOG_ROLE}
 
       - type: set-logging
         enabled: True
@@ -134,8 +134,8 @@ policies:
     actions:
       - type: update-trail
         attributes:
-          CloudWatchLogsLogGroupArn: ${NETWORK_ACTIVITY_LOG_GROUP_ARN}
-          CloudWatchLogsRoleArn: ${CLOUDTRAIL_LOG_ROLE_ARN}
+          CloudWatchLogsLogGroupArn: arn:aws:logs:${AWS_REGION}:${ACCOUNT_ID}:log-group:${CLOUDTRAIL_LOG_GROUP_ALT} 
+          CloudWatchLogsRoleArn: arn:aws:iam::${ACCOUNT_ID}:role/${CLOUDTRAIL_LOG_ROLE}
       - type: notify
         slack_template: slack_default
         slack_msg_color: good
@@ -249,7 +249,7 @@ policies:
     filters:
       - type: cross-account
         whitelist:
-          - "311278774159"
+          - "${ACCOUNT_ID}"
     actions:
       - type: notify
         slack_template: slack_default
