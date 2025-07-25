@@ -1,6 +1,6 @@
 {
   "Framework": "KISA-ISMS-P",
-  "Version": "2023-korean",
+  "Version": "2023",
   "Provider": "AWS",
   "Description": "The ISMS-P certification, established by KISA (Korea Internet & Security Agency), is a system where an independent certification body evaluates whether a company or organization's information security and privacy protection measures comply with certification standards, and grants certification. This helps organizations improve public trust in their services and respond effectively to increasingly complex cyber threats. The ISMS-P framework also provides comprehensive guidelines for systematically establishing, implementing, and managing information security and privacy protection.",
   "Requirements": [
@@ -35,7 +35,7 @@
     },
     {
       "Id": "1.1.2",
-      "Name": "Designation of Chief ",
+      "Name": "Designation of Chief Officers",
       "Description": "The CEO must appoint a Chief Information Security Officer (CISO) responsible for information protection and a Chief Privacy Officer (CPO) responsible for personal information protection, both at an executive level with authority to allocate resources such as budget and personnel.",
       "Checks": [],
       "Attributes": [
@@ -48,16 +48,9 @@
             "Are the CISO and CPO appointed at an executive level with authority to allocate resources such as budget and personnel, and do they meet the qualifications required by relevant laws?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 31 (Designation of a Personal Information Protection Officer)",
-            "Article 4 (Establishment",
-            "Article 45-3 (Designation of a Chief Information Security Officer",
-            "Implementation",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)",
-            "etc.)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures), Article 31 (Designation of a Personal Information Protection Officer)",
+            "Information and Communications Network Act, Article 45-3 (Designation of a Chief Information Security Officer, etc.)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Documents related to the appointment of the CISO and CPO (e.g., personnel orders, personnel records)",
@@ -92,12 +85,8 @@
             "Has the organization established and operated a working group composed of information protection and personal information protection officers and department-level personnel for enterprise-wide information protection and personal information protection activities?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 4 (Establishment",
-            "Implementation",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Information protection and personal information protection committee regulations/minutes",
@@ -165,12 +154,8 @@
             "Are the latest versions of the information protection and personal information protection policies and implementation documents provided to relevant employees in an easily understandable format?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 4 (Establishment",
-            "Implementation",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Information protection and personal information protection policies/guidelines/procedures (including records of new/revised versions)",
@@ -302,12 +287,8 @@
             "Are the results of risk identification and assessment reported to the executives?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 4 (Establishment",
-            "Implementation",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Risk management guidelines",
@@ -436,11 +417,8 @@
             "Does management periodically review the effectiveness of the operation of the management system and manage it accordingly?"
           ],
           "RelatedRegulations": [
-            "Article 31 (Designation of a Personal Information Protection Officer)",
-            "Article 45-3 (Designation of a Chief Information Security Officer",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act",
-            "etc.)"
+            "Personal Information Protection Act, Article 31 (Designation of a Personal Information Protection Officer)",
+            "Information and Communications Network Act, Article 45-3 (Designation of a Chief Information Security Officer, etc.)"
           ],
           "AuditEvidence": [
             "Annual plan for information protection and personal information protection",
@@ -469,12 +447,8 @@
             "Is the organization conducting regular reviews of compliance with legal requirements at least once a year?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 4 (Establishment",
-            "Implementation",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Records of legal compliance reviews",
@@ -511,12 +485,8 @@
             "Has the organization conducted audits at least once a year with personnel who have independence, objectivity, and expertise, and reported any identified issues to management?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 4 (Establishment",
-            "Implementation",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Management system audit plan (internal audit plan, internal inspection plan)",
@@ -546,12 +516,8 @@
             "Are there criteria and procedures in place to verify the accuracy and effectiveness of preventive and improvement results?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 4 (Establishment",
-            "Implementation",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Management system inspection result reports",
@@ -585,12 +551,8 @@
             "Is there a system in place to track the revision history of information protection and personal information protection policies and implementation documents?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 4 (Establishment",
-            "Implementation",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Information protection and personal information protection policies and implementation documents (e.g., guidelines, procedures, manuals)",
@@ -628,16 +590,9 @@
             "Has the organization established and implemented systems and procedures for communication between the information protection and personal information protection organization and its members?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 31 (Designation of a Personal Information Protection Officer)",
-            "Article 4 (Establishment",
-            "Article 45-3 (Designation of a Chief Information Security Officer",
-            "Implementation",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)",
-            "etc.)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures), Article 31 (Designation of a Personal Information Protection Officer)",
+            "Information and Communications Network Act, Article 45-3 (Designation of a Chief Information Security Officer, etc.)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Information protection and personal information protection organization chart",
@@ -719,13 +674,8 @@
             "Is the designation of key personnel and personal information handlers minimized based on business needs, and are management plans established and implemented?"
           ],
           "RelatedRegulations": [
-            "Article 28 (Supervision of Personal Information Handlers)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 4 (Establishment",
-            "Implementation",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)"
+            "Personal Information Protection Act, Article 28 (Supervision of Personal Information Handlers), Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Criteria for key duties",
@@ -820,14 +770,8 @@
             "Are training records maintained, and is the effectiveness of the training evaluated and reflected in future training plans?"
           ],
           "RelatedRegulations": [
-            "Article 26 (Limitation on the Processing of Personal Information by Outsourcing)",
-            "Article 28 (Supervision of Personal Information Handlers)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 4 (Establishment",
-            "Implementation",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)"
+            "Personal Information Protection Act, Article 26 (Limitation on the Processing of Personal Information by Outsourcing), Article 28 (Supervision of Personal Information Handlers), Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans)"
           ],
           "AuditEvidence": [
             "Information protection and personal information protection training plan",
@@ -861,10 +805,8 @@
             "Are procedures in place and implemented to promptly return information assets, revoke or adjust access rights, and confirm results when an employee (including temporary staff and external contractors) resigns or changes roles?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 5 (Management of Access Rights)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 5 (Management of Access Rights)"
           ],
           "AuditEvidence": [
             "Procedures for resignation and job changes",
@@ -922,10 +864,8 @@
             "Has the organization identified the legal requirements and risks associated with outsourcing and the use of external facilities and services, and established appropriate protective measures?"
           ],
           "RelatedRegulations": [
-            "Article 26 (Restrictions on the Processing of Personal Information by Outsourcing)",
-            "Article 50-3 (Entrustment of the Transmission of Commercial Information for Profit)",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 26 (Restrictions on the Processing of Personal Information by Outsourcing)",
+            "Information and Communications Network Act, Article 50-3 (Entrustment of the Transmission of Commercial Information for Profit)"
           ],
           "AuditEvidence": [
             "List of outsourced services and external facilities/services",
@@ -956,8 +896,7 @@
             "When outsourcing the development of information systems and personal information processing systems, has the organization specified the information protection and personal information protection requirements that must be followed during development in the contract?"
           ],
           "RelatedRegulations": [
-            "Article 26 (Restrictions on the Processing of Personal Information by Outsourcing)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 26 (Restrictions on the Processing of Personal Information by Outsourcing)"
           ],
           "AuditEvidence": [
             "Outsourcing contracts",
@@ -989,10 +928,8 @@
             "If a contractor entrusted with personal information processing re-outsources related tasks to a third party, does the contractor obtain the principal's consent?"
           ],
           "RelatedRegulations": [
-            "Article 26 (Restrictions on the Outsourcing of Personal Information Processing)",
-            "Article 50-3 (Outsourcing of the Transmission of Commercial Information for Profit)",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 26 (Restrictions on the Outsourcing of Personal Information Processing)",
+            "Information and Communications Network Act, Article 50-3 (Outsourcing of the Transmission of Commercial Information for Profit)"
           ],
           "AuditEvidence": [
             "Security inspection results for external parties and contractors",
@@ -1025,10 +962,8 @@
             "When an external party contract expires, has the organization established and implemented procedures to confirm whether the external party holds any sensitive or personal information related to the outsourced task, and to retrieve or destroy such information?"
           ],
           "RelatedRegulations": [
-            "Article 26 (Restrictions on the Outsourcing of Personal Information Processing)",
-            "Article 50-3 (Outsourcing of the Transmission of Commercial Information for Profit)",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 26 (Restrictions on the Outsourcing of Personal Information Processing)",
+            "Information and Communications Network Act, Article 50-3 (Outsourcing of the Transmission of Commercial Information for Profit)"
           ],
           "AuditEvidence": [
             "Information protection and personal information protection agreements",
@@ -1059,10 +994,8 @@
             "Has the organization designated physical protection zones in accordance with the criteria and established and implemented protection measures for each zone?"
           ],
           "RelatedRegulations": [
-            "Article 10 (Physical Safety Measures)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 10 (Physical Safety Measures)"
           ],
           "AuditEvidence": [
             "Physical security guidelines (criteria for designating protected zones)",
@@ -1092,10 +1025,8 @@
             "Are entry records for internal and external personnel for each protected area retained for a certain period, and are entry records and access permissions reviewed periodically?"
           ],
           "RelatedRegulations": [
-            "Article 10 (Physical Safety Measures)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 10 (Physical Safety Measures)"
           ],
           "AuditEvidence": [
             "Access logbook and entry logs",
@@ -1154,14 +1085,9 @@
             "If operating outsourced integrated data centers (IDC), are physical security requirements included in the contract, and is the operational status periodically reviewed?"
           ],
           "RelatedRegulations": [
-            "Article 12 (Management of Fire Protection Facilities in Specific Fire Protection Objects)",
-            "Article 16 (Management of Evacuation Facilities",
-            "Article 46 (Protection of Integrated Data Centers)",
-            "Fire Facility Installation and Management Act",
-            "Fire Zones",
+            "Information and Communications Network Act, Article 46 (Protection of Integrated Data Centers)",
             "Guidelines for the Protection of Integrated Data Centers",
-            "Information and Communications Network Act",
-            "and Fire Protection Facilities)"
+            "Fire Facility Installation and Management Act, Article 12 (Management of Fire Protection Facilities in Specific Fire Protection Objects), Article 16 (Management of Evacuation Facilities, Fire Zones, and Fire Protection Facilities)"
           ],
           "AuditEvidence": [
             "Physical security guidelines (related to protective facilities",
@@ -1218,10 +1144,8 @@
             "Are records maintained and managed in accordance with the inbound and outbound control procedures, and is the compliance with the procedures periodically checked by reviewing the history of inbound and outbound activities?"
           ],
           "RelatedRegulations": [
-            "Article 10 (Physical Safety Measures)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 10 (Physical Safety Measures)"
           ],
           "AuditEvidence": [
             "Inbound and outbound application forms for secure zones",
@@ -1252,11 +1176,8 @@
             "Is compliance with information protection requirements in both individual and shared work environments periodically reviewed?"
           ],
           "RelatedRegulations": [
-            "Article 10 (Physical Safety Measures)",
-            "Article 12 (Safety Measures for Printing and Copying)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 10 (Physical Safety Measures), Article 12 (Safety Measures for Printing and Copying)"
           ],
           "AuditEvidence": [
             "Security inspection reports for offices and shared spaces",
@@ -1324,10 +1245,8 @@
             "When granting users accounts and access rights, are they made fully aware that they are responsible for the security of those accounts?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 5 (Management of Access Rights)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 5 (Management of Access Rights)"
           ],
           "AuditEvidence": [
             "User account and access request forms",
@@ -1362,10 +1281,8 @@
             "If the same identifier is shared by multiple users for unavoidable reasons, has the justification been reviewed and have supplementary measures such as approval from the responsible party been established?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 5 (Management of Access Rights)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 5 (Management of Access Rights)"
           ],
           "AuditEvidence": [
             "Login screen for information systems and personal information processing systems",
@@ -1438,11 +1355,8 @@
             "When accessing personal information processing systems from outside via a communication network, are secure authentication methods or secure access measures applied in accordance with legal requirements?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 5 (Management of Access Rights)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 5 (Management of Access Rights), Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "Login screen for information systems and personal information processing systems",
@@ -1487,10 +1401,8 @@
             "Are authentication methods for personal information handlers and users securely applied and managed?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 5 (Management of Access Rights)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 5 (Management of Access Rights)"
           ],
           "AuditEvidence": [
             "Password setting screens for web pages, information systems, and personal information processing systems",
@@ -1555,10 +1467,8 @@
             "Is there a control procedure established and implemented to identify and manage accounts and privileges granted for special purposes in a separate list?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 5 (Management of Access Rights)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 5 (Management of Access Rights)"
           ],
           "AuditEvidence": [
             "Guidelines related to special privileges",
@@ -1645,10 +1555,8 @@
             "When issues such as excessive access rights, failure to follow access right granting procedures, or misuse of access rights are identified in the review results, are appropriate response procedures established and implemented?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 5 (Management of Access Rights)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 5 (Management of Access Rights)"
           ],
           "AuditEvidence": [
             "Access rights review standards and procedures",
@@ -1809,13 +1717,12 @@
             "Has the organization implemented protective measures for communication paths when connecting networks between physically separated locations, such as IDCs, branches, and agents?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "Network diagram",
+            "IP management ledger",
             "Information asset list",
             "Firewall rules"
           ],
@@ -1831,7 +1738,7 @@
     },
     {
       "Id": "2.6.2",
-      "Name": "ccess to Information Systems",
+      "Name": "Access to Information Systems",
       "Description": "The users, access restriction methods, and secure access means for accessing information systems such as servers and network systems must be defined and controlled.",
       "Checks": [
         "apigateway_restapi_client_certificate_enabled",
@@ -1947,10 +1854,8 @@
             "Are information systems that provide key services operated on independent servers?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "List of operating system accounts of information systems",
@@ -2005,12 +1910,8 @@
             "Are applications implemented and operated to minimize unnecessary exposure (e.g., viewing, screen display, printing, downloading) of personal and sensitive information?"
           ],
           "RelatedRegulations": [
-            "Article 12 (Safety Measures for Printing and Copying)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 5 (Management of Access Rights)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 5 (Management of Access Rights), Article 6 (Access Control), Article 12 (Safety Measures for Printing and Copying)"
           ],
           "AuditEvidence": [
             "Application access rights classification system",
@@ -2091,11 +1992,8 @@
             "Are you clearly identifying the applications, information systems (servers), and users that need access to information in the database and controlling access according to the access control policy?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 5 (Management of Access Rights)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 5 (Management of Access Rights), Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "Database status (e.g., tables, columns)",
@@ -2130,10 +2028,8 @@
             "Have you established and implemented protection measures against unauthorized wireless networks, such as detecting and blocking AD Hoc connections and unauthorized wireless APs within the organization?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "Network diagram",
@@ -2186,10 +2082,8 @@
             "Are the devices used for remote access to personal information processing systems for management, operation, development, and security purposes designated as management terminals, and are safety measures such as prohibiting unauthorized operations and use for purposes other than those intended being applied?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "Remote access application form (e.g., VPN)",
@@ -2277,10 +2171,8 @@
             "Are internet access restrictions being applied in a secure manner for individuals who are required by law to have their internet access restricted?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "Policy for blocking non-work-related sites (e.g., P2P) (management screen of non-work-related site blocking system)",
@@ -2392,11 +2284,8 @@
             "Is encryption applied to personal and important information during storage, transmission, and transfer according to the encryption policy?"
           ],
           "RelatedRegulations": [
-            "Article 24-2 (Restrictions on Processing of Resident Registration Numbers)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 7 (Encryption of Personal Information)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 24-2 (Restrictions on Processing of Resident Registration Numbers), Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 7 (Encryption of Personal Information)"
           ],
           "AuditEvidence": [
             "Encryption control policy (targets, methods, algorithms, etc.)",
@@ -2464,10 +2353,8 @@
             "Are cryptographic keys securely stored in a separate location to ensure they can be recovered if necessary, and is access to the use of cryptographic keys minimized?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 7 (Encryption of Personal Information)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 7 (Encryption of Personal Information)"
           ],
           "AuditEvidence": [
             "Cryptographic Key Management Policy",
@@ -2529,9 +2416,8 @@
             "For public institutions, are impact assessments conducted during the analysis and design stages when developing or modifying personal information processing systems, as required by relevant laws, and are the results reflected during development and modification?"
           ],
           "RelatedRegulations": [
-            "Article 33 (Personal Information Impact Assessment)",
-            "Notification on Personal Information Impact Assessment",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 33 (Personal Information Impact Assessment)",
+            "Notification on Personal Information Impact Assessment"
           ],
           "AuditEvidence": [
             "Information System Acceptance Test Results",
@@ -2841,10 +2727,8 @@
             "For backup media containing critical information, is the media stored in physically separate locations to address disaster recovery?"
           ],
           "RelatedRegulations": [
-            "Article 11 (Safety Measures for Disaster Recovery)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 11 (Safety Measures for Disaster Recovery)"
           ],
           "AuditEvidence": [
             "Backup and recovery procedures",
@@ -2947,10 +2831,8 @@
             "Are access records for personal information processing systems securely stored for a specified period in accordance with legal requirements, including all necessary items?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 8 (Retention and Inspection of Access Records)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 8 (Retention and Inspection of Access Records)"
           ],
           "AuditEvidence": [
             "Log management procedures",
@@ -2985,10 +2867,8 @@
             "Are access records of the personal information processing system regularly inspected according to the periods specified in relevant laws?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 8 (Retention and Inspection of Access Records)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 8 (Retention and Inspection of Access Records)"
           ],
           "AuditEvidence": [
             "Log review and monitoring procedures",
@@ -3050,10 +2930,8 @@
             "Are measures in place to protect data on storage media during maintenance, repairs, or replacements of systems and PCs?"
           ],
           "RelatedRegulations": [
-            "Article 13 (Destruction of Personal Information)",
-            "Article 21 (Destruction of Personal Information)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 21 (Destruction of Personal Information)",
+            "Standards for Ensuring the Safety of Personal Information, Article 13 (Destruction of Personal Information)"
           ],
           "AuditEvidence": [
             "Procedures for the disposal and reuse of information assets",
@@ -3185,10 +3063,8 @@
             "Has the organization installed and operated security systems that perform functions specified by law to prevent illegal access and data leakage in personal information processing systems?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "Security system configuration",
@@ -3931,10 +3807,8 @@
             "Is the appropriateness of access control measures for business devices periodically reviewed?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "Security control guidelines and procedures for business devices",
@@ -3970,10 +3844,8 @@
             "Are removable media containing personal or important information stored in a secure location with locking mechanisms?"
           ],
           "RelatedRegulations": [
-            "Article 10 (Physical Safety Measures)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 10 (Physical Safety Measures)"
           ],
           "AuditEvidence": [
             "Policy on blocking removable media (USB, CD, etc.)",
@@ -4022,11 +3894,8 @@
             "When using a patch management system, are sufficient protection measures, such as access control, established?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 9 (Prevention of Malware",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "etc.)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 9 (Prevention of Malware, etc.)"
           ],
           "AuditEvidence": [
             "Patch management policies and procedures",
@@ -4060,11 +3929,8 @@
             "Are procedures for response, such as minimizing the spread of malware and mitigating damage, established and implemented when malware infections are discovered?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 9 (Prevention of Malware",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "etc.)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 9 (Prevention of Malware, etc.)"
           ],
           "AuditEvidence": [
             "Guidelines, procedures, and manuals for malware response",
@@ -4106,12 +3972,8 @@
             "Has the organization established a cooperative system with external experts, specialized companies, or institutions for monitoring, responding to, and handling security incidents?"
           ],
           "RelatedRegulations": [
-            "Article 34 (Notification and Reporting of Personal Information Leaks",
-            "Article 48-3 (Reporting of Security Incidents)",
-            "Article 48-4 (Analysis of Causes of Security Incidents",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act",
-            "etc.)"
+            "Personal Information Protection Act, Article 34 (Notification and Reporting of Personal Information Leaks, etc.)",
+            "Information and Communications Network Act, Article 48-3 (Reporting of Security Incidents), Article 48-4 (Analysis of Causes of Security Incidents, etc.)"
           ],
           "AuditEvidence": [
             "Incident response guidelines/procedures/manual",
@@ -4698,13 +4560,8 @@
             "Is a record of vulnerability inspections maintained, and are protective measures implemented to address recurring vulnerabilities identified in previous years?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 4 (Establishment",
-            "Article 6 (Access Control)",
-            "Implementation",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information",
-            "and Inspection of Internal Management Plans)"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 4 (Establishment, Implementation, and Inspection of Internal Management Plans), Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "Vulnerability inspection plan",
@@ -4813,10 +4670,8 @@
             "Has the organization defined criteria and thresholds to determine abnormal behaviors, and is follow-up action, such as the determination and investigation of abnormal activities, taken in a timely manner?"
           ],
           "RelatedRegulations": [
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Article 6 (Access Control)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 6 (Access Control)"
           ],
           "AuditEvidence": [
             "Status of abnormal behavior analysis and monitoring",
@@ -4879,11 +4734,8 @@
             "Is the organization utilizing the information obtained from incident analysis to establish preventive measures to prevent similar incidents from recurring, and if necessary, modifying its incident response procedures?"
           ],
           "RelatedRegulations": [
-            "Article 34 (Notification and Reporting of Personal Information Leakage)",
-            "Article 48-3 (Reporting of Security Incidents)",
-            "Article 48-4 (Analysis of Causes of Security Incidents)",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 34 (Notification and Reporting of Personal Information Leakage)",
+            "Information and Communications Network Act, Article 48-3 (Reporting of Security Incidents), Article 48-4 (Analysis of Causes of Security Incidents)"
           ],
           "AuditEvidence": [
             "Incident response procedures",
@@ -4974,11 +4826,9 @@
             "Has the organization established and implemented disaster recovery plans, including recovery strategies, emergency recovery teams, emergency contact networks, and recovery procedures, to ensure the continuity of core services and systems during disasters?"
           ],
           "RelatedRegulations": [
-            "Article 11 (Safety Measures for Disaster Preparedness)",
-            "Article 29 (Obligation to Take Safety Measures)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
-          ],
+            "Personal Information Protection Act, Article 29 (Obligation to Take Safety Measures)",
+            "Standards for Ensuring the Safety of Personal Information, Article 11 (Safety Measures for Disaster Preparedness)"
+          ]],
           "AuditEvidence": [
             "IT disaster recovery guidelines/procedures",
             "IT disaster recovery plans (including RTO and RPO definitions)",
@@ -5047,11 +4897,8 @@
             "When personal information is used for additional purposes without the consent of the data subject, are criteria established and implemented to assess the relevance to the original purpose, predictability, impact on the data subject, and safety measures? If additional usage continues to occur, are these criteria disclosed in the privacy policy and regularly reviewed?"
           ],
           "RelatedRegulations": [
-            "Article 15 (Collection and Use of Personal Information)",
-            "Article 22 (Methods for Obtaining Consent)",
-            "Article 22-2 (Protection of Personal Information of Children)",
-            "Notice on the Processing of Personal Information",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 15 (Collection and Use of Personal Information), Article 22 (Methods for Obtaining Consent), Article 22-2 (Protection of Personal Information of Children)",
+            "Notice on the Processing of Personal Information"
           ],
           "AuditEvidence": [
             "Online personal information collection forms (e.g., website sign-up screens, mobile app registration screens, event participation forms)",
@@ -5090,9 +4937,7 @@
             "Is the data subject not denied goods or services for refusing to consent to the collection of additional personal information beyond the minimum necessary for the intended purpose?"
           ],
           "RelatedRegulations": [
-            "Article 16 (Restrictions on the Collection of Personal Information)",
-            "Article 22 (Methods for Obtaining Consent)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 16 (Restrictions on the Collection of Personal Information), Article 22 (Methods for Obtaining Consent)"
           ],
           "AuditEvidence": [
             "Online personal information collection forms (e.g., website sign-up screens, event participation forms)",
@@ -5125,10 +4970,8 @@
             "When processing resident registration numbers under a legal basis, does the organization provide a method for data subjects to register without using their resident registration number during the membership registration process on an internet website?"
           ],
           "RelatedRegulations": [
-            "Article 23-2 (Restrictions on the Use of Resident Registration Numbers)",
-            "Article 24-2 (Restrictions on the Processing of Resident Registration Numbers)",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 24-2 (Restrictions on the Processing of Resident Registration Numbers)",
+            "Information and Communications Network Act, Article 23-2 (Restrictions on the Use of Resident Registration Numbers)"
           ],
           "AuditEvidence": [
             "Personal information collection forms (e.g., website sign-up screens, event participation forms, membership application forms)",
@@ -5163,9 +5006,7 @@
             "If there is a risk of invasion of privacy due to the disclosure of sensitive information during the provision of goods or services, is the data subject clearly informed of the possibility of such disclosure and how to opt for non-disclosure before the provision of goods or services?"
           ],
           "RelatedRegulations": [
-            "Article 23 (Restrictions on Processing of Sensitive Information)",
-            "Article 24 (Restrictions on Processing of Unique Identifying Information)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 23 (Restrictions on Processing of Sensitive Information), Article 24 (Restrictions on Processing of Unique Identifying Information)"
           ],
           "AuditEvidence": [
             "Online personal information collection forms (e.g., membership sign-up pages, event participation forms)",
@@ -5199,12 +5040,7 @@
             "Is there a record of informing the data subject about the source of personal information, and is this record maintained until the personal information is destroyed?"
           ],
           "RelatedRegulations": [
-            "Article 16 (Restrictions on the Collection of Personal Information)",
-            "Article 19 (Restrictions on Use and Provision of Personal Information Provided by a Third Party)",
-            "Article 20 (Notification of the Source",
-            "Personal Information Protection Act",
-            "Purpose",
-            "etc. of Indirectly Collected Personal Information)"
+            "Personal Information Protection Act, Article 16 (Restrictions on the Collection of Personal Information), Article 19 (Restrictions on Use and Provision of Personal Information Provided by a Third Party), Article 20 (Notification of the Source, Purpose, etc. of Indirectly Collected Personal Information)"
           ],
           "AuditEvidence": [
             "Contracts related to the provision of personal information (agreements with providers)",
@@ -5241,9 +5077,7 @@
             "When outsourcing the operation of video information processing devices, are the related procedures and requirements reflected in the contract?"
           ],
           "RelatedRegulations": [
-            "Article 25 (Restrictions on the Installation and Operation of Fixed Video Information Processing Devices)",
-            "Article 25-2 (Restrictions on the Operation of Mobile Video Information Processing Devices)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 25 (Restrictions on the Installation and Operation of Fixed Video Information Processing Devices), Article 25-2 (Restrictions on the Operation of Mobile Video Information Processing Devices)"
           ],
           "AuditEvidence": [
             "Status of video information processing device operation",
@@ -5278,10 +5112,8 @@
             "When sending advertising information for profit, is the sender's name, method for opting out, etc., clearly stated, and are such messages not sent during nighttime hours?"
           ],
           "RelatedRegulations": [
-            "Article 22 (Method of Obtaining Consent)",
-            "Article 50 (Restrictions on Transmission of Advertising Information)",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 22 (Method of Obtaining Consent)",
+            "Information and Communications Network Act, Article 50 (Restrictions on Transmission of Advertising Information)"
           ],
           "AuditEvidence": [
             "Online personal information collection forms (e.g., website membership sign-up, mobile app sign-up, event participation)",
@@ -5318,8 +5150,7 @@
             "Does the public institution disclose the status of personal information files in the personal information processing policy?"
           ],
           "RelatedRegulations": [
-            "Article 32 (Registration and Disclosure of Personal Information Files)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 32 (Registration and Disclosure of Personal Information Files)"
           ],
           "AuditEvidence": [
             "Personal information status table",
@@ -5361,8 +5192,7 @@
             "Is there a method provided for data subjects to ensure the accuracy, completeness, and up-to-dateness of their personal information?"
           ],
           "RelatedRegulations": [
-            "Article 3 (Principles of Personal Information Protection)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 3 (Principles of Personal Information Protection)"
           ],
           "AuditEvidence": [
             "Form for data subjects to modify/update their personal information (online, offline)",
@@ -5391,8 +5221,7 @@
             "Are methods provided for users to consent to or withdraw access rights on their mobile devices?"
           ],
           "RelatedRegulations": [
-            "Article 22-2 (Consent for Access Rights)",
-            "Information and Communications Network Act"
+            "Information and Communications Network Act, Article 22-2 (Consent for Access Rights)"
           ],
           "AuditEvidence": [
             "App access rights consent screen",
@@ -5426,9 +5255,7 @@
             "When public institutions use or provide personal information beyond the original purpose, is there a record of such use or provision and are procedures in place for managing it?"
           ],
           "RelatedRegulations": [
-            "Article 18 (Restriction on the Use and Provision of Personal Information Beyond the Original Purpose)",
-            "Article 19 (Restriction on Use and Provision by Recipients of Personal Information)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 18 (Restriction on the Use and Provision of Personal Information Beyond the Original Purpose), Article 19 (Restriction on Use and Provision by Recipients of Personal Information)"
           ],
           "AuditEvidence": [
             "Records of personal information use and provision beyond the original purpose (including related evidence such as requests)",
@@ -5464,9 +5291,20 @@
             "Is the processing period for pseudonymized information set to an appropriate period considering the processing purpose, and is the information destroyed without delay when that period expires?",
             "When anonymizing personal information, is the information anonymized to a level where individuals cannot be identified even with the use of additional information, considering the time, cost, and technology available?"
           ],
-          "RelatedRegulations": [],
-          "AuditEvidence": [],
-          "NonComplianceCases": []
+          "RelatedRegulations": [
+            "Personal Information Protection Act, Article 2 (Definitions), Article 28-2 (Processing of Pseudonymized Information), Article 28-3 (Restrictions on Combining Pseudonymized Information), Article 28-4 (Obligations for the Safe Processing of Pseudonymized Information), Article 28-5 (Prohibition of Re-identification in Processing Pseudonymized Information), Article 28-7 (Scope of Application), Article 58-2 (Exemptions)"
+          ],
+          "AuditEvidence": [
+            "Procedures and results of the adequacy review of pseudonymization/anonymization",
+            "Records of pseudonymized information processing",
+            "Privacy policy (regarding the use and provision of pseudonymized information)"
+          ],
+          "NonComplianceCases": [
+            "Case 1: When processing pseudonymized information for statistical purposes or scientific research without obtaining consent from data subjects, records of the pseudonymization process were not kept, or the privacy policy was not updated to include relevant information.",
+            "Case 2: Additional information was not stored separately from pseudonymized information in the same database, or access rights to both sets of information were not appropriately segregated.",
+            "Case 3: Although pseudonymized personal information was used, the pseudonymization process was not sufficient, making it possible to identify individuals by combining the information with other data without using additional information.",
+            "Case 4: Personal information was anonymized for generating test data or for public release, but due to outliers or other factors, it was still possible to identify individuals, indicating that the anonymization process was not sufficient."
+          ]
         }
       ]
     },
@@ -5490,10 +5328,8 @@
             "When providing additional personal information without the data subject's consent, are criteria for determining the relevance to the original purpose of collection, predictability, potential harm, and safety measures established and followed? If such provisions continue, are these criteria disclosed in the privacy policy and periodically reviewed?"
           ],
           "RelatedRegulations": [
-            "Article 17 (Provision of Personal Information)",
-            "Article 22 (Methods of Obtaining Consent)",
-            "Notification on the Methods of Processing Personal Information",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 17 (Provision of Personal Information), Article 22 (Methods of Obtaining Consent)",
+            "Notification on the Methods of Processing Personal Information"
           ],
           "AuditEvidence": [
             "Forms related to the provision of personal information to third parties online (e.g., membership registration page, consent for third-party provision on websites)",
@@ -5526,8 +5362,7 @@
             "When outsourcing tasks related to promoting or selling goods or services, is the data subject notified of the details of the outsourced tasks and the trustees through methods such as written notice, email, or text messages?"
           ],
           "RelatedRegulations": [
-            "Article 26 (Restrictions on the Processing of Personal Information by Outsourcing)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 26 (Restrictions on the Processing of Personal Information by Outsourcing)"
           ],
           "AuditEvidence": [
             "Privacy policy (disclosing details related to the outsourcing of personal information processing)",
@@ -5559,9 +5394,8 @@
             "When receiving personal information, does the recipient notify the data subjects without delay regarding the fact that personal information has been received and other necessary matters, if legally required?",
             "Does the recipient of the personal information use the information only for its original purpose at the time of transfer, or provide it to third parties in compliance with the original purpose?"
           ],
-          "RelatedRegulations": [
-            "Article 27 (Restrictions on the Transfer of Personal Information Due to Business Transfers)",
-            "Personal Information Protection Act"
+         "RelatedRegulations": [
+            "Personal Information Protection Act, Article 27 (Restrictions on the Transfer of Personal Information Due to Business Transfers)"
           ],
           "AuditEvidence": [
             "Records of notifications to data subjects regarding the transfer of personal information (during business transfers)",
@@ -5591,11 +5425,7 @@
             "Are necessary measures being taken to protect personal information when transferring it abroad?"
           ],
           "RelatedRegulations": [
-            "28-10 (Reciprocity)",
-            "28-11 (Applicable Provisions)",
-            "28-9 (Order to Suspend Transfer of Personal Information Abroad)",
-            "Articles 28-8 (Transfer of Personal Information Abroad)",
-            "Personal Information Protection Act",
+            "Personal Information Protection Act, Articles 28-8 (Transfer of Personal Information Abroad), 28-9 (Order to Suspend Transfer of Personal Information Abroad), 28-10 (Reciprocity), 28-11 (Applicable Provisions)",
             "Regulations on the Operation of Personal Information Transfer Abroad"
           ],
           "AuditEvidence": [
@@ -5629,10 +5459,8 @@
             "Are records kept of the destruction of personal information and managed properly?"
           ],
           "RelatedRegulations": [
-            "Article 13 (Destruction of Personal Information)",
-            "Article 21 (Destruction of Personal Information)",
-            "Personal Information Protection Act",
-            "Standards for Ensuring the Safety of Personal Information"
+            "Personal Information Protection Act, Article 21 (Destruction of Personal Information)",
+            "Standards for Ensuring the Safety of Personal Information, Article 13 (Destruction of Personal Information)"
           ],
           "AuditEvidence": [
             "Regulations regarding the retention period and destruction of personal information",
@@ -5665,8 +5493,7 @@
             "Is access to separately stored personal information limited to the minimum number of personnel?"
           ],
           "RelatedRegulations": [
-            "Article 21 (Destruction of Personal Information)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 21 (Destruction of Personal Information)"
           ],
           "AuditEvidence": [
             "Regulations regarding the retention period and destruction of personal information',",
@@ -5698,9 +5525,7 @@
             "When the privacy policy is updated, are the reasons for the changes and the contents of the changes promptly notified, and can the data subjects easily recognize the changes at any time?"
           ],
           "RelatedRegulations": [
-            "Article 30 (Establishment and Disclosure of Privacy Policy)",
-            "Article 30-2 (Evaluation and Improvement Recommendations for Privacy Policy)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 30 (Establishment and Disclosure of Privacy Policy), Article 30-2 (Evaluation and Improvement Recommendations for Privacy Policy)"
           ],
           "AuditEvidence": [
             "Privacy policy",
@@ -5735,19 +5560,8 @@
             "When the rights of others, such as privacy or honor, are violated on information networks, does the organization have procedures for the affected individuals to request the deletion of the information from service providers, and are these procedures being implemented?"
           ],
           "RelatedRegulations": [
-            "Article 34-2 (Deletion or Blocking of Exposed Personal Information)",
-            "Article 35 (Access to Personal Information)",
-            "Article 35-2 (Right to Data Portability)",
-            "Article 36 (Rectification or Deletion of Personal Information)",
-            "Article 37 (Suspension of Processing",
-            "Article 37-2 (Right of Data Subjects to Contest Automated Decisions)",
-            "Article 38 (Methods and Procedures for Exercising Rights)",
-            "Article 44 (Protection of Rights in Information Networks)",
-            "Article 44-2 (Request for Deletion of Information",
-            "Article 44-3 (Temporary Measures)",
-            "Information and Communications Network Act",
-            "Personal Information Protection Act",
-            "etc.)"
+            "Personal Information Protection Act, Article 34-2 (Deletion or Blocking of Exposed Personal Information), Article 35 (Access to Personal Information), Article 35-2 (Right to Data Portability), Article 36 (Rectification or Deletion of Personal Information), Article 37 (Suspension of Processing, etc.), Article 37-2 (Right of Data Subjects to Contest Automated Decisions), Article 38 (Methods and Procedures for Exercising Rights)",
+            "Information and Communications Network Act, Article 44 (Protection of Rights in Information Networks), Article 44-2 (Request for Deletion of Information, etc.), Article 44-3 (Temporary Measures)"
           ],
           "AuditEvidence": [
             "Privacy policy",
@@ -5781,8 +5595,7 @@
             "Do the notification items regarding the use and provision of personal information include all legally required elements?"
           ],
           "RelatedRegulations": [
-            "Article 20-2 (Notification of Use and Provision of Personal Information)",
-            "Personal Information Protection Act"
+            "Personal Information Protection Act, Article 20-2 (Notification of Use and Provision of Personal Information)"
           ],
           "AuditEvidence": [
             "Records of notifications regarding the use and provision of personal information",
