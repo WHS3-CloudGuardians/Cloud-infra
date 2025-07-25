@@ -52,8 +52,8 @@ policies:
     actions:
       - type: update-trail
         attributes:
-          CloudWatchLogsLogGroupArn: ${CLOUDTRAIL_LOG_GROUP_ARN}
-          CloudWatchLogsRoleArn: ${CLOUDTRAIL_LOG_ROLE_ARN}
+          CloudWatchLogsLogGroupArn: $arn:aws:logs:${AWS_REGION}:${ACCOUNT_ID}:log-group:${CLOUDTRAIL_LOG_GROUP}
+          CloudWatchLogsRoleArn: arn:aws:iam::${ACCOUNT_ID}:role/${CLOUDTRAIL_LOG_ROLE}
       - type: set-logging
         enabled: true
       - type: notify
@@ -175,7 +175,7 @@ policies:
       - not:
           - type: value
             key: Name
-            value: ${CLOUDTRAIL_LOG_BUCKET_NAME}
+            value: cloudtrail-access-log-bucket-${ACCOUNT_ID}
     actions:
       - type: notify
         slack_template: slack_default
