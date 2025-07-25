@@ -1,0 +1,536 @@
+policies:
+# S3 ----------------------------------------------------------------- S3
+# CHECKID: s3_account_level_public_access_blocks
+# ACTIONPLAN: 계정 전체에 S3 Public Access Block 설정이 모두 활성화되어 있는지 확인, 미설정 시 운영자 알림
+# ACTIONPLAN: 계정 수준에서 S3 퍼블릭 접근 차단 설정이 비활성화된 경우, 자동으로 차단 정책 구성
+  - name: s3-account-level-public-access-blocks
+    resource: aws.account
+    mode:
+      type: periodic
+      schedule: "rate(12 hours)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: s3-public-block
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: s3_account_level_public_access_blocks ***
+          • 계정 수준에서 S3 퍼블릭 접근 차단 설정이 비활성화가 감지되었습니다.
+        action_desc: |
+          1. 차단 정책을 구성하여, 계정 수준에서 S3 퍼블릭 접근 차단 설정을 활성화해 주세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_acl_prohibited
+# ACTIONPLAN: ACL 자체 사용이 금지된 정책에 따라 ACL 설정이 존재하는 S3 버킷을 탐지하고 알림 또는 태깅
+  - name: s3-bucket-acl-prohibited
+    resource: aws.s3
+    description: "Alert: S3 With acl ACL"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: "Acl.Grants"
+        value_type: size
+        op: gt
+        value: 0
+    actions:
+      - type: tag
+        key: ACL
+        value: exist
+      - type: notify
+        template: slack-default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: s3_bucket_acl_prohibited ***
+          • S3 버킷에서 ACL 설정이 감지되었습니다.
+        action_desc: |
+          1. ACL 자체 사용이 금지된 정책에 따라 ACL 설정을 변경해주세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_cross_region_replication
+# ACTIONPLAN: S3 버킷에 교차 리전 복제를 설정하여 재해복구 기능 확보
+# ACTIONPLAN: S3 교차 리전 복제를 설정하여 재해복구(소산 백업) 기능 확보
+# ACTIONPLAN: 중요 S3 버킷에 대해 Cross-Region Replication 활성화 및 정책 적용
+# ACTIONPLAN: 개인정보가 포함된 중요 데이터 버킷에 Cross Region Replication이 비활성화되어 있는 경우 탐지하여 알림
+  - name: s3-bucket-cross-region-replication
+    resource: aws.s3
+    description: "Alert: S3 Without Cross-Region Replication"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: ReplicationConfiguration.Rules
+        value: absent
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: s3_bucket_cross_region_replication ***
+          • S3 버킷에 교차 리전 복제 비활성화가 감지되었습니다.
+        action_desc: |
+          1. S3 버킷에 교차 리전 복제를 설정하여 재해복구 기능 확보해 주세요.
+          2. 중요 S3 버킷에 대해 Cross-Region Replication 활성화 및 정책 적용해 주세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_default_encryption
+# ACTIONPLAN: S3 기본 암호화 설정을 활성화하여 백업 시 자동 암호화 보장
+# ACTIONPLAN: S3 기본 암호화 설정이 비활성화된 경우, 자동으로 암호화 설정 적용
+  - name: s3-bucket-default-encryption
+    resource: aws.s3
+    description: "Action & Alert : S3 Without default encryption"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: bucket-encryption
+        state: false
+    actions:
+      - type: set-bucket-encryption
+        crypto: AES256
+      - type: notify
+        template: slack-default
+        slack_msg_color: good
+        violation_desc: |
+          *** CHECKID: s3_bucket_default_encryption ***
+          • S3 기본 암호화 비활성화가 감지되어 활성화 조치하였습니다.
+        action_desc: |
+          1. S3 기본 암호화(AES256) 활성화 조치
+          2. 저장된 백업 데이터의 무결성 보장을 위해, 암호화를 적용해 주세요.
+        to:
+          - ${GOOD_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_kms_encryption
+# ACTIONPLAN: S3 버킷에 KMS 암호화를 적용하여 저장된 백업 데이터의 무결성 보장
+# ACTIONPLAN: S3 버킷 KMS 암호화 설정이 비활성화된 경우, 자동 적용
+  - name: s3-bucket-kms-encryption
+    resource: aws.s3
+    description: "Alert : S3 Without kms encryption"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: bucket-encryption
+        crypto: AES256
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: s3_bucket_default_encryption ***
+          • S3 버킷에서 KMS 암호화 비활성화가 감지되었습니다.
+        action_desc: |
+          1. 저장된 백업 데이터의 무결성 보장을 위해, S3 버킷에 KMS 암호화를 적용해 주세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_level_public_access_block
+# ACTIONPLAN: 각 S3 버킷에 대해 Public Access Block 설정이 비활성화된 경우 탐지 및 설정 적용 또는 알림
+# ACTIONPLAN: S3 버킷 수준에서 퍼블릭 접근 차단 설정이 비활성화된 경우, 자동 구성 적용.
+  - name: s3-bucket-level-public-access-block-cloudtrail
+    resource: aws.s3
+    description: "Alert: S3 Public Access Block 변경 실시간 감지"
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: s3.amazonaws.com
+          event: PutBucketPublicAccessBlock
+          ids: "requestParameters.bucketName"
+        - source: s3.amazonaws.com
+          event: DeleteBucketPublicAccessBlock
+          ids: "requestParameters.bucketName"
+    filters:
+      - type: value
+        key: PublicAccessBlockConfiguration
+        value: absent
+        op: eq
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: s3_bucket_level_public_access_block ***
+          • S3 버킷에 퍼블릭 접근 차단 설정 비활성화가 감지되었습니다.
+        action_desc: |
+          1. S3 버킷에 대해 Public Access Block 설정을 구성해 주세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+
+# CHECKID: s3_bucket_lifecycle_enabled
+# ACTIONPLAN: CloudTrail 로그 버킷 등 장기 보관이 필요한 S3 버킷에 수명 정책이 없는 경우 탐지하여 알림
+# ACTIONPLAN: S3 버킷에 라이프사이클 정책을 설정하여 백업 파일의 주기적 삭제 또는 전환 자동화
+# ACTIONPLAN: S3 버킷에 객체 전환/만료 정책을 포함한 수명주기 정책 설정
+  - name: s3-bucket-lifecycle-enabled
+    resource: aws.s3
+    description: "Alert: S3 Without lifecycle"
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: Lifecycle
+        value: absent
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: s3_bucket_lifecycle_enabled ***
+          • S3 버킷에 수명 정책 비활성화가 감지되었습니다.
+        action_desc: |
+          1. S3 버킷에 라이프사이클 정책을 설정하여 백업 파일의 주기적 삭제 또는 전환 자동화해주세요.
+          2. S3 버킷에 객체 전환/만료 정책을 포함한 수명주기 정책을 설정해 주세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_no_mfa_delete
+# ACTIONPLAN: S3 버킷에 MFA 삭제 설정 적용하여 중요 데이터 삭제 보호
+  - name: s3-bucket-no-mfa-delete
+    resource: aws.s3
+    description: "Alert: S3 Without MFA delete"
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+       - type: value
+         key: VersioningConfiguration.MFADelete
+         value: Enabled
+         op: ne
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: s3_bucket_no_mfa_delete ***
+          • S3 버킷에 MFA 삭제 설정 누락이 감지되었습니다.
+        action_desc: |
+          1. 중요 데이터 삭제 보호를 위해, S3 버킷에 MFA 삭제 설정 적용해 주세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_object_lock
+# ACTIONPLAN: S3 버킷에 Object Lock 및 WORM 설정 적용
+  - name: s3-bucket-object-lock
+    resource: aws.s3
+    description: "Alert: S3 Without Object Lock"
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - or:
+        - type: value
+          key: ObjectLockEnabled
+          value: absent
+        - type: value
+          key: ObjectLockEnabled
+          value: "Disabled"
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: s3_bucket_object_lock ***
+          • S3 버킷에 Object Lock 누락이 감지되었습니다.
+        action_desc: |
+          1. S3 버킷에 Object Lock 및 WORM 설정 적용해 주세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_object_versioning
+# ACTIONPLAN: S3 버킷에 객체 버전 관리를 활성화하여 데이터 복구 가능성 확보
+  - name: s3-bucket-object-versioning
+    resource: aws.s3
+    description: "Alert: S3 Without versioning"
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - or:
+        - type: value
+          key: Versioning.Status
+          value: "Suspended"
+        - type: value
+          key: Versioning.Status
+          value: absent
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: s3_bucket_object_versioning ***
+          • S3 버킷에 객체 버전 관리 누락이 감지되었습니다.
+        action_desc: |
+          1. 데이터 복구 가능성 확보를 위해, S3 버킷에 객체 버전 관리를 활성화해 주세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_policy_public_write_access
+# ACTIONPLAN: S3 버킷 정책이 퍼블릭 쓰기 허용인 경우, 정책 수정 또는 차단 설정
+# ACTIONPLAN: S3 버킷 정책에서 쓰기 권한 공개 접근 제거
+  - name: s3-bucket-policy-public-write-access-cloudtrail
+    resource: aws.s3
+    description: "Action & Alert: S3 퍼블릭 쓰기 정책 변경 실시간 감지"
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: s3.amazonaws.com
+          event: PutBucketPolicy
+          ids: "requestParameters.bucketName"
+    filters:
+      - type: global-grants
+        permissions:
+          - WRITE
+          - FULL_CONTROL
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: s3_bucket_policy_public_write_access ***
+          • S3 버킷에 퍼블릭 쓰기 허용 설정이 감지되었습니다.
+        action_desc: |
+          1. S3 버킷 정책에서 쓰기 권한 공개 접근을 비허용해 주세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+
+# CHECKID: s3_bucket_public_access
+# ACTIONPLAN: S3 버킷 전체 공개 설정 제거로 백업 데이터 노출 방지
+# ACTIONPLAN: S3 버킷이 퍼블릭하게 설정된 경우, 퍼블릭 접근 차단 정책 적용
+  - name: s3-bucket-public-access-cloudtrail
+    resource: aws.s3
+    description: "Action & Alert: S3 버킷 퍼블릭 액세스 실시간 감지"
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: s3.amazonaws.com
+          event: PutBucketAcl
+          ids: "requestParameters.bucketName"
+        - source: s3.amazonaws.com
+          event: PutBucketPolicy
+          ids: "requestParameters.bucketName"
+    filters:
+      - or:
+          - type: global-grants
+            permissions:
+              - READ
+              - WRITE
+              - FULL_CONTROL
+          - type: has-statement
+            statements:
+              - Effect: Allow
+                Principal: "*"
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: s3_bucket_public_access ***
+          • S3 버킷에 전체 공개 설정이 감지되었습니다.
+        action_desc: |
+          1. 데이터 노출 방지를 위해, 퍼블릭 접근 차단 정책 적용해 주세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+
+# CHECKID: s3_bucket_public_list_acl
+# ACTIONPLAN: S3 버킷에 대한 리스트 권한 공개 ACL 제거로 백업 목록 노출 방지
+# ACTIONPLAN: S3 버킷에 대한 리스트 권한이 퍼블릭으로 열려 있는 경우, ACL/정책 수정
+  - name: s3-bucket-public-list-acl
+    resource: aws.s3
+    description: "Alert: S3 With public list acl"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: global-grants
+        permissions:
+          - READ
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: s3_bucket_public_list_acl ***
+          • S3 버킷에 대한 리스트 권한 공개가 감지되었습니다.
+        action_desc: |
+          1. 백업 목록 노출 방지를 위해, S3 버킷에 대한 리스트 권한 공개 ACL 제거해 주세요. 
+          2. S3 버킷에 대한 리스트 권한이 퍼블릭으로 열려 있는 경우, ACL/정책 수정해 주세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_public_write_acl
+# ACTIONPLAN: 버킷 ACL에 'WRITE' 권한이 Everyone 또는 AllUsers에 부여되어 있는 경우 탐지하여 해당 권한 제거
+# ACTIONPLAN: S3 버킷에 쓰기 권한 공개 ACL 제거로 무단 백업 데이터 덮어쓰기 방지
+# ACTIONPLAN: S3 버킷에 쓰기 ACL이 퍼블릭하게 설정된 경우, ACL 제거 또는 차단 구성
+  - name: s3-bucket-public-write-acl
+    resource: aws.s3
+    description: "Alert: S3 With public write acl"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: global-grants
+        permissions:
+          - WRITE
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: s3_bucket_secure_transport_policy ***
+          • S3 버킷에 쓰기 권한 공개 ACL이 감지되었습니다.
+        action_desc: |
+          1. 버킷 ACL에 'WRITE' 권한이 Everyone 또는 AllUsers에 부여되어 있는 경우, 해당 권한 제거해 주세요.
+          2. S3 버킷에 쓰기 권한 공개 ACL 제거로 무단 백업 데이터 덮어쓰기 방지해 주세요.
+          3. S3 버킷에 쓰기 ACL이 퍼블릭하게 설정된 경우, ACL 제거 또는 차단 구성해 주세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_secure_transport_policy
+# ACTIONPLAN: S3 HTTPS 접근 정책 설정 여부 확인 및 필터링
+# ACTIONPLAN: S3 버킷 정책에 'aws:SecureTransport' 조건을 추가하여 HTTPS만 허용
+  - name: s3-bucket-secure-transport-policy
+    resource: aws.s3
+    description: "Alert: S3 Without HTTPS access policy"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: missing-policy-statement
+        statement_ids:
+          - EnforceTLSAccessOnly
+    actions:
+      # - type: set-statements
+      #   statements:
+      #     - Sid: EnforceTLSAccessOnly
+      #       Effect: Deny
+      #       Principal: "*"
+      #       Action: "s3:*"
+      #       Resource:
+      #         - "arn:aws:s3:::{{ bucket_name }}"
+      #         - "arn:aws:s3:::{{ bucket_name }}/*"
+      #       Condition:
+      #         Bool:
+      #           "aws:SecureTransport": "false"
+      - type: notify
+        template: slack-default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: s3_bucket_secure_transport_policy ***
+          • S3 버킷에 HTTPS 접근 정책 미설정 감지되었습니다.
+        action_desc: |
+          1. S3 HTTPS 접근 정책 설정 여부 확인 및 필터링해 주세요.
+          2. S3 버킷 정책에 'aws:SecureTransport' 조건을 추가하여 HTTPS만 허용해 주세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+# CHECKID: s3_bucket_server_access_logging_enabled
+# ACTIONPLAN: S3 서버 액세스 로그 설정이 꺼져 있는 경우, 해당 설정 자동 활성화
+  - name: s3-server-access-logging-enabled
+    resource: aws.s3
+    description: "Alert: S3 Without server access logging"
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: LoggingEnabled
+        value: absent
+    actions:
+      - type: notify
+        template: slack-default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: s3_bucket_server_access_logging_enabled ***
+          • S3 버킷에 서버 액세스 로그 설정 누락이 감지되었습니다.
+        action_desc: |
+          1. S3 서버 액세스 로그 설정 활성화해 주세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}

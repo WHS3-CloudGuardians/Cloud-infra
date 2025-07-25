@@ -1,0 +1,122 @@
+policies:
+# Backup ------------------------------------------------------------------------- Backup 
+  # # CHECKID: backup_plans_exist
+  # # ACTIONPLAN: AWS Backup 계획 미존재 시 Lambda 자동 점검 및 Slack 알림
+  # lambda 폴더에 있는 람다를 배포해 조치 가능
+  - name: backup-plans-exist
+    resource: aws.account
+    description: "Alert: No Backup Plan"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    actions:
+      # - type: invoke-lambda
+      #   function: arn:aws:lambda:ap-northeast-2:${ACCOUNT_ID}:function:custodian-backup-plans-exist-2
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: backup_plans_exist ***
+          • AWS Backup 계획이 미존재하거나 일부 리소스에 백업 플랜이 적용되지 않았습니다.
+        action_desc: |
+          1. Lambda를 호출하여 백업 계획 존재여부를 자동 점검하였습니다.
+          2. 미설정 리소스가 있다면 백업 플랜을 추가 적용하세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # # CHECKID: backup_reportplans_exist
+  # # ACTIONPLAN: AWS Backup 리포트 플랜 미존재 시 Lambda 자동 점검 및 Slack 알림
+  # lambda 폴더에 있는 람다를 배포해 조치 가능
+  - name: backup-reportplans-exist
+    resource: aws.account
+    description: "Alert: No Backup Report Plan"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    actions:
+      # - type: invoke-lambda
+      #   function: arn:aws:lambda:ap-northeast-2:${ACCOUNT_ID}:function:custodian-backup-reportplans-exist-2
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: backup_reportplans_exist ***
+          • AWS Backup Report Plan이 미존재하여 백업 실행/결과 보고가 누락될 수 있습니다.
+        action_desc: |
+          1. Lambda를 호출하여 Report Plan 존재여부를 자동 점검하였습니다.
+          2. 미설정 리소스가 있다면 Report Plan을 추가 적용하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: backup_vaults_exist
+  # ACTIONPLAN: Vault 미연결 Backup Plan 탐지 시 Slack 알림, 수동 조치 유도
+  - name: backup-vaults-exist
+    resource: aws.backup-plan
+    description: "Alert: Backup Plan Without Vault"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: Rules[].TargetBackupVaultName
+        op: eq
+        value: ""
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: backup_vaults_exist ***
+          • Vault가 연결되지 않은 Backup Plan이 탐지되었습니다.
+        action_desc: |
+          1. Backup Plan에 반드시 Backup Vault를 연결하여 백업 데이터 저장소를 확보하세요.
+          2. Vault 연결 변경 후 백업 정책이 정상적으로 적용되는지 주기적으로 점검하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: backup_vaults_encrypted
+  # ACTIONPLAN: KMS 암호화 미설정 Backup Vault 탐지 시 Slack 알림, 수동 암호화 적용 유도
+  - name: backup-vaults-encrypted
+    resource: aws.backup-vault
+    description: "Alert: Backup Vault Without Encryption"
+    mode:
+      type: periodic
+      schedule: "rate(1 hour)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - or:
+        - type: value
+          key: EncryptionKeyArn
+          op: eq
+          value: ""
+        - type: value
+          key: EncryptionKeyArn
+          op: contains
+          value: "alias/aws/backup"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: backup_vaults_encrypted ***
+          • 기본 암호화(또는 미설정) Backup Vault가 탐지되었습니다.
+        action_desc: |
+          1. Backup Vault에 반드시 고객 관리형 KMS 암호화 키를 적용해 백업 데이터의 보안성을 강화하세요.
+          2. 암호화 설정 변경 후 정상 적용 및 권한 정책도 반드시 점검하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
