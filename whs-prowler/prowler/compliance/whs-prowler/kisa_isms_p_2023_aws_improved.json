@@ -236,11 +236,6 @@
           "Id": "account_security_contact_information_is_registered",
           "Purpose": "Ensure security contact information is registered.",
           "ActionPlan": "If no security contact information is registered in the AWS account, provide accurate information to receive critical security notifications in case of emergencies."
-        },
-        {
-          "Id": "fsx_file_system_copy_tags_to_volumes_enabled",
-          "Purpose": "Check if FSx file systems are configured to copy tags to volumes.",
-          "ActionPlan": "If copying tags to volumes for an FSx file system is disabled, enable it to facilitate resource tracking."
         }
       ],
       "Attributes": [
@@ -715,6 +710,11 @@
           "ActionPlan": "If lifecycle policies are not enabled in an ECR repository, enable them to automatically clean up old image versions and reduce costs."
         },
         {
+          "Id": "fsx_file_system_copy_tags_to_volumes_enabled",
+          "Purpose": "Check if FSx file systems are configured to copy tags to volumes.",
+          "ActionPlan": "If copying tags to volumes for an FSx file system is disabled, enable it to facilitate resource tracking."
+        },
+        {
           "Id": "organizations_account_part_of_organizations",
           "Purpose": "Check if account is part of an AWS Organizations",
           "ActionPlan": "If there are standalone accounts, have them join an AWS Organization to be managed centrally."
@@ -733,6 +733,21 @@
           "Id": "organizations_tags_policies_enabled_and_attached",
           "Purpose": "Check if an AWS Organization has tags policies enabled and attached.",
           "ActionPlan": "If tag policies are disabled, enable and attach them to enforce consistent tagging on resources."
+        },
+        {
+          "Id": "rds_cluster_copy_tags_to_snapshots",
+          "Purpose": "Check if RDS DB clusters have copy tags to snapshots enabled",
+          "ActionPlan": "If copying tags for an RDS cluster is disabled, enable it to facilitate snapshot management."
+        },
+        {
+          "Id": "neptune_cluster_copy_tags_to_snapshots",
+          "Purpose": "Check if Neptune DB clusters are configured to copy tags to snapshots.",
+          "ActionPlan": "If copying tags for a Neptune cluster is disabled, enable it to facilitate snapshot management."
+        },
+        {
+          "Id": "rds_instance_copy_tags_to_snapshots",
+          "Purpose": "Check if RDS DB instances have copy tags to snapshots enabled",
+          "ActionPlan": "If copying tags for an RDS instance is disabled, enable it to improve resource management, including snapshots."
         },
         {
           "Id": "resourceexplorer2_indexes_found",
@@ -1416,6 +1431,11 @@
           "ActionPlan": "If no IAM instance profile is attached to an EC2 instance, create and attach an IAM role to allow access to AWS resources."
         },
         {
+          "Id": "eventbridge_schema_registry_cross_account_access",
+          "Purpose": "Ensure that AWS EventBridge schema registries do not allow unknown cross-account access for delivery of events.",
+          "ActionPlan": "If a schema registry policy is overly permissive, modify it to allow trusted accounts only."
+        },
+        {
           "Id": "iam_aws_attached_policy_no_administrative_privileges",
           "Purpose": "Ensure IAM AWS-Managed policies that allow full '*:*' administrative privileges are not attached",
           "ActionPlan": "If an AWS-managed policy with excessive permissions is in use, modify the policy according to the principle of least privilege."
@@ -1519,11 +1539,6 @@
           "Id": "iam_user_administrator_access_policy",
           "Purpose": "Ensure No IAM Users Have Administrator Access Policy",
           "ActionPlan": "If an IAM user has the AdministratorAccess policy, replace it with a policy granting minimum permissions."
-        },
-        {
-          "Id": "iam_user_console_access_unused",
-          "Purpose": "Ensure unused user console access are disabled",
-          "ActionPlan": "For user console access that has been unused for a long time, disable it immediately for security."
         }
       ],
       "Attributes": [
@@ -1726,6 +1741,21 @@
           "ActionPlan": "If STS is disabled, configure SAML or web identity federation to use temporary credentials."
         },
         {
+          "Id": "iam_no_root_access_key",
+          "Purpose": "Ensure no root account access key exists",
+          "ActionPlan": "If an access key for the root account exists, disable and delete it immediately to remove the security risk."
+        },
+        {
+          "Id": "iam_root_hardware_mfa_enabled",
+          "Purpose": "Ensure only hardware MFA is enabled for the root account",
+          "ActionPlan": "If the root account uses a software MFA, replace it with a hardware MFA for enhanced security."
+        },
+        {
+          "Id": "iam_root_mfa_enabled",
+          "Purpose": "Ensure MFA is enabled for the root account",
+          "ActionPlan": "If MFA is disabled for the root account, enable it immediately to prevent account hijacking risks."
+        },
+        {
           "Id": "iam_rotate_access_key_90_days",
           "Purpose": "Ensure access keys are rotated every 90 days or less",
           "ActionPlan": "If an access key has not been rotated in over 90 days, disable it and replace it with a newly issued key."
@@ -1734,6 +1764,11 @@
           "Id": "iam_user_accesskey_unused",
           "Purpose": "Ensure User Access Keys unused are disabled",
           "ActionPlan": "For user access keys that have been unused for a long time, disable or delete them for security."
+        },
+        {
+          "Id": "iam_user_console_access_unused",
+          "Purpose": "Ensure unused user console access are disabled",
+          "ActionPlan": "For user console access that has been unused for a long time, disable it immediately for security."
         },
         {
           "Id": "iam_user_hardware_mfa_enabled",
@@ -1759,6 +1794,11 @@
           "Id": "iam_user_with_temporary_credentials",
           "Purpose": "Ensure users make use of temporary credentials assuming IAM roles",
           "ActionPlan": "If users are not using temporary credentials, modify the application to use IAM roles."
+        },
+        {
+          "Id": "neptune_cluster_iam_authentication_enabled",
+          "Purpose": "Check if Neptune Clusters have IAM authentication enabled.",
+          "ActionPlan": "If IAM authentication for a Neptune cluster is disabled, enable it to control database access via IAM."
         },
         {
           "Id": "opensearch_service_domains_internal_user_database_enabled",
@@ -1789,6 +1829,11 @@
           "Id": "s3_bucket_cross_account_access",
           "Purpose": "Ensure that general-purpose bucket policies restrict access to other AWS accounts.",
           "ActionPlan": "If an S3 bucket policy is overly permissive, modify the policy to allow access only from trusted accounts."
+        },
+        {
+          "Id": "s3_bucket_no_mfa_delete",
+          "Purpose": "Check if S3 bucket MFA Delete is not enabled.",
+          "ActionPlan": "If S3 bucket MFA Delete is not enabled, enable it to require additional authentication for object deletion."
         }
       ],
       "Attributes": [
@@ -1970,6 +2015,86 @@
           "ActionPlan": "If root account usage is detected, create an IAM user with administrative privileges to be used instead."
         },
         {
+          "Id": "iam_aws_attached_policy_no_administrative_privileges",
+          "Purpose": "Ensure IAM AWS-Managed policies that allow full '*:*' administrative privileges are not attached",
+          "ActionPlan": "If an AWS-managed policy with excessive permissions is in use, modify the policy according to the principle of least privilege."
+        },
+        {
+          "Id": "iam_customer_attached_policy_no_administrative_privileges",
+          "Purpose": "Ensure IAM Customer-Managed policies that allow full '*:*' administrative privileges are not attached",
+          "ActionPlan": "If a customer-managed policy has excessive permissions, modify the policy to remove unnecessary permissions."
+        },
+        {
+          "Id": "iam_customer_unattached_policy_no_administrative_privileges",
+          "Purpose": "Ensure IAM policies that allow full '*:*' administrative privileges are not created",
+          "ActionPlan": "If an IAM policy allowing full administrative privileges is created, modify or delete it according to the principle of least privilege."
+        },
+        {
+          "Id": "iam_group_administrator_access_policy",
+          "Purpose": "Ensure No IAM Groups Have Administrator Access Policy",
+          "ActionPlan": "If an IAM group has the AdministratorAccess policy, detach the policy from the group."
+        },
+        {
+          "Id": "iam_inline_policy_allows_privilege_escalation",
+          "Purpose": "Ensure no IAM Inline policies allow actions that may lead into Privilege Escalation",
+          "ActionPlan": "If an inline policy with potential for privilege escalation is found, modify the policy to remove the risk."
+        },
+        {
+          "Id": "iam_inline_policy_no_administrative_privileges",
+          "Purpose": "Ensure IAM inline policies that allow full '*:*' administrative privileges are not associated to IAM identities",
+          "ActionPlan": "If an inline policy with full administrative privileges is found, modify the policy immediately to reduce its permissions."
+        },
+        {
+          "Id": "iam_inline_policy_no_full_access_to_cloudtrail",
+          "Purpose": "Ensure IAM inline policies that allow full 'cloudtrail:*' privileges are not created",
+          "ActionPlan": "If an inline policy has cloudtrail:* permissions, modify it to allow only necessary actions."
+        },
+        {
+          "Id": "iam_inline_policy_no_full_access_to_kms",
+          "Purpose": "Ensure IAM inline policies that allow full 'kms:*' privileges are not created",
+          "ActionPlan": "If an inline policy has kms:* permissions, modify it to allow only necessary KMS actions."
+        },
+        {
+          "Id": "iam_no_custom_policy_permissive_role_assumption",
+          "Purpose": "Ensure that no custom IAM policies exist which allow permissive role assumption (e.g. sts:AssumeRole on *)",
+          "ActionPlan": "If an overly permissive role delegation policy exists, restrict the Principal to specific roles or accounts."
+        },
+        {
+          "Id": "iam_no_root_access_key",
+          "Purpose": "Ensure no root account access key exists",
+          "ActionPlan": "If an access key for the root account exists, disable and delete it immediately to remove the security risk."
+        },
+        {
+          "Id": "iam_policy_allows_privilege_escalation",
+          "Purpose": "Ensure no Customer Managed IAM policies allow actions that may lead into Privilege Escalation",
+          "ActionPlan": "Immediately review customer-managed policies with privilege escalation risks to remove the dangerous permissions."
+        },
+        {
+          "Id": "iam_policy_cloudshell_admin_not_attached",
+          "Purpose": "Check if IAM identities (users,groups,roles) have the AWSCloudShellFullAccess policy attached.",
+          "ActionPlan": "If the AWSCloudShellFullAccess policy is in use, replace it with a policy granting the necessary minimum permissions."
+        },
+        {
+          "Id": "iam_policy_no_full_access_to_cloudtrail",
+          "Purpose": "Ensure IAM policies that allow full 'cloudtrail:*' privileges are not created",
+          "ActionPlan": "If an IAM policy has cloudtrail:* permissions, modify it to allow only necessary actions."
+        },
+        {
+          "Id": "iam_policy_no_full_access_to_kms",
+          "Purpose": "Ensure IAM policies that allow full 'kms:*' privileges are not created",
+          "ActionPlan": "If an IAM policy has kms:* permissions, modify it to allow only necessary KMS actions."
+        },
+        {
+          "Id": "iam_role_administratoraccess_policy",
+          "Purpose": "Ensure IAM Roles do not have AdministratorAccess policy attached",
+          "ActionPlan": "If the AdministratorAccess policy is attached to an IAM role, replace it with a policy granting minimum permissions."
+        },
+        {
+          "Id": "iam_role_cross_account_readonlyaccess_policy",
+          "Purpose": "Ensure IAM Roles do not have ReadOnlyAccess access for external AWS accounts",
+          "ActionPlan": "For roles granting ReadOnlyAccess to external accounts, remove the external account from the trust relationship policy."
+        },
+        {
           "Id": "iam_root_hardware_mfa_enabled",
           "Purpose": "Ensure only hardware MFA is enabled for the root account",
           "ActionPlan": "If the root account uses a software MFA, replace it with a hardware MFA for enhanced security."
@@ -1978,6 +2103,21 @@
           "Id": "iam_root_mfa_enabled",
           "Purpose": "Ensure MFA is enabled for the root account",
           "ActionPlan": "If MFA is disabled for the root account, enable it immediately to prevent account hijacking risks."
+        },
+        {
+          "Id": "iam_securityaudit_role_created",
+          "Purpose": "Ensure a Security Audit role has been created to conduct security audits",
+          "ActionPlan": "If a security audit role does not exist, create an IAM role with the SecurityAudit policy to perform audits."
+        },
+        {
+          "Id": "iam_support_role_created",
+          "Purpose": "Ensure a support role has been created to manage incidents with AWS Support",
+          "ActionPlan": "If a role for managing AWS Support is not present, create a role with the AWSSupportAccess policy."
+        },
+        {
+          "Id": "iam_user_administrator_access_policy",
+          "Purpose": "Ensure No IAM Users Have Administrator Access Policy",
+          "ActionPlan": "If an IAM user has the AdministratorAccess policy, replace it with a policy granting minimum permissions."
         },
         {
           "Id": "organizations_delegated_administrators",
@@ -2071,11 +2211,6 @@
           "ActionPlan": "If idle disconnect timeout is not configured in an AppStream fleet, set it to automatically terminate idle sessions."
         },
         {
-          "Id": "athena_workgroup_logging_enabled",
-          "Purpose": "Ensure that logging is enabled for Amazon Athena workgroups to capture query activity.",
-          "ActionPlan": "If logging is disabled in an Athena workgroup, enable it to record query activity."
-        },
-        {
           "Id": "autoscaling_group_launch_configuration_requires_imdsv2",
           "Purpose": "Check if Auto Scaling group launch configurations require Instance Metadata Service Version 2 (IMDSv2).",
           "ActionPlan": "If an Auto Scaling launch configuration does not require IMDSv2, configure it to require IMDSv2 to protect against SSRF vulnerabilities."
@@ -2159,6 +2294,156 @@
           "Id": "eventbridge_bus_cross_account_access",
           "Purpose": "Ensure that AWS EventBridge event buses do not allow unknown cross-account access for delivery of events.",
           "ActionPlan": "If an EventBridge event bus policy is overly permissive, modify it to allow trusted accounts only."
+        },
+        {
+          "Id": "eventbridge_schema_registry_cross_account_access",
+          "Purpose": "Ensure that AWS EventBridge schema registries do not allow unknown cross-account access for delivery of events.",
+          "ActionPlan": "If a schema registry policy is overly permissive, modify it to allow trusted accounts only."
+        },
+        {
+          "Id": "iam_aws_attached_policy_no_administrative_privileges",
+          "Purpose": "Ensure IAM AWS-Managed policies that allow full '*:*' administrative privileges are not attached",
+          "ActionPlan": "If an AWS-managed policy with excessive permissions is in use, modify the policy according to the principle of least privilege."
+        },
+        {
+          "Id": "iam_customer_attached_policy_no_administrative_privileges",
+          "Purpose": "Ensure IAM Customer-Managed policies that allow full '*:*' administrative privileges are not attached",
+          "ActionPlan": "If a customer-managed policy has excessive permissions, modify the policy to remove unnecessary permissions."
+        },
+        {
+          "Id": "iam_customer_unattached_policy_no_administrative_privileges",
+          "Purpose": "Ensure IAM policies that allow full '*:*' administrative privileges are not created",
+          "ActionPlan": "If an IAM policy allowing full administrative privileges is created, modify or delete it according to the principle of least privilege."
+        },
+        {
+          "Id": "iam_group_administrator_access_policy",
+          "Purpose": "Ensure No IAM Groups Have Administrator Access Policy",
+          "ActionPlan": "If an IAM group has the AdministratorAccess policy, detach the policy from the group."
+        },
+        {
+          "Id": "iam_inline_policy_allows_privilege_escalation",
+          "Purpose": "Ensure no IAM Inline policies allow actions that may lead into Privilege Escalation",
+          "ActionPlan": "If an inline policy with potential for privilege escalation is found, modify the policy to remove the risk."
+        },
+        {
+          "Id": "iam_inline_policy_no_administrative_privileges",
+          "Purpose": "Ensure IAM inline policies that allow full '*:*' administrative privileges are not associated to IAM identities",
+          "ActionPlan": "If an inline policy with full administrative privileges is found, modify the policy immediately to reduce its permissions."
+        },
+        {
+          "Id": "iam_inline_policy_no_full_access_to_cloudtrail",
+          "Purpose": "Ensure IAM inline policies that allow full 'cloudtrail:*' privileges are not created",
+          "ActionPlan": "If an inline policy has cloudtrail:* permissions, modify it to allow only necessary actions."
+        },
+        {
+          "Id": "iam_inline_policy_no_full_access_to_kms",
+          "Purpose": "Ensure IAM inline policies that allow full 'kms:*' privileges are not created",
+          "ActionPlan": "If an inline policy has kms:* permissions, modify it to allow only necessary KMS actions."
+        },
+        {
+          "Id": "iam_no_custom_policy_permissive_role_assumption",
+          "Purpose": "Ensure that no custom IAM policies exist which allow permissive role assumption (e.g. sts:AssumeRole on *)",
+          "ActionPlan": "If an overly permissive role delegation policy exists, restrict the Principal to specific roles or accounts."
+        },
+        {
+          "Id": "iam_policy_allows_privilege_escalation",
+          "Purpose": "Ensure no Customer Managed IAM policies allow actions that may lead into Privilege Escalation",
+          "ActionPlan": "Immediately review customer-managed policies with privilege escalation risks to remove the dangerous permissions."
+        },
+        {
+          "Id": "iam_policy_attached_only_to_group_or_roles",
+          "Purpose": "Ensure IAM policies are attached only to groups or roles",
+          "ActionPlan": "If an IAM policy is attached directly to a user, change the configuration to assign permissions through groups or roles."
+        },
+        {
+          "Id": "iam_policy_cloudshell_admin_not_attached",
+          "Purpose": "Check if IAM identities (users,groups,roles) have the AWSCloudShellFullAccess policy attached.",
+          "ActionPlan": "If the AWSCloudShellFullAccess policy is in use, replace it with a policy granting the necessary minimum permissions."
+        },
+        {
+          "Id": "iam_policy_no_full_access_to_cloudtrail",
+          "Purpose": "Ensure IAM policies that allow full 'cloudtrail:*' privileges are not created",
+          "ActionPlan": "If an IAM policy has cloudtrail:* permissions, modify it to allow only necessary actions."
+        },
+        {
+          "Id": "iam_policy_no_full_access_to_kms",
+          "Purpose": "Ensure IAM policies that allow full 'kms:*' privileges are not created",
+          "ActionPlan": "If an IAM policy has kms:* permissions, modify it to allow only necessary KMS actions."
+        },
+        {
+          "Id": "iam_role_administratoraccess_policy",
+          "Purpose": "Ensure IAM Roles do not have AdministratorAccess policy attached",
+          "ActionPlan": "If the AdministratorAccess policy is attached to an IAM role, replace it with a policy granting minimum permissions."
+        },
+        {
+          "Id": "iam_role_cross_account_readonlyaccess_policy",
+          "Purpose": "Ensure IAM Roles do not have ReadOnlyAccess access for external AWS accounts",
+          "ActionPlan": "For roles granting ReadOnlyAccess to external accounts, remove the external account from the trust relationship policy."
+        },
+        {
+          "Id": "iam_role_cross_service_confused_deputy_prevention",
+          "Purpose": "Ensure IAM Service Roles prevents against a cross-service confused deputy attack",
+          "ActionPlan": "For roles vulnerable to cross-service attacks, add conditions like aws:SourceArn to the trust policy."
+        },
+        {
+          "Id": "iam_securityaudit_role_created",
+          "Purpose": "Ensure a Security Audit role has been created to conduct security audits",
+          "ActionPlan": "If a security audit role does not exist, create an IAM role with the SecurityAudit policy to perform audits."
+        },
+        {
+          "Id": "iam_support_role_created",
+          "Purpose": "Ensure a support role has been created to manage incidents with AWS Support",
+          "ActionPlan": "If a role for managing AWS Support is not present, create a role with the AWSSupportAccess policy."
+        },
+        {
+          "Id": "iam_user_administrator_access_policy",
+          "Purpose": "Ensure No IAM Users Have Administrator Access Policy",
+          "ActionPlan": "If an IAM user has the AdministratorAccess policy, replace it with a policy granting minimum permissions."
+        },
+        {
+          "Id": "s3_bucket_cross_account_access",
+          "Purpose": "Ensure that general-purpose bucket policies restrict access to other AWS accounts.",
+          "ActionPlan": "If an S3 bucket policy is overly permissive, modify the policy to allow access only from trusted accounts."
+        },
+        {
+          "Id": "s3_bucket_policy_public_write_access",
+          "Purpose": "Check if S3 buckets have policies which allow WRITE access.",
+          "ActionPlan": "If an S3 bucket policy allows excessive write permissions, modify it to grant only the minimum necessary write permissions."
+        },
+        {
+          "Id": "s3_bucket_public_list_acl",
+          "Purpose": "Ensure there are no S3 buckets listable by Everyone or Any AWS customer.",
+          "ActionPlan": "For S3 buckets listable by any AWS customer, enable block public access settings."
+        },
+        {
+          "Id": "s3_bucket_public_write_acl",
+          "Purpose": "Ensure there are no S3 buckets writable by Everyone or Any AWS customer.",
+          "ActionPlan": "For S3 buckets writable by any AWS customer, enable block public access settings immediately."
+        },
+        {
+          "Id": "ses_identity_not_publicly_accessible",
+          "Purpose": "Ensure that SES identities are not publicly accessible",
+          "ActionPlan": "For a publicly accessible SES identity, remove public access from its identity policy."
+        },
+        {
+          "Id": "sns_topics_not_publicly_accessible",
+          "Purpose": "Check if SNS topics have policy set as Public",
+          "ActionPlan": "If an SNS topic policy is set to public, modify the access policy to restrict it to specific accounts."
+        },
+        {
+          "Id": "sqs_queues_not_publicly_accessible",
+          "Purpose": "Check if SQS queues have policy set as Public",
+          "ActionPlan": "If an SQS queue policy is set to public, modify the access policy to restrict it to specific accounts."
+        },
+        {
+          "Id": "ssm_documents_set_as_public",
+          "Purpose": "Check if there are SSM Documents set as public.",
+          "ActionPlan": "If a publicly shared SSM document exists, modify its permissions to make it private."
+        },
+        {
+          "Id": "vpc_endpoint_services_allowed_principals_trust_boundaries",
+          "Purpose": "Find trust boundaries in VPC endpoint services allowlisted principles.",
+          "ActionPlan": "If a VPC endpoint service's allowlist is too permissive, modify it to only allow trusted principals."
         }
       ],
       "Attributes": [
@@ -2621,6 +2906,16 @@
           "ActionPlan": "For publicly accessible EMR clusters, modify their security groups to minimize access."
         },
         {
+          "Id": "eventbridge_bus_exposed",
+          "Purpose": "Ensure that your AWS EventBridge event bus is not exposed to everyone",
+          "ActionPlan": "For a publicly exposed event bus, modify the policy to allow access only from specific AWS accounts or the organization."
+        },
+        {
+          "Id": "glue_data_catalogs_not_publicly_accessible",
+          "Purpose": "Ensure Glue Data Catalogs are not publicly accessible.",
+          "ActionPlan": "If a Glue data catalog is public, modify its resource policy to allow access only from internal accounts."
+        },
+        {
           "Id": "kafka_cluster_is_public",
           "Purpose": "Kafka Cluster Exposed to the Public",
           "ActionPlan": "For publicly exposed MSK clusters, modify their security groups and network ACLs to restrict access."
@@ -2646,24 +2941,29 @@
           "ActionPlan": "If an unused static IP is found, attach it to an instance or delete it if unnecessary."
         },
         {
-          "Id": "neptune_cluster_uses_public_subnet",
-          "Purpose": "Ensure Neptune Cluster is not using a public subnet",
-          "ActionPlan": "If a Neptune cluster uses a public subnet, move it to a private subnet to enhance security."
-        },
-        {
-          "Id": "networkfirewall_deletion_protection",
-          "Purpose": "Ensure that Deletion Protection safety feature is enabled for your Amazon VPC network firewalls.",
-          "ActionPlan": "If deletion protection for a Network Firewall is disabled, enable it immediately to prevent accidental deletion."
-        },
-        {
-          "Id": "networkfirewall_in_all_vpc",
+          "Id": "neptune_cluster_public_snapshot",
           "Purpose": "Ensure all VPCs have Network Firewall enabled",
           "ActionPlan": "For a VPC without a Network Firewall, deploy one to filter inbound and outbound traffic."
         },
         {
-          "Id": "networkfirewall_multi_az",
+          "Id": "neptune_cluster_uses_public_subnet",
           "Purpose": "Ensure all Network Firewall Firewalls are deployed across multiple AZ.",
           "ActionPlan": "If a Network Firewall is deployed in a single AZ, expand it to multiple Availability Zones for high availability."
+        },
+        {
+          "Id": "networkfirewall_deletion_protection",
+          "Purpose": "Default action for fragmented packets is set to drop or forward.",
+          "ActionPlan": "If the default action for fragmented packets is allow, change it to drop or forward to enhance security."
+        },
+        {
+          "Id": "networkfirewall_in_all_vpc",
+          "Purpose": "NetworkFirewall firewall policy default action for full packets is set to drop or forward.",
+          "ActionPlan": "If the default action for full packets is allow, change it to drop or forward to strengthen the policy."
+        },
+        {
+          "Id": "networkfirewall_multi_az",
+          "Purpose": "Ensure Network Firewall Policies Have at Least One Rule Group Associated",
+          "ActionPlan": "For a Network Firewall policy without rule groups, configure it by adding stateful or stateless rule groups."
         },
         {
           "Id": "networkfirewall_policy_default_action_fragmented_packets",
@@ -2691,6 +2991,11 @@
           "ActionPlan": "If a publicly shared RDS snapshot is found, modify its permissions immediately to make it private."
         },
         {
+          "Id": "rds_instance_inside_vpc",
+          "Purpose": "Check if RDS instances are deployed within a VPC.",
+          "ActionPlan": "If an RDS instance is deployed outside a VPC, move it to a private subnet within a VPC."
+        },
+        {
           "Id": "redshift_cluster_enhanced_vpc_routing",
           "Purpose": "Check if Redshift clusters are using enhanced VPC routing.",
           "ActionPlan": "If a Redshift cluster's enhanced VPC routing is disabled, enable it to manage network traffic within the VPC."
@@ -2709,41 +3014,6 @@
           "Id": "s3_access_point_public_access_block",
           "Purpose": "Block Public Access Settings enabled on Access Points.",
           "ActionPlan": "If block public access settings for an S3 Access Point are disabled, enable them immediately to prevent data leaks."
-        },
-        {
-          "Id": "s3_account_level_public_access_blocks",
-          "Purpose": "Check S3 Account Level Public Access Block.",
-          "ActionPlan": "Check and enable S3 account-level block public access settings."
-        },
-        {
-          "Id": "s3_bucket_acl_prohibited",
-          "Purpose": "Check if S3 buckets have ACLs enabled",
-          "ActionPlan": "If ACLs are enabled for an S3 bucket, disable them and control access via bucket policies."
-        },
-        {
-          "Id": "s3_bucket_level_public_access_block",
-          "Purpose": "Check S3 Bucket Level Public Access Block.",
-          "ActionPlan": "If S3 bucket-level block public access is disabled, enable it immediately to prevent data leaks."
-        },
-        {
-          "Id": "s3_bucket_public_access",
-          "Purpose": "Ensure there are no S3 buckets open to Everyone or Any AWS user.",
-          "ActionPlan": "For a publicly exposed S3 bucket, enable block public access settings immediately to restrict access."
-        },
-        {
-          "Id": "s3_bucket_public_list_acl",
-          "Purpose": "Ensure there are no S3 buckets listable by Everyone or Any AWS customer.",
-          "ActionPlan": "For S3 buckets listable by any AWS customer, enable block public access settings."
-        },
-        {
-          "Id": "s3_bucket_public_write_acl",
-          "Purpose": "Ensure there are no S3 buckets writable by Everyone or Any AWS customer.",
-          "ActionPlan": "For S3 buckets writable by any AWS customer, enable block public access settings immediately."
-        },
-        {
-          "Id": "s3_multi_region_access_point_public_access_block",
-          "Purpose": "Block Public Access Settings enabled on Multi Region Access Points.",
-          "ActionPlan": "If block public access settings for an S3 Multi-Region Access Point are disabled, enable them immediately."
         },
         {
           "Id": "sagemaker_models_network_isolation_enabled",
@@ -2776,51 +3046,6 @@
           "ActionPlan": "If a SageMaker training job does not have VPC settings, specify a VPC to control network traffic."
         },
         {
-          "Id": "shield_advanced_protection_in_associated_elastic_ips",
-          "Purpose": "Check if Elastic IP addresses with associations are protected by AWS Shield Advanced.",
-          "ActionPlan": "For EIPs not protected by AWS Shield Advanced, add them to a protection group to defend against DDoS attacks."
-        },
-        {
-          "Id": "shield_advanced_protection_in_classic_load_balancers",
-          "Purpose": "Check if Classic Load Balancers are protected by AWS Shield Advanced.",
-          "ActionPlan": "For CLBs not protected by AWS Shield Advanced, add them to a protection group to defend against DDoS attacks."
-        },
-        {
-          "Id": "shield_advanced_protection_in_cloudfront_distributions",
-          "Purpose": "Check if Cloudfront distributions are protected by AWS Shield Advanced.",
-          "ActionPlan": "For CloudFront distributions not protected by AWS Shield Advanced, add them to a protection group to defend against DDoS attacks."
-        },
-        {
-          "Id": "shield_advanced_protection_in_global_accelerators",
-          "Purpose": "Check if Global Accelerators are protected by AWS Shield Advanced.",
-          "ActionPlan": "For Global Accelerators not protected by AWS Shield Advanced, add them to a protection group to defend against DDoS attacks."
-        },
-        {
-          "Id": "shield_advanced_protection_in_internet_facing_load_balancers",
-          "Purpose": "Check if internet-facing Application Load Balancers are protected by AWS Shield Advanced.",
-          "ActionPlan": "For ALBs not protected by AWS Shield Advanced, add them to a protection group to defend against DDoS attacks."
-        },
-        {
-          "Id": "shield_advanced_protection_in_route53_hosted_zones",
-          "Purpose": "Check if Route53 hosted zones are protected by AWS Shield Advanced.",
-          "ActionPlan": "For Route 53 hosted zones not protected by AWS Shield Advanced, add them to a protection group to defend against DDoS attacks."
-        },
-        {
-          "Id": "sns_subscription_not_using_http_endpoints",
-          "Purpose": "Ensure there are no SNS subscriptions using HTTP endpoints",
-          "ActionPlan": "If an SNS subscription uses an unencrypted HTTP endpoint, replace it with HTTPS."
-        },
-        {
-          "Id": "sns_topics_not_publicly_accessible",
-          "Purpose": "Check if SNS topics have policy set as Public",
-          "ActionPlan": "If an SNS topic policy is set to public, modify the access policy to restrict it to specific accounts."
-        },
-        {
-          "Id": "sqs_queues_not_publicly_accessible",
-          "Purpose": "Check if SQS queues have policy set as Public",
-          "ActionPlan": "If an SQS queue policy is set to public, modify the access policy to restrict it to specific accounts."
-        },
-        {
           "Id": "sqs_queues_server_side_encryption_enabled",
           "Purpose": "Check if SQS queues have Server Side Encryption enabled",
           "ActionPlan": "If an SQS queue is not encrypted, enable server-side encryption (SSE) to protect messages."
@@ -2834,11 +3059,6 @@
           "Id": "vpc_endpoint_for_ec2_enabled",
           "Purpose": "Amazon EC2 should be configured to use VPC endpoints that are created for the Amazon EC2 service.",
           "ActionPlan": "If EC2 is not using VPC endpoints, create and configure them for the EC2 service."
-        },
-        {
-          "Id": "vpc_endpoint_services_allowed_principals_trust_boundaries",
-          "Purpose": "Find trust boundaries in VPC endpoint services allowlisted principles.",
-          "ActionPlan": "If a VPC endpoint service's allowlist is too permissive, modify it to only allow trusted principals."
         },
         {
           "Id": "vpc_peering_routing_tables_with_least_privilege",
@@ -2889,11 +3109,6 @@
           "Id": "waf_regional_webacl_with_rules",
           "Purpose": "Check if AWS WAF Classic Regional WebACL has at least one rule or rule group.",
           "ActionPlan": "For a WAF Classic regional WebACL without rules, add at least one rule or rule group for protection."
-        },
-        {
-          "Id": "wafv2_webacl_rule_logging_enabled",
-          "Purpose": "Check if AWS WAFv2 WebACL rule or rule group has Amazon CloudWatch metrics enabled.",
-          "ActionPlan": "If CloudWatch metrics for a WAFv2 WebACL are disabled, enable them to monitor rule performance."
         },
         {
           "Id": "wafv2_webacl_with_rules",
@@ -2967,21 +3182,6 @@
           "Id": "apigatewayv2_api_authorizers_enabled",
           "Purpose": "Checks if API Gateway V2 has configured authorizers.",
           "ActionPlan": "If an authorizer is disabled in an API Gateway V2 API, enable it to prevent unauthorized access."
-        },
-        {
-          "Id": "appstream_fleet_maximum_session_duration",
-          "Purpose": "Ensure user maximum session duration is no longer than 10 hours.",
-          "ActionPlan": "If the maximum session duration in an AppStream fleet is not properly configured, set it to an appropriate value to prevent idle session persistence."
-        },
-        {
-          "Id": "appstream_fleet_session_disconnect_timeout",
-          "Purpose": "Ensure session disconnect timeout is set to 5 minutes or less.",
-          "ActionPlan": "If disconnect timeout is not configured in an AppStream fleet, set it to automatically end sessions when users disconnect."
-        },
-        {
-          "Id": "appstream_fleet_session_idle_disconnect_timeout",
-          "Purpose": "Ensure session idle disconnect timeout is set to 10 minutes or less.",
-          "ActionPlan": "If idle disconnect timeout is not configured in an AppStream fleet, set it to automatically terminate idle sessions."
         },
         {
           "Id": "athena_workgroup_enforce_configuration",
@@ -3364,6 +3564,11 @@
           "ActionPlan": "If GuardDuty's Lambda protection is disabled, enable it to detect threats in the serverless environment."
         },
         {
+          "Id": "guardduty_s3_protection_enabled",
+          "Purpose": "Check if GuardDuty S3 Protection is enabled.",
+          "ActionPlan": "If GuardDuty's S3 protection is disabled, enable it to monitor potential threats to S3 buckets."
+        },
+        {
           "Id": "kafka_cluster_is_public",
           "Purpose": "Kafka Cluster Exposed to the Public",
           "ActionPlan": "For publicly exposed MSK clusters, modify their security groups and network ACLs to restrict access."
@@ -3382,6 +3587,71 @@
           "Id": "lightsail_static_ip_unused",
           "Purpose": "Static IP are allocated but not attached to any instance",
           "ActionPlan": "If an unused static IP is found, attach it to an instance or delete it if unnecessary."
+        },
+        {
+          "Id": "neptune_cluster_public_snapshot",
+          "Purpose": "Check if NeptuneDB manual cluster snapshot is public.",
+          "ActionPlan": "If a Neptune manual snapshot is public, modify its permissions immediately to make it private."
+        },
+        {
+          "Id": "opensearch_service_domains_not_publicly_accessible",
+          "Purpose": "Check if Amazon Opensearch/Elasticsearch domains are publicly accessible",
+          "ActionPlan": "For a publicly accessible OpenSearch domain, change it to VPC-only or apply an IP-based policy."
+        },
+        {
+          "Id": "opensearch_service_domains_use_cognito_authentication_for_kibana",
+          "Purpose": "Check if Amazon Elasticsearch/Opensearch Service domains has either Amazon Cognito or SAML authentication for Kibana enabled",
+          "ActionPlan": "If Kibana authentication is not configured for OpenSearch, enable it with Cognito or SAML."
+        },
+        {
+          "Id": "s3_access_point_public_access_block",
+          "Purpose": "Block Public Access Settings enabled on Access Points.",
+          "ActionPlan": "If block public access settings for an S3 Access Point are disabled, enable them immediately to prevent data leaks."
+        },
+        {
+          "Id": "s3_account_level_public_access_blocks",
+          "Purpose": "Check S3 Account Level Public Access Block.",
+          "ActionPlan": "Check and enable S3 account-level block public access settings."
+        },
+        {
+          "Id": "s3_bucket_acl_prohibited",
+          "Purpose": "Check if S3 buckets have ACLs enabled",
+          "ActionPlan": "If ACLs are enabled for an S3 bucket, disable them and control access via bucket policies."
+        },
+        {
+          "Id": "s3_bucket_cross_account_access",
+          "Purpose": "Ensure that general-purpose bucket policies restrict access to other AWS accounts.",
+          "ActionPlan": "If an S3 bucket policy is overly permissive, modify the policy to allow access only from trusted accounts."
+        },
+        {
+          "Id": "s3_bucket_level_public_access_block",
+          "Purpose": "Check S3 Bucket Level Public Access Block.",
+          "ActionPlan": "If S3 bucket-level block public access is disabled, enable it immediately to prevent data leaks."
+        },
+        {
+          "Id": "s3_bucket_policy_public_write_access",
+          "Purpose": "Check if S3 buckets have policies which allow WRITE access.",
+          "ActionPlan": "If an S3 bucket policy allows excessive write permissions, modify it to grant only the minimum necessary write permissions."
+        },
+        {
+          "Id": "s3_bucket_public_access",
+          "Purpose": "Ensure there are no S3 buckets open to Everyone or Any AWS user.",
+          "ActionPlan": "For a publicly exposed S3 bucket, enable block public access settings immediately to restrict access."
+        },
+        {
+          "Id": "s3_bucket_public_list_acl",
+          "Purpose": "Ensure there are no S3 buckets listable by Everyone or Any AWS customer.",
+          "ActionPlan": "For S3 buckets listable by any AWS customer, enable block public access settings."
+        },
+        {
+          "Id": "s3_bucket_public_write_acl",
+          "Purpose": "Ensure there are no S3 buckets writable by Everyone or Any AWS customer.",
+          "ActionPlan": "For S3 buckets writable by any AWS customer, enable block public access settings immediately."
+        },
+        {
+          "Id": "s3_multi_region_access_point_public_access_block",
+          "Purpose": "Block Public Access Settings enabled on Multi Region Access Points.",
+          "ActionPlan": "If block public access settings for an S3 Multi-Region Access Point are disabled, enable them immediately."
         },
         {
           "Id": "ssm_documents_set_as_public",
@@ -3587,6 +3857,11 @@
           "ActionPlan": "If a manual DocumentDB cluster snapshot is set to public, change it to private to avoid exposure of sensitive data."
         },
         {
+          "Id": "dynamodb_table_cross_account_access",
+          "Purpose": "DynamoDB tables should not be accessible from other AWS accounts",
+          "ActionPlan": "If a DynamoDB table is accessible from other AWS accounts, review and remove unnecessary cross-account access from the table policy."
+        },
+        {
           "Id": "ec2_instance_port_cassandra_exposed_to_internet",
           "Purpose": "Ensure no EC2 instances allow ingress from the internet to Cassandra ports (TCP 7000, 7001, 7199, 9042, 9160).",
           "ActionPlan": "If Cassandra ports (TCP 7000, 7001, 7199, 9042, 9160) are open to the internet on an EC2 instance, update the security group to block unnecessary access."
@@ -3662,29 +3937,9 @@
           "ActionPlan": "If a security group allows ingress from 0.0.0.0/0 or ::/0 to SQL Server ports (1433, 1434), remove the rule and restrict access to specific IP ranges."
         },
         {
-          "Id": "glue_development_endpoints_s3_encryption_enabled",
-          "Purpose": "Check if Glue development endpoints have S3 encryption enabled.",
-          "ActionPlan": "If S3 encryption for a Glue development endpoint is disabled, enable it immediately in the security configuration."
-        },
-        {
-          "Id": "glue_etl_jobs_amazon_s3_encryption_enabled",
-          "Purpose": "Check if Glue ETL Jobs have S3 encryption enabled.",
-          "ActionPlan": "If S3 encryption for a Glue ETL job is disabled, enable it in the job's security configuration."
-        },
-        {
           "Id": "guardduty_rds_protection_enabled",
           "Purpose": "Check if GuardDuty RDS Protection is enabled.",
           "ActionPlan": "If GuardDuty's RDS protection is disabled, enable it to detect anomalous access to databases."
-        },
-        {
-          "Id": "guardduty_s3_protection_enabled",
-          "Purpose": "Check if GuardDuty S3 Protection is enabled.",
-          "ActionPlan": "If GuardDuty's S3 protection is disabled, enable it to monitor potential threats to S3 buckets."
-        },
-        {
-          "Id": "kafka_cluster_encryption_at_rest_uses_cmk",
-          "Purpose": "Ensure Kafka Cluster Encryption at Rest Uses Customer Managed Keys (CMK)",
-          "ActionPlan": "If an MSK cluster uses an AWS-managed key for encryption, change it to a customer-managed key (CMK)."
         },
         {
           "Id": "lightsail_database_public",
@@ -3697,39 +3952,14 @@
           "ActionPlan": "If IAM authentication for a Neptune cluster is disabled, enable it to control database access via IAM."
         },
         {
-          "Id": "neptune_cluster_public_snapshot",
-          "Purpose": "Check if NeptuneDB manual cluster snapshot is public.",
-          "ActionPlan": "If a Neptune manual snapshot is public, modify its permissions immediately to make it private."
-        },
-        {
           "Id": "neptune_cluster_uses_public_subnet",
           "Purpose": "Ensure Neptune Cluster is not using a public subnet",
           "ActionPlan": "If a Neptune cluster uses a public subnet, move it to a private subnet to enhance security."
         },
         {
-          "Id": "opensearch_service_domains_https_communications_enforced",
-          "Purpose": "Check if Amazon Elasticsearch/Opensearch Service domains have enforce HTTPS enabled",
-          "ActionPlan": "If an OpenSearch domain does not enforce HTTPS, modify the policy to set it to HTTPS only."
-        },
-        {
           "Id": "opensearch_service_domains_internal_user_database_enabled",
           "Purpose": "Check if Amazon Elasticsearch/Opensearch Service domains have internal user database enabled",
           "ActionPlan": "If an OpenSearch domain's internal user database is disabled, enable it to strengthen access control."
-        },
-        {
-          "Id": "opensearch_service_domains_not_publicly_accessible",
-          "Purpose": "Check if Amazon Opensearch/Elasticsearch domains are publicly accessible",
-          "ActionPlan": "For a publicly accessible OpenSearch domain, change it to VPC-only or apply an IP-based policy."
-        },
-        {
-          "Id": "opensearch_service_domains_use_cognito_authentication_for_kibana",
-          "Purpose": "Check if Amazon Elasticsearch/Opensearch Service domains has either Amazon Cognito or SAML authentication for Kibana enabled",
-          "ActionPlan": "If Kibana authentication is not configured for OpenSearch, enable it with Cognito or SAML."
-        },
-        {
-          "Id": "organizations_opt_out_ai_services_policy",
-          "Purpose": "Ensure that AWS Organizations opt-out of AI services policy is enabled.",
-          "ActionPlan": "If the AI services opt-out policy is disabled, enable it to prevent unintentional use of AI services."
         },
         {
           "Id": "rds_cluster_iam_authentication_enabled",
@@ -3805,61 +4035,6 @@
           "Id": "redshift_cluster_public_access",
           "Purpose": "Check for Publicly Accessible Redshift Clusters",
           "ActionPlan": "For a publicly accessible Redshift cluster, disable the 'publicly accessible' property to block access."
-        },
-        {
-          "Id": "s3_access_point_public_access_block",
-          "Purpose": "Block Public Access Settings enabled on Access Points.",
-          "ActionPlan": "If block public access settings for an S3 Access Point are disabled, enable them immediately to prevent data leaks."
-        },
-        {
-          "Id": "s3_account_level_public_access_blocks",
-          "Purpose": "Check S3 Account Level Public Access Block.",
-          "ActionPlan": "Check and enable S3 account-level block public access settings."
-        },
-        {
-          "Id": "s3_bucket_acl_prohibited",
-          "Purpose": "Check if S3 buckets have ACLs enabled",
-          "ActionPlan": "If ACLs are enabled for an S3 bucket, disable them and control access via bucket policies."
-        },
-        {
-          "Id": "s3_bucket_cross_account_access",
-          "Purpose": "Ensure that general-purpose bucket policies restrict access to other AWS accounts.",
-          "ActionPlan": "If an S3 bucket policy is overly permissive, modify the policy to allow access only from trusted accounts."
-        },
-        {
-          "Id": "s3_bucket_level_public_access_block",
-          "Purpose": "Check S3 Bucket Level Public Access Block.",
-          "ActionPlan": "If S3 bucket-level block public access is disabled, enable it immediately to prevent data leaks."
-        },
-        {
-          "Id": "s3_bucket_policy_public_write_access",
-          "Purpose": "Check if S3 buckets have policies which allow WRITE access.",
-          "ActionPlan": "If an S3 bucket policy allows excessive write permissions, modify it to grant only the minimum necessary write permissions."
-        },
-        {
-          "Id": "s3_bucket_public_access",
-          "Purpose": "Ensure there are no S3 buckets open to Everyone or Any AWS user.",
-          "ActionPlan": "For a publicly exposed S3 bucket, enable block public access settings immediately to restrict access."
-        },
-        {
-          "Id": "s3_bucket_public_list_acl",
-          "Purpose": "Ensure there are no S3 buckets listable by Everyone or Any AWS customer.",
-          "ActionPlan": "For S3 buckets listable by any AWS customer, enable block public access settings."
-        },
-        {
-          "Id": "s3_bucket_public_write_acl",
-          "Purpose": "Ensure there are no S3 buckets writable by Everyone or Any AWS customer.",
-          "ActionPlan": "For S3 buckets writable by any AWS customer, enable block public access settings immediately."
-        },
-        {
-          "Id": "s3_multi_region_access_point_public_access_block",
-          "Purpose": "Block Public Access Settings enabled on Multi Region Access Points.",
-          "ActionPlan": "If block public access settings for an S3 Multi-Region Access Point are disabled, enable them immediately."
-        },
-        {
-          "Id": "storagegateway_fileshare_encryption_enabled",
-          "Purpose": "Check if AWS StorageGateway File Shares are encrypted with KMS CMK.",
-          "ActionPlan": "If an AWS Storage Gateway file share is not encrypted, enable encryption using a KMS CMK."
         }
       ],
       "Attributes": [
@@ -3899,143 +4074,7 @@
       "Id": "2.6.5",
       "Name": "Wireless Network Access",
       "Description": "When using a wireless network, wireless network protection measures such as user authentication, encryption of transmitted and received data, and AP control must be applied. In addition, protection measures must be established and implemented to prevent unauthorized wireless network access, such as AD Hoc connections and the use of unauthorized APs",
-      "Checks": [
-        {
-          "Id": "appstream_fleet_default_internet_access_disabled",
-          "Purpose": "Ensure default Internet Access from your Amazon AppStream fleet streaming instances should remain unchecked.",
-          "ActionPlan": "If default internet access is enabled for the AppStream fleet, disable it and use VPC endpoints to control access if necessary."
-        },
-        {
-          "Id": "appstream_fleet_maximum_session_duration",
-          "Purpose": "Ensure user maximum session duration is no longer than 10 hours.",
-          "ActionPlan": "If the maximum session duration in an AppStream fleet is not properly configured, set it to an appropriate value to prevent idle session persistence."
-        },
-        {
-          "Id": "appstream_fleet_session_disconnect_timeout",
-          "Purpose": "Ensure session disconnect timeout is set to 5 minutes or less.",
-          "ActionPlan": "If disconnect timeout is not configured in an AppStream fleet, set it to automatically end sessions when users disconnect."
-        },
-        {
-          "Id": "appstream_fleet_session_idle_disconnect_timeout",
-          "Purpose": "Ensure session idle disconnect timeout is set to 10 minutes or less.",
-          "ActionPlan": "If idle disconnect timeout is not configured in an AppStream fleet, set it to automatically terminate idle sessions."
-        },
-        {
-          "Id": "autoscaling_group_launch_configuration_requires_imdsv2",
-          "Purpose": "Check if Auto Scaling group launch configurations require Instance Metadata Service Version 2 (IMDSv2).",
-          "ActionPlan": "If an Auto Scaling launch configuration does not require IMDSv2, configure it to require IMDSv2 to protect against SSRF vulnerabilities."
-        },
-        {
-          "Id": "ec2_instance_port_cifs_exposed_to_internet",
-          "Purpose": "Ensure no EC2 instances allow ingress from the internet to TCP port 139 or 445 (CIFS).",
-          "ActionPlan": "If CIFS ports (TCP 139, 445) are open to the internet on an EC2 instance, update the security group to block unnecessary access."
-        },
-        {
-          "Id": "ec2_instance_port_ftp_exposed_to_internet",
-          "Purpose": "Ensure no EC2 instances allow ingress from the internet to TCP port 20 or 21 (FTP)",
-          "ActionPlan": "If FTP ports (TCP 20, 21) are open to the internet on an EC2 instance, update the security group to block unnecessary access."
-        },
-        {
-          "Id": "ec2_instance_port_rdp_exposed_to_internet",
-          "Purpose": "Ensure no EC2 instances allow ingress from the internet to TCP port 3389 (RDP)",
-          "ActionPlan": "If RDP port (TCP 3389) is open to the internet on an EC2 instance, update the security group to block unnecessary access."
-        },
-        {
-          "Id": "ec2_instance_port_ssh_exposed_to_internet",
-          "Purpose": "Ensure no EC2 instances allow ingress from the internet to TCP port 22 (SSH)",
-          "ActionPlan": "If SSH port (TCP 22) is open to the internet on an EC2 instance, update the security group to block unnecessary access."
-        },
-        {
-          "Id": "ec2_instance_port_telnet_exposed_to_internet",
-          "Purpose": "Ensure no EC2 instances allow ingress from the internet to TCP port 23 (Telnet).",
-          "ActionPlan": "If Telnet port (TCP 23) is open to the internet on an EC2 instance, update the security group to block unnecessary access."
-        },
-        {
-          "Id": "ec2_networkacl_allow_ingress_tcp_port_22",
-          "Purpose": "Ensure no Network ACLs allow ingress from 0.0.0.0/0 to SSH port 22",
-          "ActionPlan": "If a network ACL allows inbound access from 0.0.0.0/0 to SSH port (22), remove the rule and restrict access to specific IP ranges."
-        },
-        {
-          "Id": "ec2_networkacl_allow_ingress_tcp_port_3389",
-          "Purpose": "Ensure no Network ACLs allow ingress from 0.0.0.0/0 to Microsoft RDP port 3389",
-          "ActionPlan": "If a network ACL allows inbound access from 0.0.0.0/0 to RDP port (3389), remove the rule and restrict access to specific IP ranges."
-        },
-        {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_ftp_port_20_21",
-          "Purpose": "Ensure no security groups allow ingress from 0.0.0.0/0 or ::/0 to FTP ports 20 or 21.",
-          "ActionPlan": "If a security group allows ingress from 0.0.0.0/0 or ::/0 to FTP ports (20, 21), remove the rule and restrict access to specific IP ranges."
-        },
-        {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22",
-          "Purpose": "Ensure no security groups allow ingress from 0.0.0.0/0 or ::/0 to SSH port 22.",
-          "ActionPlan": "If a security group allows ingress from 0.0.0.0/0 or ::/0 to SSH port (22), remove the rule and restrict access to specific IP ranges."
-        },
-        {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_3389",
-          "Purpose": "Ensure no security groups allow ingress from 0.0.0.0/0 or ::/0 to port 3389.",
-          "ActionPlan": "If a security group allows ingress from 0.0.0.0/0 or ::/0 to RDP port (3389), remove the rule and restrict access to specific IP ranges."
-        },
-        {
-          "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_telnet_23",
-          "Purpose": "Ensure no security groups allow ingress from 0.0.0.0/0 or ::/0 to Telnet port 23.",
-          "ActionPlan": "If a security group allows ingress from 0.0.0.0/0 or ::/0 to Telnet port (23), remove the rule and restrict access to specific IP ranges."
-        },
-        {
-          "Id": "networkfirewall_in_all_vpc",
-          "Purpose": "Ensure all VPCs have Network Firewall enabled",
-          "ActionPlan": "For a VPC without a Network Firewall, deploy one to filter inbound and outbound traffic."
-        },
-        {
-          "Id": "networkfirewall_multi_az",
-          "Purpose": "Ensure all Network Firewall Firewalls are deployed across multiple AZ.",
-          "ActionPlan": "If a Network Firewall is deployed in a single AZ, expand it to multiple Availability Zones for high availability."
-        },
-        {
-          "Id": "vpc_endpoint_connections_trust_boundaries",
-          "Purpose": "Find trust boundaries in VPC endpoint connections.",
-          "ActionPlan": "If the trust boundary in a VPC endpoint connection is unclear, restrict access via the endpoint policy."
-        },
-        {
-          "Id": "vpc_endpoint_for_ec2_enabled",
-          "Purpose": "Amazon EC2 should be configured to use VPC endpoints that are created for the Amazon EC2 service.",
-          "ActionPlan": "If EC2 is not using VPC endpoints, create and configure them for the EC2 service."
-        },
-        {
-          "Id": "vpc_endpoint_services_allowed_principals_trust_boundaries",
-          "Purpose": "Find trust boundaries in VPC endpoint services allowlisted principles.",
-          "ActionPlan": "If a VPC endpoint service's allowlist is too permissive, modify it to only allow trusted principals."
-        },
-        {
-          "Id": "vpc_peering_routing_tables_with_least_privilege",
-          "Purpose": "Ensure routing tables for VPC peering are least access.",
-          "ActionPlan": "If a VPC peering route table is too permissive, modify it to allow only the minimum necessary CIDR ranges."
-        },
-        {
-          "Id": "vpc_subnet_no_public_ip_by_default",
-          "Purpose": "Ensure VPC subnets do not assign public IP by default",
-          "ActionPlan": "If a subnet assigns public IPs by default, disable this setting to enhance security."
-        },
-        {
-          "Id": "vpc_subnet_separate_private_public",
-          "Purpose": "Ensure all VPC has public and private subnets defined",
-          "ActionPlan": "If a VPC lacks a distinction between public and private subnets, reconfigure the subnets according to their purpose."
-        },
-        {
-          "Id": "vpc_vpn_connection_tunnels_up",
-          "Purpose": "Both VPN tunnels for an AWS Site-to-Site VPN connection should be up",
-          "ActionPlan": "If one of a VPN's tunnels is down, check the configuration and resolve the issue to restore the tunnel."
-        },
-        {
-          "Id": "workspaces_volume_encryption_enabled",
-          "Purpose": "Ensure that your Amazon WorkSpaces storage volumes are encrypted in order to meet security and compliance requirements",
-          "ActionPlan": "If WorkSpaces volumes are not encrypted, enable encryption using a KMS key."
-        },
-        {
-          "Id": "workspaces_vpc_2private_1public_subnets_nat",
-          "Purpose": "Ensure that the Workspaces VPC are deployed following the best practices using 1 public subnet and 2 private subnets with a NAT Gateway attached",
-          "ActionPlan": "If a WorkSpaces VPC does not follow best practices, redesign the VPC according to the recommended configuration."
-        }
-      ],
+      "Checks": [],
       "Attributes": [
         {
           "Domain": "2. Control Measures Requirements",
@@ -4150,46 +4189,6 @@
           "Id": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_telnet_23",
           "Purpose": "Ensure no security groups allow ingress from 0.0.0.0/0 or ::/0 to Telnet port 23.",
           "ActionPlan": "If a security group allows ingress from 0.0.0.0/0 or ::/0 to Telnet port (23), remove the rule and restrict access to specific IP ranges."
-        },
-        {
-          "Id": "networkfirewall_in_all_vpc",
-          "Purpose": "Ensure all VPCs have Network Firewall enabled",
-          "ActionPlan": "For a VPC without a Network Firewall, deploy one to filter inbound and outbound traffic."
-        },
-        {
-          "Id": "networkfirewall_multi_az",
-          "Purpose": "Ensure all Network Firewall Firewalls are deployed across multiple AZ.",
-          "ActionPlan": "If a Network Firewall is deployed in a single AZ, expand it to multiple Availability Zones for high availability."
-        },
-        {
-          "Id": "vpc_endpoint_connections_trust_boundaries",
-          "Purpose": "Find trust boundaries in VPC endpoint connections.",
-          "ActionPlan": "If the trust boundary in a VPC endpoint connection is unclear, restrict access via the endpoint policy."
-        },
-        {
-          "Id": "vpc_endpoint_for_ec2_enabled",
-          "Purpose": "Amazon EC2 should be configured to use VPC endpoints that are created for the Amazon EC2 service.",
-          "ActionPlan": "If EC2 is not using VPC endpoints, create and configure them for the EC2 service."
-        },
-        {
-          "Id": "vpc_endpoint_services_allowed_principals_trust_boundaries",
-          "Purpose": "Find trust boundaries in VPC endpoint services allowlisted principles.",
-          "ActionPlan": "If a VPC endpoint service's allowlist is too permissive, modify it to only allow trusted principals."
-        },
-        {
-          "Id": "vpc_peering_routing_tables_with_least_privilege",
-          "Purpose": "Ensure routing tables for VPC peering are least access.",
-          "ActionPlan": "If a VPC peering route table is too permissive, modify it to allow only the minimum necessary CIDR ranges."
-        },
-        {
-          "Id": "vpc_subnet_no_public_ip_by_default",
-          "Purpose": "Ensure VPC subnets do not assign public IP by default",
-          "ActionPlan": "If a subnet assigns public IPs by default, disable this setting to enhance security."
-        },
-        {
-          "Id": "vpc_subnet_separate_private_public",
-          "Purpose": "Ensure all VPC has public and private subnets defined",
-          "ActionPlan": "If a VPC lacks a distinction between public and private subnets, reconfigure the subnets according to their purpose."
         },
         {
           "Id": "vpc_vpn_connection_tunnels_up",
@@ -4388,6 +4387,61 @@
           "ActionPlan": "If an ECS service is configured to automatically assign public IPs, disable this setting to reduce container exposure."
         },
         {
+          "Id": "elb_internet_facing",
+          "Purpose": "Check for internet facing Elastic Load Balancers.",
+          "ActionPlan": "If a load balancer is exposed to the internet, change its scheme to 'internal' to make it internal-facing."
+        },
+        {
+          "Id": "elbv2_internet_facing",
+          "Purpose": "Check for internet facing Elastic Load Balancers.",
+          "ActionPlan": "For unnecessarily internet-exposed ELBs, review and restrict access through security groups and subnet settings."
+        },
+        {
+          "Id": "emr_cluster_account_public_block_enabled",
+          "Purpose": "EMR Account Public Access Block enabled.",
+          "ActionPlan": "If public access block for EMR is disabled, enable it immediately to prevent S3 data exfiltration."
+        },
+        {
+          "Id": "emr_cluster_master_nodes_no_public_ip",
+          "Purpose": "EMR Cluster without Public IP.",
+          "ActionPlan": "If an EMR cluster is assigned a public IP, redeploy the cluster in a private subnet."
+        },
+        {
+          "Id": "emr_cluster_publicly_accesible",
+          "Purpose": "Publicly accessible EMR Cluster.",
+          "ActionPlan": "For publicly accessible EMR clusters, modify their security groups to minimize access."
+        },
+        {
+          "Id": "eventbridge_bus_exposed",
+          "Purpose": "Ensure that your AWS EventBridge event bus is not exposed to everyone",
+          "ActionPlan": "For a publicly exposed event bus, modify the policy to allow access only from specific AWS accounts or the organization."
+        },
+        {
+          "Id": "glue_data_catalogs_not_publicly_accessible",
+          "Purpose": "Ensure Glue Data Catalogs are not publicly accessible.",
+          "ActionPlan": "If a Glue data catalog is public, modify its resource policy to allow access only from internal accounts."
+        },
+        {
+          "Id": "kafka_cluster_is_public",
+          "Purpose": "Kafka Cluster Exposed to the Public",
+          "ActionPlan": "For publicly exposed MSK clusters, modify their security groups and network ACLs to restrict access."
+        },
+        {
+          "Id": "kafka_cluster_unrestricted_access_disabled",
+          "Purpose": "Ensure Kafka Cluster has unrestricted access disabled",
+          "ActionPlan": "If an MSK cluster has unrestricted access, modify its security groups to limit it to the minimum necessary."
+        },
+        {
+          "Id": "neptune_cluster_public_snapshot",
+          "Purpose": "Check if NeptuneDB manual cluster snapshot is public.",
+          "ActionPlan": "If a Neptune manual snapshot is public, modify its permissions immediately to make it private."
+        },
+        {
+          "Id": "networkfirewall_deletion_protection",
+          "Purpose": "Ensure that Deletion Protection safety feature is enabled for your Amazon VPC network firewalls.",
+          "ActionPlan": "If deletion protection for a Network Firewall is disabled, enable it immediately to prevent accidental deletion."
+        },
+        {
           "Id": "networkfirewall_in_all_vpc",
           "Purpose": "Ensure all VPCs have Network Firewall enabled",
           "ActionPlan": "For a VPC without a Network Firewall, deploy one to filter inbound and outbound traffic."
@@ -4398,9 +4452,19 @@
           "ActionPlan": "If a Network Firewall is deployed in a single AZ, expand it to multiple Availability Zones for high availability."
         },
         {
+          "Id": "opensearch_service_domains_not_publicly_accessible",
+          "Purpose": "Check if Amazon Opensearch/Elasticsearch domains are publicly accessible",
+          "ActionPlan": "For a publicly accessible OpenSearch domain, change it to VPC-only or apply an IP-based policy."
+        },
+        {
           "Id": "route53_dangling_ip_subdomain_takeover",
           "Purpose": "Check if Route53 Records contains dangling IPs.",
           "ActionPlan": "If a Route 53 record points to a dangling IP, modify or delete it immediately."
+        },
+        {
+          "Id": "sagemaker_notebook_instance_without_direct_internet_access_configured",
+          "Purpose": "Check if Amazon SageMaker Notebook instances have direct internet access",
+          "ActionPlan": "If direct internet access for a SageMaker notebook is enabled, disable it and communicate via a VPC."
         },
         {
           "Id": "vpc_endpoint_connections_trust_boundaries",
@@ -4411,11 +4475,6 @@
           "Id": "vpc_endpoint_for_ec2_enabled",
           "Purpose": "Amazon EC2 should be configured to use VPC endpoints that are created for the Amazon EC2 service.",
           "ActionPlan": "If EC2 is not using VPC endpoints, create and configure them for the EC2 service."
-        },
-        {
-          "Id": "vpc_endpoint_services_allowed_principals_trust_boundaries",
-          "Purpose": "Find trust boundaries in VPC endpoint services allowlisted principles.",
-          "ActionPlan": "If a VPC endpoint service's allowlist is too permissive, modify it to only allow trusted principals."
         },
         {
           "Id": "vpc_peering_routing_tables_with_least_privilege",
@@ -4436,46 +4495,6 @@
           "Id": "vpc_vpn_connection_tunnels_up",
           "Purpose": "Both VPN tunnels for an AWS Site-to-Site VPN connection should be up",
           "ActionPlan": "If one of a VPN's tunnels is down, check the configuration and resolve the issue to restore the tunnel."
-        },
-        {
-          "Id": "waf_global_rule_with_conditions",
-          "Purpose": "AWS WAF Classic Global Rules Should Have at Least One Condition.",
-          "ActionPlan": "For a WAF Classic global rule without conditions, add at least one condition, such as an IP set."
-        },
-        {
-          "Id": "waf_global_rulegroup_not_empty",
-          "Purpose": "Check if AWS WAF Classic Global rule group has at least one rule.",
-          "ActionPlan": "For a WAF Classic global rule group without rules, add at least one active rule."
-        },
-        {
-          "Id": "waf_global_webacl_with_rules",
-          "Purpose": "Check if AWS WAF Classic Global WebACL has at least one rule or rule group.",
-          "ActionPlan": "For a WAF Classic global WebACL without rules, add at least one rule or rule group for protection."
-        },
-        {
-          "Id": "waf_regional_rule_with_conditions",
-          "Purpose": "AWS WAF Classic Regional Rules Should Have at Least One Condition.",
-          "ActionPlan": "For a WAF Classic regional rule without conditions, add at least one condition, such as an IP set."
-        },
-        {
-          "Id": "waf_regional_rulegroup_not_empty",
-          "Purpose": "Check if AWS WAF Classic Regional rule group has at least one rule.",
-          "ActionPlan": "For a WAF Classic regional rule group without rules, add at least one active rule."
-        },
-        {
-          "Id": "waf_regional_webacl_with_rules",
-          "Purpose": "Check if AWS WAF Classic Regional WebACL has at least one rule or rule group.",
-          "ActionPlan": "For a WAF Classic regional WebACL without rules, add at least one rule or rule group for protection."
-        },
-        {
-          "Id": "wafv2_webacl_rule_logging_enabled",
-          "Purpose": "Check if AWS WAFv2 WebACL rule or rule group has Amazon CloudWatch metrics enabled.",
-          "ActionPlan": "If CloudWatch metrics for a WAFv2 WebACL are disabled, enable them to monitor rule performance."
-        },
-        {
-          "Id": "wafv2_webacl_with_rules",
-          "Purpose": "Check if AWS WAFv2 WebACL has at least one rule or rule group.",
-          "ActionPlan": "For a WAFv2 WebACL without rules, add at least one rule or rule group to filter traffic."
         },
         {
           "Id": "workspaces_vpc_2private_1public_subnets_nat",
@@ -4592,6 +4611,11 @@
           "ActionPlan": "If traffic between CloudFront and the origin is not encrypted, use HTTPS to secure the communication."
         },
         {
+          "Id": "cloudfront_distributions_using_deprecated_ssl_protocols",
+          "Purpose": "Check if CloudFront distributions are using deprecated SSL protocols.",
+          "ActionPlan": "If a CloudFront distribution uses deprecated SSL protocols, configure it to allow only modern TLS versions."
+        },
+        {
           "Id": "cloudwatch_log_group_no_secrets_in_logs",
           "Purpose": "Check if secrets exists in CloudWatch logs.",
           "ActionPlan": "If secret information is included in CloudWatch logs, review logging configurations and modify them to exclude secrets."
@@ -4703,8 +4727,8 @@
         },
         {
           "Id": "elb_ssl_listeners",
-          "Purpose": "Check if Elastic Load Balancers have SSL listeners.",
-          "ActionPlan": "If an insecure HTTP listener exists, switch to an HTTPS listener and apply an ACM certificate."
+          "Purpose": "Check if Elastic Load Balancers have insecure SSL ciphers.",
+          "ActionPlan": "If an insecure SSL policy is in use, update the listener's security policy to the latest version."
         },
         {
           "Id": "elb_ssl_listeners_use_acm_certificate",
@@ -4817,6 +4841,11 @@
           "ActionPlan": "If an OpenSearch domain is not encrypted, enable encryption to protect data at rest."
         },
         {
+          "Id": "opensearch_service_domains_https_communications_enforced",
+          "Purpose": "Check if Amazon Elasticsearch/Opensearch Service domains have enforce HTTPS enabled",
+          "ActionPlan": "If an OpenSearch domain does not enforce HTTPS, modify the policy to set it to HTTPS only."
+        },
+        {
           "Id": "opensearch_service_domains_node_to_node_encryption_enabled",
           "Purpose": "Check if Amazon Elasticsearch/Opensearch Service domains have node-to-node encryption enabled",
           "ActionPlan": "If node-to-node encryption for an OpenSearch domain is disabled, enable it to protect internal cluster communication."
@@ -4857,19 +4886,9 @@
           "ActionPlan": "If a S3 bucket's default encryption is disabled, enable it with SSE-S3 or SSE-KMS."
         },
         {
-          "Id": "s3_bucket_kms_encryption",
+          "Id": "s3_bucket_secure_transport_policy",
           "Purpose": "Check if S3 buckets have KMS encryption enabled.",
           "ActionPlan": "If an S3 bucket uses an AWS-managed key for encryption, switch to a customer-managed key (KMS) for more control."
-        },
-        {
-          "Id": "s3_bucket_no_mfa_delete",
-          "Purpose": "Check if S3 bucket MFA Delete is not enabled.",
-          "ActionPlan": "If S3 bucket MFA Delete is not enabled, enable it to require additional authentication for object deletion."
-        },
-        {
-          "Id": "s3_bucket_secure_transport_policy",
-          "Purpose": "Check if S3 buckets have secure transport policy.",
-          "ActionPlan": "If an S3 bucket allows HTTP access, add an aws:SecureTransport condition to its bucket policy."
         },
         {
           "Id": "sagemaker_notebook_instance_encryption_enabled",
@@ -4887,9 +4906,19 @@
           "ActionPlan": "If volume and output encryption for a SageMaker training job is disabled, enable it with a KMS key."
         },
         {
+          "Id": "sns_subscription_not_using_http_endpoints",
+          "Purpose": "Ensure there are no SNS subscriptions using HTTP endpoints",
+          "ActionPlan": "If an SNS subscription uses an unencrypted HTTP endpoint, replace it with HTTPS."
+        },
+        {
           "Id": "sqs_queues_server_side_encryption_enabled",
           "Purpose": "Check if SQS queues have Server Side Encryption enabled",
           "ActionPlan": "If an SQS queue is not encrypted, enable server-side encryption (SSE) to protect messages."
+        },
+        {
+          "Id": "ssm_document_secrets",
+          "Purpose": "Find secrets in SSM Documents.",
+          "ActionPlan": "If hard-coded secrets are found in SSM documents, modify them to use Secrets Manager."
         },
         {
           "Id": "transfer_server_in_transit_encryption_enabled",
@@ -5020,6 +5049,26 @@
           "ActionPlan": "If an expired SSL/TLS certificate is found, delete it immediately from AWS IAM and replace it with a new one."
         },
         {
+          "Id": "iam_rotate_access_key_90_days",
+          "Purpose": "Ensure access keys are rotated every 90 days or less",
+          "ActionPlan": "If an access key has not been rotated in over 90 days, disable it and replace it with a newly issued key."
+        },
+        {
+          "Id": "iam_user_accesskey_unused",
+          "Purpose": "Ensure User Access Keys unused are disabled",
+          "ActionPlan": "For user access keys that have been unused for a long time, disable or delete them for security."
+        },
+        {
+          "Id": "iam_user_no_setup_initial_access_key",
+          "Purpose": "Do not setup access keys during initial user setup for all IAM users that have a console password",
+          "ActionPlan": "If an access key was issued upon user creation, delete it if unnecessary and recommend the use of roles."
+        },
+        {
+          "Id": "iam_user_two_active_access_key",
+          "Purpose": "Check if IAM users have two active access keys",
+          "ActionPlan": "If a user has two active access keys, periodically disable and delete the unused key."
+        },
+        {
           "Id": "kms_cmk_are_used",
           "Purpose": "Check if there are CMK KMS keys not used.",
           "ActionPlan": "If unused KMS keys are found, disable them or schedule them for deletion to manage resources."
@@ -5043,6 +5092,11 @@
           "Id": "rds_instance_certificate_expiration",
           "Purpose": "Ensure that the SSL/TLS certificates configured for your Amazon RDS are not expired.",
           "ActionPlan": "If an expired RDS certificate is found, replace it immediately with a new one to prevent connection errors."
+        },
+        {
+          "Id": "s3_bucket_kms_encryption",
+          "Purpose": "Check if S3 buckets have KMS encryption enabled.",
+          "ActionPlan": "If an S3 bucket uses an AWS-managed key for encryption, switch to a customer-managed key (KMS) for more control."
         },
         {
           "Id": "secretsmanager_automatic_rotation_enabled",
@@ -5277,18 +5331,7 @@
       "Id": "2.8.6",
       "Name": "Transition to Operational Environment",
       "Description": "When transitioning newly introduced, developed, or modified systems to the operational environment, the process must be controlled, and the executable code must be run according to test and user acceptance procedures.",
-      "Checks": [
-        {
-          "Id": "autoscaling_group_multiple_az",
-          "Purpose": "EC2 Auto Scaling Group should use multiple Availability Zones",
-          "ActionPlan": "If an Auto Scaling group is deployed in a single Availability Zone, modify it to distribute instances across multiple Availability Zones for high availability."
-        },
-        {
-          "Id": "elb_connection_draining_enabled",
-          "Purpose": "Classic Load Balancer Connection Draining Enabled",
-          "ActionPlan": "If Connection Draining for a CLB is disabled, enable it immediately in the properties to prevent request interruptions."
-        }
-      ],
+      "Checks": [],
       "Attributes": [
         {
           "Domain": "2. Control Measures Requirements",
@@ -5317,13 +5360,7 @@
       "Id": "2.9.1",
       "Name": "Change Management",
       "Description": "Procedures must be established and implemented to manage all changes to assets related to information systems, and the impact on system performance and security must be analyzed before changes are made.",
-      "Checks": [
-        {
-          "Id": "elb_connection_draining_enabled",
-          "Purpose": "Classic Load Balancer Connection Draining Enabled",
-          "ActionPlan": "If Connection Draining for a CLB is disabled, enable it immediately in the properties to prevent request interruptions."
-        }
-      ],
+      "Checks": [],
       "Attributes": [
         {
           "Domain": "2. Control Measures Requirements",
@@ -5418,6 +5455,11 @@
           "ActionPlan": "If Multi-AZ is disabled for a DMS instance, enable it to achieve high availability and disaster recovery."
         },
         {
+          "Id": "documentdb_cluster_deletion_protection",
+          "Purpose": "Check if DocumentDB Clusters has deletion protection enabled.",
+          "ActionPlan": "If deletion protection is disabled for a DocumentDB cluster, enable it to prevent accidental deletion."
+        },
+        {
           "Id": "documentdb_cluster_multi_az_enabled",
           "Purpose": "Ensure DocumentDB Cluster have Multi-AZ enabled.",
           "ActionPlan": "If Multi-AZ is disabled for a DocumentDB cluster, enable it to improve high availability and fault tolerance."
@@ -5433,6 +5475,11 @@
           "ActionPlan": "If a DynamoDB table does not use auto scaling for capacity, enable Auto Scaling to optimize performance and manage costs."
         },
         {
+          "Id": "dynamodb_table_deletion_protection_enabled",
+          "Purpose": "Check if DynamoDB tables have deletion protection enabled.",
+          "ActionPlan": "If deletion protection is disabled for a DynamoDB table, enable it to prevent accidental deletion."
+        },
+        {
           "Id": "ec2_instance_detailed_monitoring_enabled",
           "Purpose": "Check if EC2 instances have detailed monitoring enabled.",
           "ActionPlan": "If detailed monitoring is disabled on an EC2 instance, enable it to collect enhanced metrics and identify performance issues."
@@ -5446,6 +5493,11 @@
           "Id": "ecs_task_definitions_containers_readonly_access",
           "Purpose": "ECS containers should be limited to read-only access to root filesystems",
           "ActionPlan": "If an ECS container does not restrict read-only access to the root filesystem, configure it to prevent unnecessary writes inside the container."
+        },
+        {
+          "Id": "ecs_task_definitions_logging_block_mode",
+          "Purpose": "ECS task definitions containers should have a logging configured with non blocking mode",
+          "ActionPlan": "If ECS container logging in the task definition is not configured in non-blocking mode, set it to non-blocking to avoid performance impact."
         },
         {
           "Id": "elasticache_redis_cluster_automatic_failover_enabled",
@@ -5538,6 +5590,11 @@
           "ActionPlan": "If deletion protection for a Network Firewall is disabled, enable it immediately to prevent accidental deletion."
         },
         {
+          "Id": "networkfirewall_multi_az",
+          "Purpose": "Ensure all Network Firewall Firewalls are deployed across multiple AZ.",
+          "ActionPlan": "If a Network Firewall is deployed in a single AZ, expand it to multiple Availability Zones for high availability."
+        },
+        {
           "Id": "opensearch_service_domains_fault_tolerant_data_nodes",
           "Purpose": "Ensure Elasticsearch/Opensearch domains have fault-tolerant data nodes.",
           "ActionPlan": "If an OpenSearch domain's data nodes are a single point of failure, configure them with multiple nodes for fault tolerance."
@@ -5583,11 +5640,6 @@
           "ActionPlan": "For a single-AZ Redshift cluster, change it to a Multi-AZ deployment for high availability."
         },
         {
-          "Id": "route53_domains_transferlock_enabled",
-          "Purpose": "Enable Transfer Lock for a Route53 Domain.",
-          "ActionPlan": "For a Route 53 domain, enable transfer lock to prevent unauthorized domain transfers."
-        },
-        {
           "Id": "s3_bucket_cross_region_replication",
           "Purpose": "Check if S3 buckets use cross region replication.",
           "ActionPlan": "If an S3 bucket is not using cross-region replication, enable it to increase data durability and availability."
@@ -5613,9 +5665,19 @@
           "ActionPlan": "If a SageMaker endpoint has only one instance, increase it to two or more for high availability."
         },
         {
+          "Id": "shield_advanced_protection_in_classic_load_balancers",
+          "Purpose": "Check if Classic Load Balancers are protected by AWS Shield Advanced.",
+          "ActionPlan": "For CLBs not protected by AWS Shield Advanced, add them to a protection group to defend against DDoS attacks."
+        },
+        {
           "Id": "shield_advanced_protection_in_global_accelerators",
           "Purpose": "Check if Global Accelerators are protected by AWS Shield Advanced.",
           "ActionPlan": "For Global Accelerators not protected by AWS Shield Advanced, add them to a protection group to defend against DDoS attacks."
+        },
+        {
+          "Id": "shield_advanced_protection_in_internet_facing_load_balancers",
+          "Purpose": "Check if internet-facing Application Load Balancers are protected by AWS Shield Advanced.",
+          "ActionPlan": "For ALBs not protected by AWS Shield Advanced, add them to a protection group to defend against DDoS attacks."
         },
         {
           "Id": "trustedadvisor_errors_and_warnings",
@@ -5626,6 +5688,11 @@
           "Id": "trustedadvisor_premium_support_plan_subscribed",
           "Purpose": "Check if a Premium support plan is subscribed",
           "ActionPlan": "If a premium support plan is not subscribed, upgrade to a Business or Enterprise plan for enhanced support."
+        },
+        {
+          "Id": "vpc_different_regions",
+          "Purpose": "Ensure there are VPCs in more than one region",
+          "ActionPlan": "If VPCs exist in only one region, deploy a VPC in multiple regions to improve disaster recovery."
         },
         {
           "Id": "vpc_endpoint_multi_az_enabled",
@@ -5649,9 +5716,9 @@
           "Subdomain": "2.9 System and Service Operation Management",
           "Section": "2.9.2 Performance and Fault Management",
           "AuditChecklist": [
-            "'Have procedures been established and implemented to continuously monitor performance and capacity to ensure the availability of information systems?",
-            "'Are response procedures in place and implemented to address cases where the performance and capacity requirements (thresholds) of the information system are exceeded?",
-            "'Have procedures been established and implemented to immediately recognize and respond to information system faults?",
+            "Have procedures been established and implemented to continuously monitor performance and capacity to ensure the availability of information systems?",
+            "Are response procedures in place and implemented to address cases where the performance and capacity requirements (thresholds) of the information system are exceeded?",
+            "Have procedures been established and implemented to immediately recognize and respond to information system faults?",
             "Are procedures in place to record and manage actions taken in response to faults through fault response reports?",
             "For serious faults, are measures being taken to prevent recurrence through cause analysis?"
           ],
@@ -5702,11 +5769,6 @@
           "ActionPlan": "If origin failover is not configured in a CloudFront distribution, configure it to automatically switch to a backup origin in case the primary origin fails."
         },
         {
-          "Id": "cloudfront_distributions_using_deprecated_ssl_protocols",
-          "Purpose": "Check if CloudFront distributions are using deprecated SSL protocols.",
-          "ActionPlan": "If a CloudFront distribution uses deprecated SSL protocols, configure it to allow only modern TLS versions."
-        },
-        {
           "Id": "directoryservice_directory_snapshots_limit",
           "Purpose": "Directory Service Manual Snapshots limit reached.",
           "ActionPlan": "If manual snapshots in Directory Service have reached the limit, delete unnecessary snapshots or adjust the limit."
@@ -5755,6 +5817,11 @@
           "Id": "fsx_file_system_copy_tags_to_backups_enabled",
           "Purpose": "Check if FSx file systems are configured to copy tags to backups.",
           "ActionPlan": "If copying tags for FSx file system backups is disabled, enable it to improve backup resource management."
+        },
+        {
+          "Id": "lightsail_instance_automated_snapshots",
+          "Purpose": "Check if instances have automated snapshots enabled",
+          "ActionPlan": "If automatic snapshots for a Lightsail instance are disabled, enable the feature to back up data regularly."
         },
         {
           "Id": "neptune_cluster_backup_enabled",
@@ -6093,24 +6160,9 @@
           "ActionPlan": "If access logging for an ELB is disabled, enable it to store and analyze traffic logs in S3."
         },
         {
-          "Id": "eventbridge_bus_cross_account_access",
-          "Purpose": "Ensure that AWS EventBridge event buses do not allow unknown cross-account access for delivery of events.",
-          "ActionPlan": "If an EventBridge event bus policy is overly permissive, modify it to allow trusted accounts only."
-        },
-        {
-          "Id": "eventbridge_bus_exposed",
-          "Purpose": "Ensure that your AWS EventBridge event bus is not exposed to everyone",
-          "ActionPlan": "For a publicly exposed event bus, modify the policy to allow access only from specific AWS accounts or the organization."
-        },
-        {
           "Id": "eventbridge_global_endpoint_event_replication_enabled",
           "Purpose": "Check if EventBridge global endpoints have event replication enabled.",
           "ActionPlan": "If EventBridge global endpoint replication is disabled, enable it to prepare for regional failures."
-        },
-        {
-          "Id": "eventbridge_schema_registry_cross_account_access",
-          "Purpose": "Ensure that AWS EventBridge schema registries do not allow unknown cross-account access for delivery of events.",
-          "ActionPlan": "If a schema registry policy is overly permissive, modify it to allow trusted accounts only."
         },
         {
           "Id": "glue_development_endpoints_cloudwatch_logs_encryption_enabled",
@@ -6131,11 +6183,6 @@
           "Id": "kafka_cluster_enhanced_monitoring_enabled",
           "Purpose": "Ensure Enhanced Monitoring is Enabled for MSK (Kafka) Brokers",
           "ActionPlan": "If enhanced monitoring for an MSK cluster is disabled, enable it to collect detailed metrics."
-        },
-        {
-          "Id": "lightsail_instance_automated_snapshots",
-          "Purpose": "Check if instances have automated snapshots enabled",
-          "ActionPlan": "If automatic snapshots for a Lightsail instance are disabled, enable the feature to back up data regularly."
         },
         {
           "Id": "mq_broker_logging_enabled",
@@ -6208,11 +6255,6 @@
           "ActionPlan": "If query logging for a Route 53 public hosted zone is disabled, configure it to send logs to CloudWatch Logs."
         },
         {
-          "Id": "s3_bucket_event_notifications_enabled",
-          "Purpose": "Check if S3 buckets have event notifications enabled.",
-          "ActionPlan": "If event notifications for an S3 bucket are not configured, set them up to be notified of object changes."
-        },
-        {
           "Id": "s3_bucket_server_access_logging_enabled",
           "Purpose": "Check if S3 buckets have server access logging enabled",
           "ActionPlan": "If server access logging for an S3 bucket is disabled, enable it to record requests to the bucket."
@@ -6231,6 +6273,11 @@
           "Id": "wafv2_webacl_logging_enabled",
           "Purpose": "Check if AWS WAFv2 WebACL logging is enabled",
           "ActionPlan": "If logging for a WAFv2 WebACL is disabled, enable it to send logs to a Kinesis Data Firehose."
+        },
+        {
+          "Id": "wafv2_webacl_rule_logging_enabled",
+          "Purpose": "Check if AWS WAFv2 WebACL rule or rule group has Amazon CloudWatch metrics enabled.",
+          "ActionPlan": "If CloudWatch metrics for a WAFv2 WebACL are disabled, enable them to monitor rule performance."
         }
       ],
       "Attributes": [
@@ -6272,34 +6319,9 @@
       "Description": "To ensure normal use of the information system and prevent misuse (unauthorized access, excessive queries, etc.) by users, log review criteria for access and usage must be established and inspected periodically, and post-event actions must be taken promptly if issues arise.",
       "Checks": [
         {
-          "Id": "cloudtrail_insights_exist",
-          "Purpose": "Ensure CloudTrail Insight is enabled",
-          "ActionPlan": "If CloudTrail Insights is disabled, enable it to automatically detect and notify abnormal activity in your AWS account."
-        },
-        {
-          "Id": "cloudtrail_multi_region_enabled",
-          "Purpose": "Ensure CloudTrail is enabled in all regions",
-          "ActionPlan": "If CloudTrail is not enabled in all regions, enable it in all regions to capture all activity and centralize management."
-        },
-        {
-          "Id": "config_recorder_all_regions_enabled",
-          "Purpose": "Ensure AWS Config is enabled in all regions.",
-          "ActionPlan": "If AWS Config is not enabled in all regions, enable it to monitor the configuration of the entire AWS environment."
-        },
-        {
-          "Id": "directoryservice_directory_log_forwarding_enabled",
-          "Purpose": "Directory Service monitoring with CloudWatch logs.",
-          "ActionPlan": "If log delivery to CloudWatch Logs is disabled in Directory Service, enable it to monitor directory activity."
-        },
-        {
-          "Id": "directoryservice_directory_monitor_notifications",
-          "Purpose": "Directory Service has SNS Notifications enabled.",
-          "ActionPlan": "If SNS notifications are disabled in Directory Service, enable them to receive alerts for directory changes."
-        },
-        {
-          "Id": "trustedadvisor_errors_and_warnings",
-          "Purpose": "Check Trusted Advisor for errors and warnings.",
-          "ActionPlan": "If errors and warnings are found in Trusted Advisor, review and act on the recommendations immediately."
+          "Id": " ",
+          "Purpose": "",
+          "ActionPlan": ""
         }
       ],
       "Attributes": [
@@ -6654,6 +6676,11 @@
           "ActionPlan": "If an EC2 instance is not managed by Systems Manager, install the SSM agent and register the instance to enable centralized management."
         },
         {
+          "Id": "elbv2_waf_acl_attached",
+          "Purpose": "Check if Application Load Balancer has a WAF ACL attached.",
+          "ActionPlan": "For an ALB without a WAF ACL attached, create a web ACL in AWS WAF and attach it for protection."
+        },
+        {
           "Id": "fms_policy_compliant",
           "Purpose": "Ensure that all FMS policies inside an admin account are compliant",
           "ActionPlan": "If a non-compliant FMS policy is found, correct the policy in AWS Firewall Manager to resolve the issue."
@@ -6714,14 +6741,14 @@
           "ActionPlan": "If Inspector2 is disabled, enable it to continuously scan for vulnerabilities in EC2, ECR, and Lambda."
         },
         {
-          "Id": "kinesis_stream_encrypted_at_rest",
-          "Purpose": "Kinesis streams should be encrypted at rest.",
-          "ActionPlan": "If a Kinesis stream is not encrypted, enable server-side encryption (SSE) to protect the data."
-        },
-        {
           "Id": "kms_cmk_are_used",
           "Purpose": "Check if there are CMK KMS keys not used.",
           "ActionPlan": "If unused KMS keys are found, disable them or schedule them for deletion to manage resources."
+        },
+        {
+          "Id": "kms_cmk_not_deleted_unintentionally",
+          "Purpose": "AWS KMS keys should not be deleted unintentionally.",
+          "ActionPlan": "For critical KMS keys, enable deletion protection to prevent accidental deletion."
         },
         {
           "Id": "kms_cmk_rotation_enabled",
@@ -6744,14 +6771,39 @@
           "ActionPlan": "If Amazon Macie is disabled, enable it immediately to detect and protect sensitive data in S3 buckets."
         },
         {
-          "Id": "opensearch_service_domains_encryption_at_rest_enabled",
-          "Purpose": "Check if Amazon Elasticsearch/Opensearch Service domains have encryption at-rest enabled",
-          "ActionPlan": "If an OpenSearch domain is not encrypted, enable encryption to protect data at rest."
+          "Id": "networkfirewall_deletion_protection",
+          "Purpose": "Ensure that Deletion Protection safety feature is enabled for your Amazon VPC network firewalls.",
+          "ActionPlan": "If deletion protection for a Network Firewall is disabled, enable it immediately to prevent accidental deletion."
         },
         {
-          "Id": "rds_instance_inside_vpc",
-          "Purpose": "Check if RDS instances are deployed within a VPC.",
-          "ActionPlan": "If an RDS instance is deployed outside a VPC, move it to a private subnet within a VPC."
+          "Id": "networkfirewall_in_all_vpc",
+          "Purpose": "Ensure all VPCs have Network Firewall enabled",
+          "ActionPlan": "For a VPC without a Network Firewall, deploy one to filter inbound and outbound traffic."
+        },
+        {
+          "Id": "networkfirewall_logging_enabled",
+          "Purpose": "Ensure Network Firewall Logging is Enabled",
+          "ActionPlan": "If logging for a Network Firewall is disabled, enable it to send traffic logs to S3 or CloudWatch."
+        },
+        {
+          "Id": "networkfirewall_multi_az",
+          "Purpose": "Ensure all Network Firewall Firewalls are deployed across multiple AZ.",
+          "ActionPlan": "If a Network Firewall is deployed in a single AZ, expand it to multiple Availability Zones for high availability."
+        },
+        {
+          "Id": "networkfirewall_policy_default_action_fragmented_packets",
+          "Purpose": "Default action for fragmented packets is set to drop or forward.",
+          "ActionPlan": "If the default action for fragmented packets is allow, change it to drop or forward to enhance security."
+        },
+        {
+          "Id": "networkfirewall_policy_default_action_full_packets",
+          "Purpose": "NetworkFirewall firewall policy default action for full packets is set to drop or forward.",
+          "ActionPlan": "If the default action for full packets is allow, change it to drop or forward to strengthen the policy."
+        },
+        {
+          "Id": "networkfirewall_policy_rule_group_associated",
+          "Purpose": "Ensure Network Firewall Policies Have at Least One Rule Group Associated",
+          "ActionPlan": "For a Network Firewall policy without rule groups, configure it by adding stateful or stateless rule groups."
         },
         {
           "Id": "securityhub_enabled",
@@ -6797,6 +6849,56 @@
           "Id": "trustedadvisor_premium_support_plan_subscribed",
           "Purpose": "Check if a Premium support plan is subscribed",
           "ActionPlan": "If a premium support plan is not subscribed, upgrade to a Business or Enterprise plan for enhanced support."
+        },
+        {
+          "Id": "waf_global_rule_with_conditions",
+          "Purpose": "AWS WAF Classic Global Rules Should Have at Least One Condition.",
+          "ActionPlan": "For a WAF Classic global rule without conditions, add at least one condition, such as an IP set."
+        },
+        {
+          "Id": "waf_global_rulegroup_not_empty",
+          "Purpose": "Check if AWS WAF Classic Global rule group has at least one rule.",
+          "ActionPlan": "For a WAF Classic global rule group without rules, add at least one active rule."
+        },
+        {
+          "Id": "waf_global_webacl_logging_enabled",
+          "Purpose": "Check if AWS WAF Classic Global WebACL has logging enabled.",
+          "ActionPlan": "If logging for a WAF Classic global WebACL is disabled, enable it to analyze and monitor requests."
+        },
+        {
+          "Id": "waf_global_webacl_with_rules",
+          "Purpose": "Check if AWS WAF Classic Global WebACL has at least one rule or rule group.",
+          "ActionPlan": "For a WAF Classic global WebACL without rules, add at least one rule or rule group for protection."
+        },
+        {
+          "Id": "waf_regional_rule_with_conditions",
+          "Purpose": "AWS WAF Classic Regional Rules Should Have at Least One Condition.",
+          "ActionPlan": "For a WAF Classic regional rule without conditions, add at least one condition, such as an IP set."
+        },
+        {
+          "Id": "waf_regional_rulegroup_not_empty",
+          "Purpose": "Check if AWS WAF Classic Regional rule group has at least one rule.",
+          "ActionPlan": "For a WAF Classic regional rule group without rules, add at least one active rule."
+        },
+        {
+          "Id": "waf_regional_webacl_with_rules",
+          "Purpose": "Check if AWS WAF Classic Regional WebACL has at least one rule or rule group.",
+          "ActionPlan": "For a WAF Classic regional WebACL without rules, add at least one rule or rule group for protection."
+        },
+        {
+          "Id": "wafv2_webacl_logging_enabled",
+          "Purpose": "Check if AWS WAFv2 WebACL logging is enabled",
+          "ActionPlan": "If logging for a WAFv2 WebACL is disabled, enable it to send logs to a Kinesis Data Firehose."
+        },
+        {
+          "Id": "wafv2_webacl_rule_logging_enabled",
+          "Purpose": "Check if AWS WAFv2 WebACL rule or rule group has Amazon CloudWatch metrics enabled.",
+          "ActionPlan": "If CloudWatch metrics for a WAFv2 WebACL are disabled, enable them to monitor rule performance."
+        },
+        {
+          "Id": "wafv2_webacl_with_rules",
+          "Purpose": "Check if AWS WAFv2 WebACL has at least one rule or rule group.",
+          "ActionPlan": "For a WAFv2 WebACL without rules, add at least one rule or rule group to filter traffic."
         }
       ],
       "Attributes": [
@@ -10141,6 +10243,11 @@
           "ActionPlan": "If GuardDuty is not centrally managed, designate a delegated administrator via AWS Organizations."
         },
         {
+          "Id": "iam_support_role_created",
+          "Purpose": "Ensure a support role has been created to manage incidents with AWS Support",
+          "ActionPlan": "If a role for managing AWS Support is not present, create a role with the AWSSupportAccess policy."
+        },
+        {
           "Id": "ssmincidents_enabled_with_plans",
           "Purpose": "Ensure SSM Incidents is enabled with response plans.",
           "ActionPlan": "If SSM Incidents is disabled, enable it and create response plans to manage incidents."
@@ -13202,11 +13309,6 @@
           "ActionPlan": "If Container Insights is not enabled for an ECS cluster, enable it to monitor container and cluster performance metrics."
         },
         {
-          "Id": "ecs_task_definitions_logging_block_mode",
-          "Purpose": "ECS task definitions containers should have a logging configured with non blocking mode",
-          "ActionPlan": "If ECS container logging in the task definition is not configured in non-blocking mode, set it to non-blocking to avoid performance impact."
-        },
-        {
           "Id": "ecs_task_definitions_logging_enabled",
           "Purpose": "ECS task definitions containers should have a logging configuration",
           "ActionPlan": "If ECS container logging is not configured in the task definition, enable logging to capture container activity."
@@ -13260,11 +13362,6 @@
           "Id": "kafka_cluster_enhanced_monitoring_enabled",
           "Purpose": "Ensure Enhanced Monitoring is Enabled for MSK (Kafka) Brokers",
           "ActionPlan": "If enhanced monitoring for an MSK cluster is disabled, enable it to collect detailed metrics."
-        },
-        {
-          "Id": "lightsail_instance_automated_snapshots",
-          "Purpose": "Check if instances have automated snapshots enabled",
-          "ActionPlan": "If automatic snapshots for a Lightsail instance are disabled, enable the feature to back up data regularly."
         },
         {
           "Id": "mq_broker_logging_enabled",
@@ -13365,6 +13462,11 @@
           "Id": "wafv2_webacl_logging_enabled",
           "Purpose": "Check if AWS WAFv2 WebACL logging is enabled",
           "ActionPlan": "If logging for a WAFv2 WebACL is disabled, enable it to send logs to a Kinesis Data Firehose."
+        },
+        {
+          "Id": "wafv2_webacl_rule_logging_enabled",
+          "Purpose": "Check if AWS WAFv2 WebACL rule or rule group has Amazon CloudWatch metrics enabled.",
+          "ActionPlan": "If CloudWatch metrics for a WAFv2 WebACL are disabled, enable them to monitor rule performance."
         }
       ],
       "Attributes": [
@@ -13441,171 +13543,6 @@
           "Id": "account_security_contact_information_is_registered",
           "Purpose": "Ensure security contact information is registered.",
           "ActionPlan": "If no security contact information is registered in the AWS account, provide accurate information to receive critical security notifications in case of emergencies."
-        },
-        {
-          "Id": "elb_logging_enabled",
-          "Purpose": "Check if Elastic Load Balancers have logging enabled.",
-          "ActionPlan": "If access logging for a load balancer is disabled, enable it to store and analyze logs in an S3 bucket."
-        },
-        {
-          "Id": "elbv2_logging_enabled",
-          "Purpose": "Check if Elastic Load Balancers have logging enabled.",
-          "ActionPlan": "If access logging for an ELB is disabled, enable it to store and analyze traffic logs in S3."
-        },
-        {
-          "Id": "glue_etl_jobs_logging_enabled",
-          "Purpose": "Check if Glue ETL Jobs have logging enabled.",
-          "ActionPlan": "If logging for a Glue ETL job is disabled, enable it in the job properties to facilitate debugging."
-        },
-        {
-          "Id": "guardduty_eks_audit_log_enabled",
-          "Purpose": "GuardDuty EKS Audit Log Monitoring Enabled",
-          "ActionPlan": "If GuardDuty's EKS audit log monitoring is disabled, enable it to detect Kubernetes threats."
-        },
-        {
-          "Id": "guardduty_eks_runtime_monitoring_enabled",
-          "Purpose": "GuardDuty EKS Runtime Monitoring should be enabled",
-          "ActionPlan": "If GuardDuty's EKS runtime monitoring is disabled, enable it immediately to detect container threats."
-        },
-        {
-          "Id": "kafka_cluster_enhanced_monitoring_enabled",
-          "Purpose": "Ensure Enhanced Monitoring is Enabled for MSK (Kafka) Brokers",
-          "ActionPlan": "If enhanced monitoring for an MSK cluster is disabled, enable it to collect detailed metrics."
-        },
-        {
-          "Id": "lightsail_instance_automated_snapshots",
-          "Purpose": "Check if instances have automated snapshots enabled",
-          "ActionPlan": "If automatic snapshots for a Lightsail instance are disabled, enable the feature to back up data regularly."
-        },
-        {
-          "Id": "mq_broker_logging_enabled",
-          "Purpose": "MQ brokers should stream audit logs to CloudWatch.",
-          "ActionPlan": "If audit logging for an MQ broker is disabled, set it up to stream to CloudWatch Logs."
-        },
-        {
-          "Id": "neptune_cluster_backup_enabled",
-          "Purpose": "Check for Neptune Clusters Backup Retention Period.",
-          "ActionPlan": "If the backup retention period for a Neptune cluster is short, set it to at least 7 days to enhance recovery capability."
-        },
-        {
-          "Id": "neptune_cluster_integration_cloudwatch_logs",
-          "Purpose": "Check if Neptune Clusters have audit cloudwatch logs enabled.",
-          "ActionPlan": "If audit logging for a Neptune cluster is disabled, enable it in the parameter group to record activity."
-        },
-        {
-          "Id": "networkfirewall_logging_enabled",
-          "Purpose": "Ensure Network Firewall Logging is Enabled",
-          "ActionPlan": "If logging for a Network Firewall is disabled, enable it to send traffic logs to S3 or CloudWatch."
-        },
-        {
-          "Id": "opensearch_service_domains_audit_logging_enabled",
-          "Purpose": "Check if Amazon Elasticsearch/Opensearch Service domains have audit logging enabled",
-          "ActionPlan": "If audit logging for an OpenSearch domain is disabled, enable it to track user activity."
-        },
-        {
-          "Id": "opensearch_service_domains_cloudwatch_logging_enabled",
-          "Purpose": "Check if Amazon Elasticsearch/Opensearch Service domains have logging enabled",
-          "ActionPlan": "If log publishing for an OpenSearch domain is disabled, enable it to debug performance issues."
-        },
-        {
-          "Id": "rds_cluster_backtrack_enabled",
-          "Purpose": "Check if RDS Aurora MySQL Clusters have backtrack enabled.",
-          "ActionPlan": "If backtrack for an Aurora MySQL cluster is disabled, enable it to allow for rapid point-in-time recovery."
-        },
-        {
-          "Id": "rds_cluster_critical_event_subscription",
-          "Purpose": "Check if RDS Cluster critical events are subscribed.",
-          "ActionPlan": "If there are no subscriptions for critical RDS cluster events, set them up to be notified immediately of failures and changes."
-        },
-        {
-          "Id": "rds_cluster_integration_cloudwatch_logs",
-          "Purpose": "Check if RDS cluster is integrated with CloudWatch Logs.",
-          "ActionPlan": "If log exporting for an RDS cluster is disabled, configure it to export logs to CloudWatch Logs."
-        },
-        {
-          "Id": "rds_cluster_protected_by_backup_plan",
-          "Purpose": "Check if RDS clusters are protected by a backup plan.",
-          "ActionPlan": "If an RDS cluster is not protected by a backup plan, set up automated backups using AWS Backup."
-        },
-        {
-          "Id": "rds_instance_backup_enabled",
-          "Purpose": "Check if RDS instances have backup enabled.",
-          "ActionPlan": "If the backup retention period for an RDS instance is not set, set it to at least 7 days."
-        },
-        {
-          "Id": "rds_instance_critical_event_subscription",
-          "Purpose": "Check if RDS Instances events are subscribed.",
-          "ActionPlan": "If there are no subscriptions for RDS instance events, set them up to be notified immediately of failures."
-        },
-        {
-          "Id": "rds_instance_enhanced_monitoring_enabled",
-          "Purpose": "Check if RDS instances has enhanced monitoring enabled.",
-          "ActionPlan": "If enhanced monitoring for an RDS instance is disabled, enable it to collect OS-level metrics."
-        },
-        {
-          "Id": "rds_instance_event_subscription_parameter_groups",
-          "Purpose": "Check if RDS Parameter Group events are subscribed.",
-          "ActionPlan": "If there are no subscriptions for RDS Parameter Group events, set them up to track configuration changes."
-        },
-        {
-          "Id": "rds_instance_event_subscription_security_groups",
-          "Purpose": "Check if RDS Security Group events are subscribed.",
-          "ActionPlan": "If there are no subscriptions for RDS Security Group events, set them up to detect network access changes immediately."
-        },
-        {
-          "Id": "rds_instance_integration_cloudwatch_logs",
-          "Purpose": "Check if RDS instances is integrated with CloudWatch Logs.",
-          "ActionPlan": "If log exporting for an RDS instance is disabled, configure it to export necessary logs to CloudWatch Logs."
-        },
-        {
-          "Id": "rds_instance_protected_by_backup_plan",
-          "Purpose": "Check if RDS instances are protected by a backup plan.",
-          "ActionPlan": "If an RDS instance is not protected by a backup plan, set up automated backups using AWS Backup."
-        },
-        {
-          "Id": "redshift_cluster_audit_logging",
-          "Purpose": "Check if Redshift cluster has audit logging enabled",
-          "ActionPlan": "If audit logging for a Redshift cluster is disabled, enable it to track database activity."
-        },
-        {
-          "Id": "redshift_cluster_automated_snapshot",
-          "Purpose": "Check if Redshift Clusters have automated snapshots enabled",
-          "ActionPlan": "If automated snapshots for a Redshift cluster are disabled, enable them to back up data regularly."
-        },
-        {
-          "Id": "route53_public_hosted_zones_cloudwatch_logging_enabled",
-          "Purpose": "Check if Route53 public hosted zones are logging queries to CloudWatch Logs.",
-          "ActionPlan": "If query logging for a Route 53 public hosted zone is disabled, configure it to send logs to CloudWatch Logs."
-        },
-        {
-          "Id": "s3_bucket_event_notifications_enabled",
-          "Purpose": "Check if S3 buckets have event notifications enabled.",
-          "ActionPlan": "If event notifications for an S3 bucket are not configured, set them up to be notified of object changes."
-        },
-        {
-          "Id": "s3_bucket_lifecycle_enabled",
-          "Purpose": "Check if S3 buckets have a Lifecycle configuration enabled",
-          "ActionPlan": "If an S3 bucket does not have a lifecycle configuration, add one to automatically transition or delete objects."
-        },
-        {
-          "Id": "s3_bucket_server_access_logging_enabled",
-          "Purpose": "Check if S3 buckets have server access logging enabled",
-          "ActionPlan": "If server access logging for an S3 bucket is disabled, enable it to record requests to the bucket."
-        },
-        {
-          "Id": "vpc_flow_logs_enabled",
-          "Purpose": "Ensure VPC Flow Logging is Enabled in all VPCs.",
-          "ActionPlan": "For a VPC with flow logging disabled, enable it immediately to monitor traffic."
-        },
-        {
-          "Id": "waf_global_webacl_logging_enabled",
-          "Purpose": "Check if AWS WAF Classic Global WebACL has logging enabled.",
-          "ActionPlan": "If logging for a WAF Classic global WebACL is disabled, enable it to analyze and monitor requests."
-        },
-        {
-          "Id": "wafv2_webacl_logging_enabled",
-          "Purpose": "Check if AWS WAFv2 WebACL logging is enabled",
-          "ActionPlan": "If logging for a WAFv2 WebACL is disabled, enable it to send logs to a Kinesis Data Firehose."
         }
       ],
       "Attributes": [
@@ -13793,11 +13730,6 @@
           "ActionPlan": "If cross-zone load balancing for an NLB/GWLB is disabled, enable it to increase availability."
         },
         {
-          "Id": "elbv2_deletion_protection",
-          "Purpose": "Check if Elastic Load Balancers have deletion protection enabled.",
-          "ActionPlan": "If deletion protection for a load balancer is disabled, enable it in the properties to prevent operational errors."
-        },
-        {
           "Id": "elbv2_is_in_multiple_az",
           "Purpose": "Elastic Load Balancer V2 (ELBv2) is Configured Across Multiple Availability Zones (AZs)",
           "ActionPlan": "If an ELBv2 is configured in only a single Availability Zone, add more Availability Zones to ensure high availability."
@@ -13808,9 +13740,19 @@
           "ActionPlan": "If EventBridge global endpoint replication is disabled, enable it to prepare for regional failures."
         },
         {
+          "Id": "fsx_file_system_copy_tags_to_backups_enabled",
+          "Purpose": "Check if FSx file systems are configured to copy tags to backups.",
+          "ActionPlan": "If copying tags for FSx file system backups is disabled, enable it to improve backup resource management."
+        },
+        {
           "Id": "fsx_windows_file_system_multi_az_enabled",
           "Purpose": "Check if FSx Windows file systems are configured with Multi-AZ.",
           "ActionPlan": "If an FSx file system is configured as single-AZ, reconfigure it with the Multi-AZ option for high availability."
+        },
+        {
+          "Id": "lightsail_instance_automated_snapshots",
+          "Purpose": "Check if instances have automated snapshots enabled",
+          "ActionPlan": "If automatic snapshots for a Lightsail instance are disabled, enable the feature to back up data regularly."
         },
         {
           "Id": "mq_broker_active_deployment_mode",
@@ -13826,11 +13768,6 @@
           "Id": "neptune_cluster_backup_enabled",
           "Purpose": "Check for Neptune Clusters Backup Retention Period.",
           "ActionPlan": "If the backup retention period for a Neptune cluster is short, set it to at least 7 days to enhance recovery capability."
-        },
-        {
-          "Id": "neptune_cluster_deletion_protection",
-          "Purpose": "Check if Neptune Clusters storage has deletion protection enabled.",
-          "ActionPlan": "If deletion protection for a Neptune cluster is disabled, enable it immediately to prevent accidental deletion."
         },
         {
           "Id": "neptune_cluster_multi_az",
@@ -13853,11 +13790,6 @@
           "ActionPlan": "If backtrack for an Aurora MySQL cluster is disabled, enable it to allow for rapid point-in-time recovery."
         },
         {
-          "Id": "rds_cluster_deletion_protection",
-          "Purpose": "Check if RDS clusters have deletion protection enabled.",
-          "ActionPlan": "If deletion protection for an RDS cluster is disabled, enable it immediately to prevent accidental deletion."
-        },
-        {
           "Id": "rds_cluster_multi_az",
           "Purpose": "Check if RDS clusters have multi-AZ enabled.",
           "ActionPlan": "For a single-AZ RDS cluster, change its availability to a Multi-AZ deployment for high availability."
@@ -13871,11 +13803,6 @@
           "Id": "rds_instance_backup_enabled",
           "Purpose": "Check if RDS instances have backup enabled.",
           "ActionPlan": "If the backup retention period for an RDS instance is not set, set it to at least 7 days."
-        },
-        {
-          "Id": "rds_instance_deletion_protection",
-          "Purpose": "Check if RDS instances have deletion protection enabled.",
-          "ActionPlan": "If deletion protection for an RDS instance is disabled, enable it immediately to prevent operational errors."
         },
         {
           "Id": "rds_instance_multi_az",
@@ -13906,11 +13833,6 @@
           "Id": "s3_bucket_lifecycle_enabled",
           "Purpose": "Check if S3 buckets have a Lifecycle configuration enabled",
           "ActionPlan": "If an S3 bucket does not have a lifecycle configuration, add one to automatically transition or delete objects."
-        },
-        {
-          "Id": "s3_bucket_no_mfa_delete",
-          "Purpose": "Check if S3 bucket MFA Delete is not enabled.",
-          "ActionPlan": "If S3 bucket MFA Delete is not enabled, enable it to require additional authentication for object deletion."
         },
         {
           "Id": "s3_bucket_object_lock",
@@ -13984,116 +13906,6 @@
           "Id": "drs_job_exist",
           "Purpose": "Ensure DRS is enabled with jobs.",
           "ActionPlan": "If DRS is not activated with the associated job, enable DRS and configure jobs according to your disaster recovery plan."
-        },
-        {
-          "Id": "elb_cross_zone_load_balancing_enabled",
-          "Purpose": "Ensure Cross-Zone Load Balancing is Enabled for Classic Load Balancers (CLBs)",
-          "ActionPlan": "If cross-zone load balancing is disabled, enable it to distribute traffic evenly across Availability Zones."
-        },
-        {
-          "Id": "elbv2_cross_zone_load_balancing_enabled",
-          "Purpose": "Ensure Cross-Zone Load Balancing is enabled for Network (NLBs) and Gateway (GWLB) Load Balancers",
-          "ActionPlan": "If cross-zone load balancing for an NLB/GWLB is disabled, enable it to increase availability."
-        },
-        {
-          "Id": "elbv2_deletion_protection",
-          "Purpose": "Check if Elastic Load Balancers have deletion protection enabled.",
-          "ActionPlan": "If deletion protection for a load balancer is disabled, enable it in the properties to prevent operational errors."
-        },
-        {
-          "Id": "elbv2_is_in_multiple_az",
-          "Purpose": "Elastic Load Balancer V2 (ELBv2) is Configured Across Multiple Availability Zones (AZs)",
-          "ActionPlan": "If an ELBv2 is configured in only a single Availability Zone, add more Availability Zones to ensure high availability."
-        },
-        {
-          "Id": "neptune_cluster_backup_enabled",
-          "Purpose": "Check for Neptune Clusters Backup Retention Period.",
-          "ActionPlan": "If the backup retention period for a Neptune cluster is short, set it to at least 7 days to enhance recovery capability."
-        },
-        {
-          "Id": "neptune_cluster_deletion_protection",
-          "Purpose": "Check if Neptune Clusters storage has deletion protection enabled.",
-          "ActionPlan": "If deletion protection for a Neptune cluster is disabled, enable it immediately to prevent accidental deletion."
-        },
-        {
-          "Id": "neptune_cluster_multi_az",
-          "Purpose": "Check if Neptune Clusters have multi-AZ enabled.",
-          "ActionPlan": "If a Neptune cluster is configured as single-AZ, change it to a Multi-AZ deployment for high availability."
-        },
-        {
-          "Id": "opensearch_service_domains_fault_tolerant_data_nodes",
-          "Purpose": "Ensure Elasticsearch/Opensearch domains have fault-tolerant data nodes.",
-          "ActionPlan": "If an OpenSearch domain's data nodes are a single point of failure, configure them with multiple nodes for fault tolerance."
-        },
-        {
-          "Id": "opensearch_service_domains_fault_tolerant_master_nodes",
-          "Purpose": "OpenSearch Service Domain should have at least three dedicated master nodes",
-          "ActionPlan": "For an OpenSearch domain with fewer than three dedicated master nodes, configure it with three to increase stability."
-        },
-        {
-          "Id": "rds_cluster_deletion_protection",
-          "Purpose": "Check if RDS clusters have deletion protection enabled.",
-          "ActionPlan": "If deletion protection for an RDS cluster is disabled, enable it immediately to prevent accidental deletion."
-        },
-        {
-          "Id": "rds_cluster_multi_az",
-          "Purpose": "Check if RDS clusters have multi-AZ enabled.",
-          "ActionPlan": "For a single-AZ RDS cluster, change its availability to a Multi-AZ deployment for high availability."
-        },
-        {
-          "Id": "rds_instance_deletion_protection",
-          "Purpose": "Check if RDS instances have deletion protection enabled.",
-          "ActionPlan": "If deletion protection for an RDS instance is disabled, enable it immediately to prevent operational errors."
-        },
-        {
-          "Id": "rds_instance_multi_az",
-          "Purpose": "Check if RDS instances have multi-AZ enabled.",
-          "ActionPlan": "For a single-AZ RDS instance, change its deployment option to Multi-AZ for high availability."
-        },
-        {
-          "Id": "redshift_cluster_multi_az_enabled",
-          "Purpose": "Check if Redshift clusters have Multi-AZ enabled.",
-          "ActionPlan": "For a single-AZ Redshift cluster, change it to a Multi-AZ deployment for high availability."
-        },
-        {
-          "Id": "s3_bucket_cross_region_replication",
-          "Purpose": "Check if S3 buckets use cross region replication.",
-          "ActionPlan": "If an S3 bucket is not using cross-region replication, enable it to increase data durability and availability."
-        },
-        {
-          "Id": "s3_bucket_no_mfa_delete",
-          "Purpose": "Check if S3 bucket MFA Delete is not enabled.",
-          "ActionPlan": "If S3 bucket MFA Delete is not enabled, enable it to require additional authentication for object deletion."
-        },
-        {
-          "Id": "s3_bucket_object_lock",
-          "Purpose": "Check if S3 buckets have object lock enabled",
-          "ActionPlan": "If an S3 bucket's object lock is disabled, enable it for a WORM model to ensure data immutability."
-        },
-        {
-          "Id": "s3_bucket_object_versioning",
-          "Purpose": "Check if S3 buckets have object versioning enabled",
-          "ActionPlan": "If an S3 bucket's object versioning is disabled, enable it to prevent accidental deletions or overwrites."
-        },
-        {
-          "Id": "sagemaker_endpoint_config_prod_variant_instances",
-          "Purpose": "SageMaker endpoint production variants should have at least two initial instances",
-          "ActionPlan": "If a SageMaker endpoint has only one instance, increase it to two or more for high availability."
-        },
-        {
-          "Id": "vpc_different_regions",
-          "Purpose": "Ensure there are VPCs in more than one region",
-          "ActionPlan": "If VPCs exist in only one region, deploy a VPC in multiple regions to improve disaster recovery."
-        },
-        {
-          "Id": "vpc_endpoint_multi_az_enabled",
-          "Purpose": "Amazon VPC Interface Endpoints should have ENIs in more than one subnet.",
-          "ActionPlan": "If a VPC interface endpoint is in a single subnet, expand it across multiple Availability Zones."
-        },
-        {
-          "Id": "vpc_subnet_different_az",
-          "Purpose": "Ensure all VPC has subnets in more than one availability zone",
-          "ActionPlan": "If a VPC has subnets in only one Availability Zone, add subnets in multiple AZs."
         }
       ],
       "Attributes": [
@@ -14245,13 +14057,7 @@
       "Id": "3.1.4",
       "Name": "Restriction on Processing of Sensitive and Unique Identifying Information",
       "Description": "In order to process sensitive information and unique identifying information (excluding resident registration numbers), separate consent from the data subject must be obtained unless the processing is specifically required or permitted by law.",
-      "Checks": [
-        {
-          "Id": "bedrock_guardrail_sensitive_information_filter_enabled",
-          "Purpose": "Configure Sensitive Information Filters for Amazon Bedrock Guardrails.",
-          "ActionPlan": "If sensitive information filtering is disabled in Bedrock guardrails, enable it to prevent the model from exposing sensitive data."
-        }
-      ],
+      "Checks": [],
       "Attributes": [
         {
           "Domain": "3. Requirements for Each Stage of Personal Information Processing",
