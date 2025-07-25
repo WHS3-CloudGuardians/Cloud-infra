@@ -1738,7 +1738,7 @@
     },
     {
       "Id": "2.6.2",
-      "Name": "ccess to Information Systems",
+      "Name": "Access to Information Systems",
       "Description": "The users, access restriction methods, and secure access means for accessing information systems such as servers and network systems must be defined and controlled.",
       "Checks": [
         "apigateway_restapi_client_certificate_enabled",
