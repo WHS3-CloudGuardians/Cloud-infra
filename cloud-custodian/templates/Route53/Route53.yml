@@ -4,7 +4,7 @@
 #             정책 yaml은 관리·감사·문서용 샘플로만 활용 가능.
 
 policies:
-  - name: alert-route53-public-zone-query-logging-disabled
+  - name: route53_public_hosted_zones_cloudwatch_logging_enabled
     resource: aws.hostedzone 
     description: |
       Detects public Route53 hosted zones where query logging is disabled.
