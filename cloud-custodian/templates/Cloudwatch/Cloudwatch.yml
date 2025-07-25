@@ -1,0 +1,663 @@
+policies:
+
+  # CHECKID: cloudtrail_enable_cloudwatch_logs
+  # ACTIONPLAN: CloudTrail 트레일이 CloudWatch Logs 미연동 상태면 자동 연동 및 로깅 활성화(자동조치) 후 Slack 알림(good)
+  - name: cloudtrail-enable-cloudwatch-logs
+    description: |
+      Automatically enables CloudWatch Logs integration for CloudTrail trails if they are not configured properly.
+    resource: aws.cloudtrail
+
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: cloudtrail.amazonaws.com
+          event: UpdateTrail
+          ids: "requestParameters.name"
+
+    filters:
+      - type: value
+        key: CloudWatchLogsLogGroupArn
+        value: absent
+      - type: status
+        key: IsLogging
+        value: False
+
+    actions:
+      - type: update-trail
+        attributes:
+          CloudWatchLogsLogGroupArn: ${CLOUDTRAIL_LOG_GROUP_ARN}
+          CloudWatchLogsRoleArn: ${CLOUDTRAIL_LOG_ROLE_ARN}
+
+      - type: set-logging
+        enabled: True
+
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: good
+        violation_desc: |
+          *** CHECKID: cloudtrail_enable_cloudwatch_logs ***
+          • CloudTrail 트레일이 CloudWatch Logs와 미연동 상태여서 자동 연동 및 로깅이 활성화되었습니다.
+        action_desc: |
+          1. CloudWatch Logs 연동 및 로깅 활성화 결과를 반드시 점검하세요.
+          2. 필요하다면 추가 CloudWatch 경보 설정을 적용하세요.
+        to:
+          - ${GOOD_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+  # CHECKID: nacl_overly_permissive
+  # ACTIONPLAN: 모든 IP(0.0.0.0/0)를 허용하는 NACL 규칙 탐지 시 Slack 알림(warning) 및 수동 검토 안내
+  - name: nacl-overly-permissive
+    description: |
+      Detects overly permissive Network ACL rules (e.g. allowing 0.0.0.0/0) and notifies for manual remediation.
+    resource: aws.network-acl
+
+    mode:
+      type: periodic
+      schedule: "rate(24 hours)"
+      role: ${LAMBDA_ROLE}
+
+    filters:
+      - type: value
+        key: Entries[?CidrBlock=='0.0.0.0/0' && Egress==`true` && RuleAction=='allow']
+        value_type: size
+        op: gt
+        value: 0
+
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: nacl_overly_permissive ***
+          • 모든 IP(0.0.0.0/0)를 허용하는 NACL 규칙이 감지되었습니다.
+        action_desc: |
+          1. 해당 NACL 규칙을 검토하여 CIDR 범위를 반드시 제한하세요.
+          2. 불필요한 공개 허용 규칙은 삭제하거나 내부 IP 대역만 허용하세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: monitor_route_table_changes
+  # ACTIONPLAN: 라우팅 테이블 변경(생성/수정/삭제) 이벤트 감지 시 Slack 알림(danger) 및 관리자 검토 안내
+  - name: monitor-route-table-changes
+    resource: aws.account
+    description: Monitor route table changes that may pose a risk of unauthorized network routing.
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: ec2.amazonaws.com
+          event: CreateRoute
+          ids: "requestParameters.routeTableId"
+        - source: ec2.amazonaws.com
+          event: ReplaceRoute
+          ids: "requestParameters.routeTableId"
+        - source: ec2.amazonaws.com
+          event: DeleteRoute
+          ids: "requestParameters.routeTableId"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: monitor_route_table_changes ***
+          • 라우팅 테이블의 무단 변경(생성/수정/삭제) 이벤트가 감지되었습니다.
+        action_desc: |
+          1. 변경 이벤트가 정상적인 작업인지 관리자 또는 보안 담당자가 반드시 검토하세요.
+          2. 의도되지 않은 경로 변경, 우회 설정, 외부 유출 가능성이 있으면 즉시 조치하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+  # CHECKID: cloudtrail_cloudwatch_logs_attach
+  # ACTIONPLAN: CloudTrail이 CloudWatch Logs 미연동 상태면 자동 연동 후 Slack 알림(good)
+  - name: cloudtrail-cloudwatch-logs-attach
+    resource: aws.cloudtrail
+    description: Automatically connects CloudTrail to CloudWatch Logs if not configured.
+    mode:
+      type: periodic
+      schedule: "rate(24 hours)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: value
+        key: CloudWatchLogsLogGroupArn
+        value: absent
+    actions:
+      - type: update-trail
+        attributes:
+          CloudWatchLogsLogGroupArn: ${NETWORK_ACTIVITY_LOG_GROUP_ARN}
+          CloudWatchLogsRoleArn: ${CLOUDTRAIL_LOG_ROLE_ARN}
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: good
+        violation_desc: |
+          *** CHECKID: cloudtrail_cloudwatch_logs_attach ***
+          • CloudTrail이 CloudWatch Logs와 미연동 상태여서 자동으로 연결하였습니다.
+        action_desc: |
+          1. CloudWatch 연동 및 로그 수집 상태를 반드시 확인하세요.
+          2. 별도의 CloudWatch 경보도 필요하다면 추가 설정하세요.
+        to:
+          - ${GOOD_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+  # CHECKID: monitor_network_gateway_changes
+  # ACTIONPLAN: IGW, NAT 게이트웨이 변경(생성/삭제/연결/분리) 감지 시 Slack 알림(warning) 및 수동 검토 안내
+  - name: monitor-network-gateway-changes
+    resource: aws.cloudtrail
+    description: Detect changes to Internet and NAT gateways using CloudTrail events.
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: ec2.amazonaws.com
+          event: CreateInternetGateway
+          ids: "responseElements.internetGateway.internetGatewayId"
+        - source: ec2.amazonaws.com
+          event: DeleteInternetGateway
+          ids: "requestParameters.internetGatewayId"
+        - source: ec2.amazonaws.com
+          event: AttachInternetGateway
+          ids: "requestParameters.internetGatewayId"
+        - source: ec2.amazonaws.com
+          event: DetachInternetGateway
+          ids: "requestParameters.internetGatewayId"
+        - source: ec2.amazonaws.com
+          event: CreateNatGateway
+          ids: "responseElements.natGateway.natGatewayId"
+        - source: ec2.amazonaws.com
+          event: DeleteNatGateway
+          ids: "requestParameters.natGatewayId"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: monitor_network_gateway_changes ***
+          • 인터넷 게이트웨이 또는 NAT 게이트웨이에 대한 변경이 감지되었습니다.
+        action_desc: |
+          1. 변경된 리소스(IGW, NAT GW)가 의도된 작업인지 반드시 확인하세요.
+          2. 의도되지 않은 설정이면 수동으로 롤백하거나 권한 정책을 점검하세요.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_changes_to_vpcs_alarm_configured
+  # ACTIONPLAN: VPC 생성, 삭제, 속성 변경 등 민감 변경 감지 시 Slack 알림(danger) 및 보안검토 안내
+  - name: cloudwatch-changes-to-vpcs-alarm-configured
+    resource: aws.ec2
+    description: |
+      Missing real-time alerting for sensitive VPC configuration changes violates monitoring and change management requirements.
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: ec2.amazonaws.com
+          event: CreateVpc
+          ids: "responseElements.vpc.vpcId"
+        - source: ec2.amazonaws.com
+          event: DeleteVpc
+          ids: "requestParameters.vpcId"
+        - source: ec2.amazonaws.com
+          event: ModifyVpcTenancy
+          ids: "requestParameters.vpcId"
+        - source: ec2.amazonaws.com
+          event: ModifyVpcAttribute
+          ids: "requestParameters.vpcId"
+    filters:
+      - type: value
+        key: isDefault
+        value: false
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_changes_to_vpcs_alarm_configured ***
+          • VPC 생성·삭제·속성 변경 이벤트가 감지되었습니다.
+        action_desc: |
+          1. 변경된 VPC의 변경 의도를 즉시 확인하세요.
+          2. 불필요한 변경이면 보안 그룹 및 라우팅 설정을 검토/원복해야 합니다.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_cross_account_sharing_disabled
+  # ACTIONPLAN: CloudWatch Logs 리소스 정책에 승인되지 않은 교차 계정 접근이 감지되면 Slack 알림(danger) 및 정책 수정 안내
+  - name: cloudwatch_cross_account_sharing_disabled
+    resource: aws.log-group
+    description: Detect and notify when CloudWatch Logs resource policy allows cross-account access.
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: ${LAMBDA_ROLE}
+    filters:
+      - type: cross-account
+        whitelist:
+          - "311278774159"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_cross_account_sharing_disabled ***
+          • CloudWatch Logs 리소스 정책에 불허된 교차 계정 접근이 감지되었습니다.
+        action_desc: |
+          1. 리소스 정책에서 외부 계정 접근을 즉시 제거하거나, 승인된 계정만 허용하도록 수정하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+
+  # CHECKID: cloudwatch_log_metric_filter_and_alarm_for_aws_config_changes_enabled
+  # ACTIONPLAN: AWS Config Recorder/Delivery Channel 설정 변경 이벤트 감지 시 Slack 알림(danger) 및 담당자 수동 재구성 안내
+  - name: cloudwatch_log_metric_filter_and_alarm_for_aws_config_changes_enabled
+    description: Detects when AWS Config recorder settings are modified.
+    resource: aws.account
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: config.amazonaws.com
+          event: StopConfigurationRecorder
+          ids: "requestParameters.configurationRecorderName"
+        - source: config.amazonaws.com
+          event: DeleteConfigurationRecorder
+          ids: "requestParameters.configurationRecorderName"
+        - source: config.amazonaws.com
+          event: PutConfigurationRecorder
+          ids: "requestParameters.configurationRecorder.name"
+        - source: config.amazonaws.com
+          event: PutDeliveryChannel
+          ids: "requestParameters.deliveryChannel.name"
+        - source: config.amazonaws.com
+          event: DeleteDeliveryChannel
+          ids: "requestParameters.deliveryChannelName"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_and_alarm_for_aws_config_configuration_changes_enabled ***
+          • AWS Config Recorder 또는 Delivery Channel 설정이 변경되었습니다.
+        action_desc: |
+          1. 설정 변경 여부를 반드시 확인하고, 필요 시 Recorder 및 Delivery Channel을 재구성하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_log_metric_filter_root_usage
+  # ACTIONPLAN: 루트 계정 콘솔 로그인 감지 시 Slack 알림(danger) 및 즉시 계정 접근 통제·비밀번호 변경 안내
+  - name: cloudwatch_log_metric_filter_root_usage
+    resource: aws.account
+    description: AWS root account is used for console login.
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: signin.amazonaws.com
+          event: ConsoleLogin
+          selector: "$.userIdentity.type == 'Root'"
+          ids: "userIdentity.accountId"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_root_usage ***
+          • 루트 계정으로 AWS 콘솔에 로그인한 이벤트가 감지되었습니다.
+        action_desc: |
+          1. 관리자 또는 보안 담당자가 로그인 내역(IP, 시간 등)을 반드시 확인하세요.
+          2. 필요 시 계정 접근을 제한하거나 비밀번호를 즉시 변경하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL} 
+
+  # CHECKID: cloudwatch_log_metric_filter_unauthorized_api_calls
+  # ACTIONPLAN: 비인가 API 호출 감지 시 Slack 알림(danger) 및 접근권한 점검 안내
+  - name: cloudwatch_log_metric_filter_unauthorized_api_calls
+    resource: account
+    description: Missing CloudWatch metric filter and alarm for unauthorized API calls, violating security monitoring and access control requirements.
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: "*"
+          event: "*"
+          ids: "eventID"
+    filters:
+      - type: event
+        key: errorCode
+        value: "*UnauthorizedOperation*"
+        op: glob
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_unauthorized_api_calls ***
+          • 비인가 API 호출이 탐지되었습니다. 계정 또는 역할의 접근 권한을 점검하세요.
+        action_desc: |
+          1. 이미 발생한 비인가 API 호출에 대한 이벤트입니다(실시간 차단 불가).
+          2. 해당 계정/역할의 권한 및 사용내역을 반드시 점검하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_log_metric_filter_authentication_failures
+  # ACTIONPLAN: AWS 콘솔 로그인 인증 실패 이벤트 감지 시 Slack 알림(warning) 및 보안 담당자 확인 안내
+  - name: cloudwatch_log_metric_filter_authentication_failures
+    resource: aws.cloudtrail
+    description: Detection of a failed AWS Console login event.
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: signin.amazonaws.com
+          event: ConsoleLogin
+          ids: "userIdentity.arn"
+    filters:
+      - type: value
+        key: errorMessage
+        value: "Failed authentication"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: warning
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_authentication_failures ***
+          • AWS 콘솔 로그인 인증 실패 이벤트가 발생했습니다.
+        action_desc: |
+          1. 설정 변경만으로 차단 불가한 이벤트입니다.
+          2. 보안 담당자가 수동으로 원인(IP, 시간 등) 확인 및 대응해야 합니다.
+        to:
+          - ${WARNING_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_log_metric_filter_aws_organizations_changes
+  # ACTIONPLAN: AWS Organizations 내 계정/OU/정책/조직 변경 감지 시 Slack 알림(danger) 및 수동 조치 안내
+  - name: cloudwatch_log_metric_filter_aws_organizations_changes
+    resource: aws.account
+    description: Notification on AWS Organizations change events.
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: organizations.amazonaws.com
+          event: CreateAccount
+          ids: requestParameters.accountName
+        - source: organizations.amazonaws.com
+          event: InviteAccountToOrganization
+          ids: requestParameters.target.email
+        - source: organizations.amazonaws.com
+          event: AttachPolicy
+          ids: requestParameters.policyId
+        - source: organizations.amazonaws.com
+          event: DetachPolicy
+          ids: requestParameters.policyId
+        - source: organizations.amazonaws.com
+          event: DeleteOrganization
+          ids: eventSource
+        - source: organizations.amazonaws.com
+          event: CreateOrganizationalUnit
+          ids: requestParameters.name
+        - source: organizations.amazonaws.com
+          event: DeleteOrganizationalUnit
+          ids: requestParameters.organizationalUnitId
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_aws_organizations_changes ***
+          • AWS Organizations 리소스(계정/OU/조직/정책 등)에 변경 이벤트가 발생했습니다.
+        action_desc: |
+          1. Organizations는 민감한 리소스로 자동조치가 불가합니다.
+          2. 보안 담당자가 반드시 변경 내용을 확인하고 수동으로 적절한 조치를 취하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_log_metric_filter_and_alarm_for_cloudtrail_config_changes_enabled
+  # ACTIONPLAN: CloudTrail 설정(중지, 삭제, 수정 등) 변경 감지 시 Slack 알림(danger) 및 즉시 보안 담당자 검토 안내
+  - name: ccloudwatch_log_metric_filter_and_alarm_for_cloudtrail_config_changes_enabled
+    description: Detects CloudTrail configuration changes like update, stop, or delete trail.
+    resource: aws.account
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: cloudtrail.amazonaws.com
+          event: UpdateTrail
+          ids: "requestParameters.name"
+        - source: cloudtrail.amazonaws.com
+          event: StopLogging
+          ids: "requestParameters.name"
+        - source: cloudtrail.amazonaws.com
+          event: DeleteTrail
+          ids: "requestParameters.name"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_and_alarm_for_cloudtrail_configuration_changes_enabled ***
+          • CloudTrail 설정 변경(중지, 삭제, 수정) 이벤트가 감지되었습니다.
+        action_desc: |
+          1. CloudTrail 변경은 보안 로그 누락 위험이 매우 높으므로,
+          2. 보안 담당자가 즉시 검토하고 필요시 설정을 반드시 원복하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_log_metric_filter_disable_kms_key_deletion
+  # ACTIONPLAN: KMS 키 비활성화 또는 삭제 예약 감지 시 Slack 알림(danger) 및 수동 검토·복구 안내
+  - name: cloudwatch_log_metric_filter_disable_kms_key_deletion
+    description: Detect KMS key disable or scheduled deletion events and notify for manual review.
+    resource: aws.kms-key
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: kms.amazonaws.com
+          event: DisableKey
+          ids: "requestParameters.keyId"
+        - source: kms.amazonaws.com
+          event: ScheduleKeyDeletion
+          ids: "requestParameters.keyId"
+    filters:
+      - type: value
+        key: KeyState
+        value: "Enabled"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_disable_or_scheduled_deletion_of_kms_cmk ***
+          • KMS 키가 비활성화되었거나 삭제 예약되었습니다.
+        action_desc: |
+          1. 삭제/비활성화가 의도된 작업인지 반드시 검토하세요.
+          2. 필요 시 `CancelKeyDeletion` 또는 키 재활성화를 수동으로 즉시 수행하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_log_metric_filter_for_s3_bucket_policy_changes
+  # ACTIONPLAN: S3 버킷 정책 생성/삭제 감지 시 Slack 알림(danger) 및 정책 변경 검토 안내
+  - name: cloudwatch_log_metric_filter_for_s3_bucket_policy_changes
+    resource: aws.s3
+    description: Notify when S3 bucket policy is added or removed via CloudTrail
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: s3.amazonaws.com
+          event: PutBucketPolicy
+          ids: "requestParameters.bucketName"
+        - source: s3.amazonaws.com
+          event: DeleteBucketPolicy
+          ids: "requestParameters.bucketName"
+    filters:
+      - type: value
+        key: BucketPolicy
+        value: not-null
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_for_s3_bucket_policy_changes ***
+          • S3 버킷 정책이 생성되거나 삭제되었습니다.
+        action_desc: |
+          1. 변경이 의도된 작업인지 반드시 확인하세요.
+          2. 필요하다면 버킷 정책을 검토하거나 이전 상태로 즉시 복구하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_log_metric_filter_sign_in_without_mfa
+  # ACTIONPLAN: MFA 없이 성공한 콘솔 로그인 감지 시 Slack 알림(danger) 및 보안점검/MFA 활성화 권고
+  - name: cloudwatch_log_metric_filter_sign_in_without_mfa
+    resource: aws.cloudtrail
+    description: Missing log filter and alarm for successful console login events without MFA.
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: signin.amazonaws.com
+          event: ConsoleLogin
+          ids: "userIdentity.arn"
+    filters:
+      - type: event
+        key: "additionalEventData.MFAUsed"
+        value: "No"
+      - type: event
+        key: "responseElements.ConsoleLogin"
+        value: "Success"
+      - type: event
+        key: "userIdentity.type"
+        value: "IAMUser"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_sign_in_without_mfa ***
+          • MFA 없이 성공적인 콘솔 로그인 이벤트가 감지되었습니다.
+        action_desc: |
+          1. MFA 없이 로그인한 사용자가 있는지 보안 점검을 반드시 수행하세요.
+          2. 모든 IAM 사용자에 대해 MFA 활성화를 강력히 권고합니다.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_log_metric_filter_policy_changes
+  # ACTIONPLAN: IAM 정책 생성/수정/삭제 감지 시 Slack 알림(danger) 및 변경내용 보안 점검 안내
+  - name: cloudwatch_log_metric_filter_policy_changes
+    resource: aws.cloudtrail
+    description: Detects IAM policy changes such as creation, deletion, or updates to user, group, or role policies.
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: iam.amazonaws.com
+          event: PutGroupPolicy
+          ids: "requestParameters.groupName"
+        - source: iam.amazonaws.com
+          event: PutRolePolicy
+          ids: "requestParameters.roleName"
+        - source: iam.amazonaws.com
+          event: PutUserPolicy
+          ids: "requestParameters.userName"
+        - source: iam.amazonaws.com
+          event: CreatePolicy
+          ids: "requestParameters.policyName"
+        - source: iam.amazonaws.com
+          event: DeletePolicy
+          ids: "requestParameters.policyArn"
+    actions:
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: danger
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_policy_changes ***
+          • IAM 정책이 생성, 수정 또는 삭제되었습니다.
+        action_desc: |
+          1. 정책 변경 내역을 반드시 검토하세요.
+          2. 이상 변경 또는 권한 오남용 가능성이 있으면 즉시 보안 점검/원복 조치하세요.
+        to:
+          - ${DANGER_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
+
+  # CHECKID: cloudwatch_log_metric_filter_security_group_changes
+  # ACTIONPLAN: 보안그룹 ingress(0.0.0.0/0) 허용 감지 시 자동 삭제(자동조치) 및 Slack 알림(good)
+  - name: cloudwatch_log_metric_filter_security_group_changes
+    resource: aws.security-group
+    description: Detects when a security group ingress rule allows public (0.0.0.0/0) access and removes it.
+    mode:
+      type: cloudtrail
+      role: ${LAMBDA_ROLE}
+      events:
+        - source: ec2.amazonaws.com
+          event: AuthorizeSecurityGroupIngress
+          ids: "requestParameters.groupId"
+    filters:
+      - type: ingress
+        Cidr:
+          value: 0.0.0.0/0
+          op: eq
+    actions:
+      - type: remove-permissions
+        ingress: matched
+      - type: notify
+        slack_template: slack_default
+        slack_msg_color: good
+        violation_desc: |
+          *** CHECKID: cloudwatch_log_metric_filter_security_group_changes ***
+          • 공개(0.0.0.0/0) ingress rule이 자동으로 제거되었습니다.
+        action_desc: |
+          1. 자동으로 공개 ingress rule을 제거했습니다.
+          2. 필요 시 보안 담당자가 ingress rule을 재검토하세요.
+        to:
+          - ${GOOD_SLACK}
+        transport:
+          type: sqs
+          queue: ${QUEUE_URL}
