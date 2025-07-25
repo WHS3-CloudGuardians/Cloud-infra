@@ -52,7 +52,7 @@ policies:
     actions:
       - type: update-trail
         attributes:
-          CloudWatchLogsLogGroupArn: $arn:aws:logs:${AWS_REGION}:${ACCOUNT_ID}:log-group:${CLOUDTRAIL_LOG_GROUP}
+          CloudWatchLogsLogGroupArn: arn:aws:logs:${AWS_REGION}:${ACCOUNT_ID}:log-group:${CLOUDTRAIL_LOG_GROUP}
           CloudWatchLogsRoleArn: arn:aws:iam::${ACCOUNT_ID}:role/${CLOUDTRAIL_LOG_ROLE}
       - type: set-logging
         enabled: true
