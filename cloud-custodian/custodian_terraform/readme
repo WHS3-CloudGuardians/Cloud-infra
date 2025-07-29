@@ -1,6 +1,6 @@
 git bash로 실행함
 source .env
-terraform 
+terraform init
 terraform plan -var-file=env/dev.tfvars
 terraform apply -var-file=env/dev.tfvars
 
