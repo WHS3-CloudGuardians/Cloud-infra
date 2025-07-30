@@ -14,39 +14,44 @@
 오픈 소스를 활용하여 AWS 환경에서 보안 점검 및 대응 자동화 구현
 
 ### 과정
-1. 점검 실행할 안전/취약한 인프라 구성
-2. Prowler을 이용한 ISMS-P 정책 점검 
+1. 정책 점검과 대응 시스템을 실행할 안전/취약한 AWS 인프라 구축
+2. Prowler을 이용하여 ISMS-P 정책 점검 
+    - Prowler의 ISMS-P 점검 기준 확인
 3. CloudCustodian을 활용한 위반 사항 대응
 
 ### 성과
-- 5개의 아키텍처에 대한, 안전/취약한 인프라 구축 
-    - 총 29개의 AWS 서비스 포함
+- 4개의 아키텍처에 대한 안전/취약한 인프라 구축 
+    - 총 29개의 AWS 리소스 포함
 - Prowler 오픈소스 기여
-    - Prowler의 ISMS-P 점검 기준 재매핑 진행 
+    - Prowler의 ISMS-P 점검 기준 재매핑
     - 매핑 결과 Prowler PR 후, Merge 완료
     - 매핑 근거를 해설한 "매핑 해설서" 작성
 - CloudCustodian 정책 작성
-    - 알림 중심의 대응, 영향이 명확한 항목만 제한적 대응 조치
+    - 알림 중심의 대응, 영향이 명확한 항목만 제한적 조치
     - 리소스 위험도에 따른 슬랙 알림 다양화
 
 
 ## 저장소 구성
 ### [Terraform](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/terraform)
+- 안전/취약한 인프라에 대한 AWS 환경 구축 Terraform 코드 
+    - 실무 서비스 환경과 유사한 메인 아키텍처 1종
+    - 다양한 AWS 리소스 포함을 위한 서브 아키텍처 3종
 
+### [Whs-Prowler](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/whs-prowler)
+- AWS 환경에 대한 보안 점검을 위한 Prolwer
+    - ISMS-P 점검 기준 재매핑 진행
 
-### [Prowler](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/whs-prowler)
-
-
-### [Custodian](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/cloud-custodian)
-
+### [Cloud-Custodian](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/cloud-custodian)
+- AWS 환경에 대한 정책 기반 모니터링과 자동 조치를 위한 CloudCustodian
+    - 정책 정의 YAML 파일
+    - 정책 적용 및 점검 자동화 스크립트
 
 ### [Docs](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/docs)
+- 프로젝트 관련 문서
+- Prowler의 ISMS-P 점검 기준 매핑표  
 
 
-
-## 사용 방법
-각 폴더의 Readme 참조
-
+#### 사용 방법은 각 폴더의 README 참조
 
 
 
