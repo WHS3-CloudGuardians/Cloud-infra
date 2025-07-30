@@ -1,4 +1,5 @@
 policies:
+
   #CHECKID: athena_workgroup_encryption
   #ACTIONPLAN: Athena 워크그룹이 쿼리 결과 암호화를 사용하지 않는 경우, 활성화하여 민감한 데이터가 저장 시 보호되도록 합니다.
   - name: athena_workgroup_encryption
@@ -38,7 +39,6 @@ policies:
         transport:
           type: sqs
           queue: https://sqs.ap-northeast-2.amazonaws.com/311278774159/custodian-notify-queue
-
 
   #CHECKID: athena_workgroup_enforce_configuration
   #ACTIONPLAN: Athena 워크그룹이 구성 적용 옵션을 사용하지 않는 경우, 활성화하여 모든 사용자가 워크그룹 설정을 따르도록 강제합니다.
