@@ -49,35 +49,26 @@ aws configure
 
 ## 2. 환경 변수 설정 및 적용
 
-### 환경 변수 설정 방법
+모든 Terraform 변수 값은 **env/dev.tfvars** 파일에서 직접 설정하세요.
 
-Terraform 변수는 다음 중 **하나의 방식**으로 설정할 수 있습니다.
+예시 (`env/dev.tfvars`):
 
----
+account_id = "123456789012"
+aws_region = "ap-northeast-2"
 
-### 방법 1: `.tfvars` 파일 사용 (권장)
+lambda_role_name   = "custodian-lambda-role"
+mailer_role_name   = "c7n-mailer-role"
+
+queue_name         = "custodian-notify-queue"
+dlq_name           = "custodian-notify-dlq"
+
+trail_bucket_name            = "custodian-cloudtrail-logs"
+message_retention_seconds    = 1209600
+max_receive_count            = 5
+
+Terraform 적용 예시:
 
 terraform apply -var-file=env/dev.tfvars
-
-> env/dev.tfvars 파일에서 모든 변수 값을 직접 설정하세요.
-
----
-
-### 방법 2: `.env` 또는 `terraform.env` 사용 (선택)
-
-terraform.env 파일을 아래와 같이 작성한 뒤, 셸에서 source terraform.env로 로드할 수 있습니다.
-
-```bash
-export TF_VAR_account_id=123456789012
-export TF_VAR_aws_region=ap-northeast-2
-export TF_VAR_lambda_role_name="custodian-lambda-role"
-export TF_VAR_mailer_role_name="c7n-mailer-role"
-export TF_VAR_queue_name="custodian-notify-queue"
-export TF_VAR_dlq_name="custodian-notify-dlq"
-export TF_VAR_trail_bucket_name="custodian-cloudtrail-logs"
-export TF_VAR_message_retention_seconds=1209600
-export TF_VAR_max_receive_count=5
-```
 
 ---
 
