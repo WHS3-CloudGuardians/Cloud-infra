@@ -11,7 +11,7 @@ policies:
       events:
         - source: ec2.amazonaws.com
           event: DisableEbsEncryptionByDefault
-          ids: recipientAccountId
+          ids: "recipientAccountId"
     filters:
       - type: default-ebs-encryption
         state: false

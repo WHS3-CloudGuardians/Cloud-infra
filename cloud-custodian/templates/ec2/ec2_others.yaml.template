@@ -1,7 +1,7 @@
 policies:
 
-# CHECKID: ec2_elastic_ip_unassigned
-# ACTIONPLAN: EC2에 연결되지 않은 Elastic IP 탐지 및 비용 최적화 대상 태그
+  # CHECKID: ec2_elastic_ip_unassigned
+  # ACTIONPLAN: EC2에 연결되지 않은 Elastic IP 탐지 및 비용 최적화 대상 태그
   - name: ec2_elastic_ip_unassigned
     description: Detect Elastic IPs not connected to EC2 and target tags for cost optimization
     resource: aws.elastic-ip                   
@@ -15,12 +15,9 @@ policies:
         op: eq
         value: null        
     actions:
-      # 1) 비용 최적화 검토 태그 부착
       - type: tag
-        tags:
-          CostOptimize: "UnattachedEIP"
-          ManagedBy:   "Custodian"
-      # 2) Slack 알림
+        key: CostOptimize
+        value: "UnattachedEIP"
       - type: notify
         slack_template: slack_default
         slack_msg_color: warning
@@ -36,14 +33,14 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-# CHECKID: ec2_launch_template_no_secrets
-# ACTIONPLAN: 시작 템플릿 UserData에 시크릿 키워드가 포함된 경우 태그 및 Slack 알림
+  # CHECKID: ec2_launch_template_no_secrets
+  # ACTIONPLAN: 시작 템플릿 UserData에 시크릿 키워드가 포함된 경우 태그 및 Slack 알림
   - name: ec2_launch_template_no_secrets
     description: EC2 시작 템플릿 UserData 내에 하드코드된 시크릿 정보가 포함된 템플릿을 태그하고 알림
     resource: aws.launch-template-version
     mode:
       type: periodic
-      schedule: "rate(2 hours)"
+      schedule: "rate(1 day)"
       role: ${LAMBDA_ROLE}
     filters:
       # UserData 존재 여부 확인
@@ -55,15 +52,13 @@ policies:
       - type: value
         key: LaunchTemplateData.UserData
         op: regex
-      # re.match 기반이므로 “.*” 꼭 앞에 붙이기
       # KEY, PASSWORD, PW, TOKEN, SECRET
         value: '.*(S0VZ|UEFTU1dPUkQ=|UFc=|VE9LRU4=|U0VDUkVU)*'
     actions:
       # 시크릿 포함됨을 표시하는 태그
       - type: tag
-        key: UserDataSecret
+        key: SensitiveUserData
         value: "true"
-      # Slack으로 즉시 알림
       - type: notify
         slack_template: slack_default
         slack_msg_color: danger
@@ -79,8 +74,8 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-# CHECKID: ec2_networkacl_allow_ingress_any_port
-# ACTIONPLAN: 네트워크 ACL이 모든 포트에 대해 0.0.0.0/0에서 인바운드 접근을 허용하는 경우, 불필요한 규칙을 제거하고 필요한 포트만 특정 IP 범위로 제한합니다.
+  # CHECKID: ec2_networkacl_allow_ingress_any_port
+  # ACTIONPLAN: 네트워크 ACL이 모든 포트에 대해 0.0.0.0/0에서 인바운드 접근을 허용하는지 점검
   - name: ec2_networkacl_allow_ingress_any_port
     description: Detect whether the network ACL allows inbound access from 0.0.0.0/0 for all ports
     resource: aws.network-acl
@@ -95,7 +90,7 @@ policies:
         value: 0
     actions:
       - type: tag
-        key: ec2_networkacl_allow_ingress_any_port
+        key: allow_ingress_any_port
         value: "true"
       - type: notify
         slack_template: slack_default
@@ -113,7 +108,7 @@ policies:
           queue: ${QUEUE_URL}
 
   # CHECKID: ec2_networkacl_allow_ingress_tcp_port_22
-  # ACTIONPLAN: 네트워크 ACL이 SSH 포트(22)에 대해 0.0.0.0/0에서 인바운드 접근을 허용하는 경우, 규칙을 삭제하고 특정 IP 범위로 제한합니다.
+  # ACTIONPLAN: 네트워크 ACL이 SSH 포트(22)에 대해 0.0.0.0/0에서 인바운드 접근을 허용하는지 점검
   - name: ec2_networkacl_allow_ingress_tcp_port_22
     description: Detect whether the network ACL allows inbound access from 0.0.0.0/0 for the SSH port (22)
     resource: aws.network-acl
@@ -152,7 +147,7 @@ policies:
           queue: ${QUEUE_URL}
 
   # CHECKID: ec2_networkacl_allow_ingress_tcp_port_3389
-  # ACTIONPLAN: 네트워크 ACL이 RDP 포트(3389)에 대해 0.0.0.0/0에서 인바운드 접근을 허용하는 경우, 규칙을 삭제하고 특정 IP 범위로 제한합니다.
+  # ACTIONPLAN: 네트워크 ACL이 RDP 포트(3389)에 대해 0.0.0.0/0에서 인바운드 접근을 허용하는지 점검
   - name: ec2_networkacl_allow_ingress_tcp_port_3389
     description: Detect whether the network ACL allows inbound access from 0.0.0.0/0 for the RDP port (3389)
     resource: aws.network-acl

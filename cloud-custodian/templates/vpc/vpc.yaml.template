@@ -1,7 +1,7 @@
 policies:
 
-# CHECKID: vpc_different_regions
-# ACTIONPLAN: 단일 리전에만 VPC가 있는 경우, 여러 리전에 VPC를 배포하여 재해 복구 능력을 향상시킵니다.
+  # CHECKID: vpc_different_regions
+  # ACTIONPLAN: 단일 리전에만 VPC가 있는 경우, 여러 리전에 VPC를 배포하여 재해 복구 능력을 향상시킵니다.
   - name: vpc_different_regions
     description: Alert when a region has only one VPC
     resource: aws.vpc
@@ -11,7 +11,7 @@ policies:
       role: ${LAMBDA_ROLE}
     filters:
       - type: value
-        key: "length(@)"
+        value_type: resource_count
         op: eq
         value: 1
     actions:
@@ -29,8 +29,8 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-# CHECKID: vpc_flow_logs_enabled
-# ACTIONPLAN: VPC 흐름 로깅이 비활성화된 VPC가 있는 경우, 즉시 활성화하여 트래픽을 모니터링합니다.
+  # CHECKID: vpc_flow_logs_enabled
+  # ACTIONPLAN: VPC 흐름 로깅이 비활성화된 VPC가 있는 경우, 즉시 활성화하여 트래픽을 모니터링합니다.
   - name: vpc_flow_logs_enabled
     description: Ensure VPC Flow Logs are enabled for traffic monitoring
     resource: aws.vpc
@@ -39,16 +39,15 @@ policies:
       schedule: "rate(1 day)"
       role: ${LAMBDA_ROLE}
     filters:
-      # flow‑logs filter matches VPCs without any Flow Logs enabled
       - type: flow-logs
         enabled: false
     actions:
-# 원하면 채워넣고 활성화
-      # - type: enable-flow-logs
-        # log-group: "/aws/vpc/flow-logs"
-        # iam-role-arn: 채워넣기
-        # traffic-type: all
-        # max-aggregation-interval: 60
+    # 원하면 채워넣고 활성화
+    #  - type: enable-flow-logs
+    #    log-group: "/aws/vpc/flow-logs"
+    #    iam-role-arn: 채워넣기
+    #    traffic-type: all
+    #    max-aggregation-interval: 60
       # 2) Slack 알림
       - type: notify
         slack_template: slack_default
@@ -70,10 +69,10 @@ policies:
   - name: vpc_subnet_different_az
     description: Alert on VPCs with subnets in only one availability zone
     resource: aws.vpc
-    # mode:
-    #   type: periodic
-    #   schedule: "rate(30 days)"
-    #   role: ${LAMBDA_ROLE}
+    mode:
+      type: periodic
+      schedule: "rate(30 days)"
+      role: ${LAMBDA_ROLE}
     filters:
       - type: subnet
         value_type: resource_count
@@ -94,8 +93,8 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-# CHECKID: vpc_subnet_no_public_ip_by_default
-# ACTIONPLAN: 서브넷이 기본적으로 퍼블릭 IP를 할당하는 경우, 해당 설정을 비활성화하여 보안을 강화합니다.
+  # CHECKID: vpc_subnet_no_public_ip_by_default
+  # ACTIONPLAN: 서브넷이 기본적으로 퍼블릭 IP를 할당하는 경우, 해당 설정을 비활성화하여 보안을 강화합니다.
   - name: vpc-subnet-disable-default-public-ip
     description: Disables default public IP assignment on new EC2 instances launched in subnets
     resource: aws.subnet
@@ -109,10 +108,10 @@ policies:
         op: eq
         value: true
     actions:
-      # 1) 기본 퍼블릭 IP 할당 비활성화 (서비스에 영향이 있다면 주석 처리)
+    # 1) 기본 퍼블릭 IP 할당 비활성화 (서비스에 영향이 있다면 주석 처리)
       - type: modify
         MapPublicIpOnLaunch: false
-      # 2) Slack 알림
+    # 2) Slack 알림
       - type: notify
         slack_template: slack_default
         slack_msg_color: good
@@ -128,8 +127,8 @@ policies:
           type: sqs
           queue: ${QUEUE_URL}
 
-# CHECKID: vpc_subnet_separate_private_public
-# ACTIONPLAN: VPC에 퍼블릭 및 프라이빗 서브넷 구분이 없는 경우, 용도에 맞게 서브넷을 재구성합니다.
+  # CHECKID: vpc_subnet_separate_private_public
+  # ACTIONPLAN: VPC에 퍼블릭 및 프라이빗 서브넷 구분이 없는 경우, 용도에 맞게 서브넷을 재구성합니다.
   - name: vpc_subnet_separate_private_public
     description: Alert VPCs that have only public subnets without any private subnets
     resource: aws.vpc
@@ -138,12 +137,12 @@ policies:
       schedule: "rate(7 days)"
       role: ${LAMBDA_ROLE}
     filters:
-      # 1) 하나 이상의 public 서브넷이 있는 VPC
+    # 1) 하나 이상의 public 서브넷이 있는 VPC
       - type: subnet
         key: MapPublicIpOnLaunch
         op: eq
         value: true
-      # 2) private 서브넷이 전혀 없는 VPC
+    # 2) private 서브넷이 전혀 없는 VPC
       - not:
         - type: subnet
           key: MapPublicIpOnLaunch
