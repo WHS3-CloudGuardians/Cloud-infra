@@ -80,7 +80,7 @@ make build
 
 > 약 5~7분 소요 (의존성 설치 포함)
 
-빌드 결과 확인:
+빌드 결과 확인
 
 ```bash
 ls -lh modules/custodian-mailer/c7n-mailer.zip
@@ -98,7 +98,7 @@ terraform apply -var-file=env/dev.tfvars
 ---
 
 ## Custodian 정책 실행 예시
-정책 실행:
+정책 실행
 
 ```bash
 custodian run -s out custodian.yml
@@ -121,7 +121,7 @@ custodian run -s out custodian.yml
 terraform output
 ```
 
-출력 예시:
+출력 예시
 
 - `custodian_lambda_role_arn`
 - `custodian_notify_queue_url`
@@ -134,6 +134,5 @@ terraform output
 
 - Lambda 로그: **CloudWatch > /aws/lambda/c7n-mailer-***  
 - Webhook URL은 `.env`, `terraform.env`, 또는 `mailer.yaml`에 정의
-- `.build/`, `.zip` 파일은 `.gitignore`에 추가 권장
 
 ---
