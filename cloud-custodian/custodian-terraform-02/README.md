@@ -49,24 +49,52 @@ aws configure
 
 ## 2. 환경 변수 설정 및 적용
 
-`.env` 또는 `terraform.env` 파일에서 본인의 Account ID, Slack Webhook 등을 설정한 뒤, 아래 내용을 복사해서 한 번에 실행하세요:
+### 환경 변수 설정 방법
 
-```bash
+Terraform 변수는 다음 중 **하나의 방식**으로 설정할 수 있습니다.
+
+---
+
+### 방법 1: `.tfvars` 파일 사용 (권장)
+
+terraform apply -var-file=env/dev.tfvars
+
+> env/dev.tfvars 파일에서 모든 변수 값을 직접 설정하세요.
+
+---
+
+### 방법 2: `.env` 또는 `terraform.env` 사용 (선택)
+
+terraform.env 파일을 아래와 같이 작성한 뒤, 셸에서 source terraform.env로 로드할 수 있습니다.
+
 export TF_VAR_account_id=123456789012
 export TF_VAR_aws_region=ap-northeast-2
-
 export TF_VAR_lambda_role_name="custodian-lambda-role"
 export TF_VAR_mailer_role_name="c7n-mailer-role"
 export TF_VAR_queue_name="custodian-notify-queue"
 export TF_VAR_dlq_name="custodian-notify-dlq"
 export TF_VAR_trail_bucket_name="custodian-cloudtrail-logs"
+export TF_VAR_message_retention_seconds=1209600
+export TF_VAR_max_receive_count=5
 
-export TF_VAR_good_slack="https://hooks.slack.com/services/AAA/BBB/CCC"
-export TF_VAR_warning_slack="https://hooks.slack.com/services/DDD/EEE/FFF"
-export TF_VAR_danger_slack="https://hooks.slack.com/services/GGG/HHH/III"
+---
 
-source terraform.env
-```
+## Slack Webhook 설정
+
+Slack Webhook 관련 변수는 **Terraform 변수가 아닌** c7n-mailer에서 참조되는 환경변수입니다.
+
+.env 또는 Lambda 환경 변수로 아래처럼 정의하세요.
+
+export GOOD_SLACK="https://hooks.slack.com/services/AAA/BBB/CCC"
+export WARNING_SLACK="https://hooks.slack.com/services/DDD/EEE/FFF"
+export DANGER_SLACK="https://hooks.slack.com/services/GGG/HHH/III"
+
+그리고 mailer.yaml(또는 c7n-mailer.yml)에서 다음과 같이 참조합니다.
+
+slack:
+  good: ${GOOD_SLACK}
+  warning: ${WARNING_SLACK}
+  danger: ${DANGER_SLACK}
 
 ---
 
