@@ -1,4 +1,4 @@
-# ☁Cloud Custodian 자동화 인프라 (with Terraform)
+# Cloud Custodian 자동화 인프라 (with Terraform)
 
 Terraform을 활용해 AWS 환경에서 Cloud Custodian 정책 실행 및 Slack 알림 연동이 가능한 보안 자동화 인프라를 구성할 수 있습니다.
 
