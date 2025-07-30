@@ -53,6 +53,7 @@
 
 ### [`/docs`](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/docs)
 - 프로젝트 문서 및 Prowler ISMS-P 매핑표/해설서
+- 📄 [Notion 프로젝트 문서](https://www.notion.so/AWS-23fc86faa56f80ce9865ffe805df09e8?source=copy_link)
 
 > 📎 각 폴더의 `README.md`를 통해 사용 방법 및 세부 설명 제공
 
