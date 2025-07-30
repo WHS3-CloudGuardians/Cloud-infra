@@ -67,6 +67,7 @@ terraform apply -var-file=env/dev.tfvars
 
 terraform.env 파일을 아래와 같이 작성한 뒤, 셸에서 source terraform.env로 로드할 수 있습니다.
 
+```bash
 export TF_VAR_account_id=123456789012
 export TF_VAR_aws_region=ap-northeast-2
 export TF_VAR_lambda_role_name="custodian-lambda-role"
@@ -76,6 +77,7 @@ export TF_VAR_dlq_name="custodian-notify-dlq"
 export TF_VAR_trail_bucket_name="custodian-cloudtrail-logs"
 export TF_VAR_message_retention_seconds=1209600
 export TF_VAR_max_receive_count=5
+```
 
 ---
 
