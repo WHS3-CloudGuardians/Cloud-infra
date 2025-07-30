@@ -53,6 +53,7 @@ aws configure
 
 예시 (`env/dev.tfvars`):
 
+```bash
 account_id = "123456789012"
 aws_region = "ap-northeast-2"
 
@@ -65,10 +66,13 @@ dlq_name           = "custodian-notify-dlq"
 trail_bucket_name            = "custodian-cloudtrail-logs"
 message_retention_seconds    = 1209600
 max_receive_count            = 5
+```
 
 Terraform 적용 예시:
 
+```bash
 terraform apply -var-file=env/dev.tfvars
+```
 
 ---
 
