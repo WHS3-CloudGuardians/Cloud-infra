@@ -20,7 +20,7 @@
 3. CloudCustodian을 활용한 위반 사항 대응
 
 ### 성과
-- 4개의 아키텍처에 대한 안전/취약한 인프라 구축 
+- 5개의 아키텍처에 대한 안전/취약한 인프라 구축 
     - 총 29개의 AWS 리소스 포함
 - Prowler 오픈소스 기여
     - Prowler의 ISMS-P 점검 기준 재매핑
@@ -35,7 +35,7 @@
 ### [Terraform](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/terraform)
 - 안전/취약한 인프라에 대한 AWS 환경 구축 Terraform 코드 
     - 실무 서비스 환경과 유사한 메인 아키텍처 1종
-    - 다양한 AWS 리소스 포함을 위한 서브 아키텍처 3종
+    - 다양한 AWS 리소스 포함을 위한 서브 아키텍처 4종
 
 ### [Whs-Prowler](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/whs-prowler)
 - AWS 환경에 대한 보안 점검을 위한 Prolwer
