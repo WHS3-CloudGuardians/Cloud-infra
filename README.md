@@ -1,76 +1,77 @@
 <div align="center">
 
-# AWS 보안 컴플라이언스 자동화
-### Prowler & CloudCustodian을 활용한 ISMS-P 정책 점검 및 대응 시스템 구현
+# AWS 보안 점검 자동화 시스템  
+### Prowler & CloudCustodian 기반 ISMS-P 대응 아키텍처 구현
 
-[<img src="https://img.shields.io/badge/-readme.md-important?style=flat&logo=google-chrome&logoColor=white" />]() [<img src="https://img.shields.io/badge/프로젝트 기간-2025.5 ~ 2025.8-green?style=flat&logo=&logoColor=white" />]()
-</div> 
+[![README](https://img.shields.io/badge/-README-important?logo=markdown)]()  
+[![프로젝트 기간](https://img.shields.io/badge/2025.05~2025.08-진행-green?style=flat)]()
 
-## 프로젝트 개요
+</div>
 
-### 목적
-클라우드 보안 위협 증가에 대한 대비와 컴플라이언스 수동 점검의 한계 극복
+---
 
-오픈 소스를 활용하여 AWS 환경에서 보안 점검 및 대응 자동화 구현
+## 📌 프로젝트 개요
 
-### 과정
-1. 정책 점검과 대응 시스템을 실행할 안전/취약한 AWS 인프라 구축
-2. Prowler을 이용하여 ISMS-P 정책 점검 
-    - Prowler의 ISMS-P 점검 기준 확인
-3. CloudCustodian을 활용한 위반 사항 대응
+### 🎯 목적
+- 클라우드 보안 위협 증가와 수동 점검의 한계를 극복하기 위한 자동화 대응 시스템 구축
+- 오픈소스를 기반으로 AWS 환경에서 ISMS-P 중심의 보안 점검 및 대응 자동화 구현
 
-### 성과
-- 5개의 아키텍처에 대한 안전/취약한 인프라 구축 
-    - 총 29개의 AWS 리소스 포함
-- Prowler 오픈소스 기여
-    - Prowler의 ISMS-P 점검 기준 재매핑
-    - 매핑 결과 Prowler PR 후, Merge 완료
-    - 매핑 근거를 해설한 "매핑 해설서" 작성
-- CloudCustodian 정책 작성
-    - 알림 중심의 대응, 영향이 명확한 항목만 제한적 조치
-    - 리소스 위험도에 따른 슬랙 알림 다양화
+### 🛠️ 수행 내용
+1. 안전/취약한 상태를 모두 포함한 AWS 인프라 구성
+2. **Prowler를 활용한 ISMS-P 정책 점검**
+   - 커스텀 기준 매핑 및 공식 오픈소스 반영
+3. **CloudCustodian을 통한 위반 항목 대응 자동화**
+   - 알림 중심 대응 및 자동 리소스 제어
 
+### ✅ 주요 성과
+- **5종의 인프라 아키텍처 구축**
+  - 총 29개의 AWS 리소스 포함
+- **Prowler 공식 저장소 기여**
+  - ISMS-P 기준 재매핑 및 PR → **공식 기준으로 병합 완료**
+  - 매핑 기준 해설 포함한 문서 작성
+- **CloudCustodian 정책 구현**
+  - 위험도 기반 Slack 알림 시스템 구축
+  - 중요도 높은 항목에 한해 제한적 자동조치 적용
 
-## 저장소 구성
-### [Terraform](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/terraform)
-- 안전/취약한 인프라에 대한 AWS 환경 구축 Terraform 코드 
-    - 실무 서비스 환경과 유사한 메인 아키텍처 1종
-    - 다양한 AWS 리소스 포함을 위한 서브 아키텍처 4종
+---
 
-### [Whs-Prowler](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/whs-prowler)
-- AWS 환경에 대한 보안 점검을 위한 Prolwer
-    - ISMS-P 점검 기준 재매핑 진행
+## 📂 저장소 구성
 
-### [Cloud-Custodian](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/cloud-custodian)
-- AWS 환경에 대한 정책 기반 모니터링과 자동 조치를 위한 CloudCustodian
-    - 정책 정의 YAML 파일
-    - 정책 적용 및 점검 자동화 스크립트
+### [`/terraform`](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/terraform)
+- AWS 환경 구성용 Terraform 코드
+- 메인 아키텍처 1종 + 서브 아키텍처 4종 구성
 
-### [Docs](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/docs)
-- 프로젝트 관련 문서
-- Prowler의 ISMS-P 점검 기준 매핑표  
+### [`/whs-prowler`](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/whs-prowler)
+- ISMS-P 기반 보안 점검 자동화 (Prowler 사용)
+- 점검 기준 재매핑 및 공식 병합된 커스텀 기준 포함
 
+### [`/cloud-custodian`](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/cloud-custodian)
+- CloudCustodian 정책 정의 및 실행 자동화
+- YAML 정책 파일 및 실행 스크립트 포함
 
-#### 사용 방법은 각 폴더의 README 참조
+### [`/docs`](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/docs)
+- 프로젝트 문서 및 Prowler ISMS-P 매핑표/해설서
 
+> 📎 각 폴더의 `README.md`를 통해 사용 방법 및 세부 설명 제공
 
+---
 
-</br></br></br></br>
-<div align="center">
+## 🧑‍💻 프로젝트 팀 - **구름수비대**
 
-## 구름수비대 
+### 👨‍🏫 PM  
+- [이찬휘](https://github.com/iChanee)
 
-</div> 
+### 👨‍💻 기술팀  
+- [나영민](https://github.com/skdudals99)  
+- [이다솔](https://github.com/dasol729)  
+- [손예은](https://github.com/ye-nni)  
+- [김진호](https://github.com/oscarjhk)  
+- [송채영](https://github.com/buddle031)
 
-PM [이찬휘](https://github.com/iChanee)
+### 📜 정책팀  
+- [김건희](https://github.com/ghkim583)  
+- [옥재은](https://github.com/Jaen-923)
 
-기술팀 
-[나영민](https://github.com/skdudals99)
-[이다솔](https://github.com/dasol729)
-[손예은](https://github.com/ye-nni)
-[김진호](https://github.com/oscarjhk)
-[송채영](https://github.com/buddle031)
+---
 
-정책팀 
-[김건희](https://github.com/ghkim583)
-[옥재은](https://github.com/Jaen-923)
+> 본 프로젝트는 실무 보안 대응과 오픈소스 기여 경험을 함께 달성한 사례로, 실제 정책 연동부터 자동화까지의 전 과정을 포함하고 있습니다.
