@@ -10,13 +10,13 @@
 
 ---
 
-## 📌 프로젝트 개요
+## 프로젝트 개요
 
-### 🎯 목적
+### 목적
 - 클라우드 보안 위협 증가와 수동 점검의 한계를 극복하기 위한 자동화 대응 시스템 구축
 - 오픈소스를 기반으로 AWS 환경에서 ISMS-P 중심의 보안 점검 및 대응 자동화 구현
 
-### 🛠️ 수행 내용
+### 수행 내용
 1. 안전/취약한 상태를 모두 포함한 AWS 인프라 구성
 2. **Prowler를 활용한 ISMS-P 정책 점검**
    - 커스텀 기준 매핑 및 공식 오픈소스 반영
@@ -56,21 +56,21 @@
 
 ---
 
-## 🧑‍💻 프로젝트 팀 - **구름수비대**
+## ☁️ 프로젝트 팀 - **구름수비대**
 
-### 👨‍🏫 PM  
+### 🙂 PM  
 - [이찬휘](https://github.com/iChanee)
 
-### 👨‍💻 기술팀  
+### 🛠️ 기술팀   
 - [나영민](https://github.com/skdudals99)  
 - [이다솔](https://github.com/dasol729)  
 - [손예은](https://github.com/ye-nni)  
 - [김진호](https://github.com/oscarjhk)  
 - [송채영](https://github.com/buddle031)
 
-### 📜 정책팀  
-- [김건희](https://github.com/ghkim583)  
+### 📚 정책팀 
 - [옥재은](https://github.com/Jaen-923)
+- [김건희](https://github.com/ghkim583)  
 
 ---
 
