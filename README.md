@@ -3,11 +3,10 @@
 # AWS 보안 점검 자동화 시스템  
 ### Prowler & CloudCustodian 기반 ISMS-P 대응 아키텍처 구현
 
-[![README](https://img.shields.io/badge/-README-important?logo=markdown)]()
-[![화이트햇 스쿨](https://img.shields.io/badge/화이트햇_스쿨-3기-blueviolet?style=flat&logo=graduation-cap)]()
-[![팀명](https://img.shields.io/badge/팀명-구름수비대-00c4cc?style=flat&logo=cloud)]()
-[![프로젝트 기간](https://img.shields.io/badge/2025.05~2025.08-진행-green?style=flat)]()
-
+[![README](https://img.shields.io/badge/-README-important?logo=markdown)]()  
+[![화이트햇 스쿨](https://img.shields.io/badge/화이트햇_스쿨_3기-blueviolet?style=flat)]()  
+[![구름수비대](https://img.shields.io/badge/구름수비대-팀-blue?style=flat&logo=cloud)]()
+[![프로젝트 기간](https://img.shields.io/badge/2025.05~2025.08-진행-green?style=flat)]()  
 
 </div>
 
