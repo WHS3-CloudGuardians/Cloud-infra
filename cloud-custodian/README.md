@@ -1,5 +1,5 @@
 
-# 🛠️ Cloud Custodian - 위반 항목 대응 자동화
+# 🛠️ Cloud Custodian - 정책 위반 항목 대응 자동화
 
 **정책 위반 항목 대응 자동화 시스템을 위한 Cloud Custodian 정책 작성 및 AWS 환경 구성**
 
