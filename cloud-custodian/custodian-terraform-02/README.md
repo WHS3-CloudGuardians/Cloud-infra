@@ -87,16 +87,20 @@ Slack Webhook 관련 변수는 **Terraform 변수가 아닌** c7n-mailer에서 �
 
 .env 또는 Lambda 환경 변수로 아래처럼 정의하세요.
 
+```bash
 export GOOD_SLACK="https://hooks.slack.com/services/AAA/BBB/CCC"
 export WARNING_SLACK="https://hooks.slack.com/services/DDD/EEE/FFF"
 export DANGER_SLACK="https://hooks.slack.com/services/GGG/HHH/III"
+```
 
 그리고 mailer.yaml(또는 c7n-mailer.yml)에서 다음과 같이 참조합니다.
 
+```bash
 slack:
   good: ${GOOD_SLACK}
   warning: ${WARNING_SLACK}
   danger: ${DANGER_SLACK}
+```
 
 ---
 
