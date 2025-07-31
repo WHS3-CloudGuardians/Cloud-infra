@@ -1,7 +1,0 @@
-git bash로 실행함
-source .env
-terraform init
-terraform plan -var-file=env/dev.tfvars
-terraform apply -var-file=env/dev.tfvars
-
-# env 파일에서 본인의 acoount ID 수정해야 함. 
