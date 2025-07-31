@@ -1,0 +1,167 @@
+# Cloud Custodian 자동화 인프라 (with Terraform)
+
+Terraform을 활용해 AWS 환경에서 Cloud Custodian 정책 실행 및 Slack 알림 연동이 가능한 보안 자동화 인프라를 구성할 수 있습니다.
+
+---
+
+## 구성 요소
+
+- **SQS & DLQ**: 정책 알림 큐 및 실패 메시지 큐
+- **IAM Roles**: Lambda 실행 권한 정의
+- **CloudTrail + S3**: 리소스 변경 기록 로깅
+- **c7n-mailer Lambda**: SQS 메시지를 Slack 또는 이메일로 전송
+- **모듈화된 구조**로 재사용 및 확장 가능
+
+---
+
+## 디렉터리 구조
+
+<pre>
+terraform/
+├── main.tf                  # 모듈 조합 구성
+├── provider.tf              # Terraform & AWS provider 설정
+├── variables.tf             # 변수 정의
+├── outputs.tf               # 출력값 정의
+├── terraform.env            # 환경변수 export 스크립트 (선택)
+├── Makefile                 # build / apply 자동화 명령어
+│
+├── env/
+│   └── dev.tfvars           # 변수 값 정의 파일
+│
+└── modules/
+    ├── custodian-sqs/       # SQS 및 DLQ 모듈
+    ├── custodian-iam/       # IAM 역할 및 정책
+    ├── custodian-trail/     # CloudTrail + S3 구성
+    └── custodian-mailer/    # c7n-mailer Lambda 정의
+</pre>
+
+---
+
+## 사전 준비
+
+```bash
+aws configure
+```
+
+> 본인의 Access Key, Secret Key, 리전 (`ap-northeast-2`) 입력
+
+---
+
+## 2. 환경 변수 설정 및 적용
+
+모든 Terraform 변수 값은 **env/dev.tfvars** 파일에서 직접 설정하세요.
+
+예시 (`env/dev.tfvars`):
+
+```bash
+account_id = "123456789012"
+aws_region = "ap-northeast-2"
+
+lambda_role_name   = "custodian-lambda-role"
+mailer_role_name   = "c7n-mailer-role"
+
+queue_name         = "custodian-notify-queue"
+dlq_name           = "custodian-notify-dlq"
+
+trail_bucket_name            = "custodian-cloudtrail-logs"
+message_retention_seconds    = 1209600
+max_receive_count            = 5
+```
+
+Terraform 적용 예시:
+
+```bash
+terraform apply -var-file=env/dev.tfvars
+```
+
+---
+
+## Slack Webhook 설정
+
+Slack Webhook 관련 변수는 **Terraform 변수가 아닌** c7n-mailer에서 참조되는 환경변수입니다.
+
+.env 또는 Lambda 환경 변수로 아래처럼 정의하세요.
+
+```bash
+export GOOD_SLACK="https://hooks.slack.com/services/AAA/BBB/CCC"
+export WARNING_SLACK="https://hooks.slack.com/services/DDD/EEE/FFF"
+export DANGER_SLACK="https://hooks.slack.com/services/GGG/HHH/III"
+```
+
+그리고 mailer.yaml(또는 c7n-mailer.yml)에서 다음과 같이 참조합니다.
+
+```bash
+slack:
+  good: ${GOOD_SLACK}
+  warning: ${WARNING_SLACK}
+  danger: ${DANGER_SLACK}
+```
+
+---
+
+## 실행 순서
+
+### 1. c7n-mailer 패키지 빌드
+
+```bash
+make build
+```
+
+> 약 5~7분 소요 (의존성 설치 포함)
+
+빌드 결과 확인
+
+```bash
+ls -lh modules/custodian-mailer/c7n-mailer.zip
+```
+
+---
+
+### 2. Terraform 초기화 및 배포
+
+```bash
+terraform init
+terraform apply -var-file=env/dev.tfvars
+```
+
+---
+
+## Custodian 정책 실행 예시
+정책 실행
+
+```bash
+custodian run -s out custodian.yml
+```
+
+---
+
+## Lambda 배포
+
+### Terraform으로 배포
+
+- `modules/custodian-mailer` 내부에 Lambda 정의
+- `make build && make deploy`로 자동 배포
+
+---
+
+## 실행 후 출력 확인
+
+```bash
+terraform output
+```
+
+출력 예시
+
+- `custodian_lambda_role_arn`
+- `custodian_notify_queue_url`
+- `trail_bucket_name`
+- `cloudtrail_arn`
+
+---
+
+## 참고
+
+- Lambda 로그: **CloudWatch > /aws/lambda/c7n-mailer-***  
+- Webhook URL은 `.env`, `terraform.env`, 또는 `mailer.yaml`에 정의
+
+---
