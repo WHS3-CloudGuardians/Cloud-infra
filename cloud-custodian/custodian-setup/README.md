@@ -147,17 +147,3 @@ terraform output
 
 * [Cloud Custodian 공식 문서](https://cloudcustodian.io/docs/aws/index.html)
 * [c7n-mailer GitHub](https://github.com/cloud-custodian/cloud-custodian/tree/master/tools/c7n_mailer)
-
----
-
-## ✅ 프로젝트 상태
-
-* [x] Terraform 모듈화 구성 완료
-* [x] CloudTrail → EventBridge → Lambda 연동
-* [x] SQS 및 c7n-mailer 알림 처리 검증
-* [x] 정책 수동 실행 (`custodian run`) 및 자동 실행 모두 구현
-
----
-
-> 작성자: **영민 나**
-> 배포 환경: AWS (001848367358 / ap-northeast-2)
