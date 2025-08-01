@@ -58,26 +58,9 @@ variable "max_receive_count" {
   default     = 3
 }
 
-# ================================
-# Lambda 함수 변수
-# ================================
-
-variable "mailer_lambda_name" {
-  description = "Name of the c7n-mailer Lambda function"
+variable "trail_bucket_name" {
+  description = "Fully qualified S3 bucket name for CloudTrail logs (must be globally unique)"
   type        = string
-  default     = "whs3-c7n-mailer"
+  default     = "" 
 }
-
-variable "custodian_lambda_name" {
-  type = string
-  default = "whs3-custodian-cloudtrail"
-}
-
-# ================================
-# 알림 설정
-# ================================
-
-variable "good_slack"    { type = string }
-variable "warning_slack" { type = string }
-variable "danger_slack"  { type = string }
 
