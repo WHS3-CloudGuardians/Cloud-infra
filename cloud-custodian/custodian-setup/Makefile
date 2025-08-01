@@ -1,16 +1,20 @@
 # custodian-setup/Makefile
 
-ZIP_PATH_MAILER = modules/custodian-mailer/c7n-mailer.zip
-BUILD_DIR_MAILER = .build/c7n-mailer
+# Makefile: Custodian (CloudTrail → Lambda → SQS) 인프라 배포 전용
 
-ZIP_PATH_CT = modules/custodian-cloudtrail/custodian.zip
-BUILD_DIR_CT = .build/custodian-cloudtrail
+.PHONY: all tfvars plan validate apply deploy-sqs deploy-policies run-cloudtrail run-periodic test-policies build-lambda clean
 
-.PHONY: all plan validate build build-mailer build-cloudtrail deploy clean debug-build debug-tf debug
+# 전체 배포: tfvars 생성 → validate → apply
+all: tfvars validate apply
 
-all: build deploy
+# .env 기반 dev.tfvars 자동 생성
+# generate-dev-tfvars.sh를 사용하도록 변경
 
-plan: build
+tfvars:
+	@./generate-dev-tfvars.sh
+
+# Terraform validate & plan
+plan:
 	@echo "🔎 Planning Terraform..."
 	terraform plan -var-file=env/dev.tfvars
 
@@ -18,50 +22,72 @@ validate:
 	@echo "🔎 Validating Terraform..."
 	terraform validate
 
-build: build-mailer build-cloudtrail
+# 전체 배포 (apply)
+apply:
+	@echo "🚀 Applying Terraform..."
+	terraform apply -var-file=env/dev.tfvars
 
-# 1) c7n-mailer 패키징
-build-mailer:
-	@echo "🔧 Building c7n-mailer.zip..."
-	rm -rf $(BUILD_DIR_MAILER)
-	mkdir -p $(BUILD_DIR_MAILER)/templates
-	cp c7n-mailer.yml $(BUILD_DIR_MAILER)/
-	cp -r templates/* $(BUILD_DIR_MAILER)/templates/
-	pip install c7n-mailer -t $(BUILD_DIR_MAILER)
-	cd $(BUILD_DIR_MAILER) && zip -r ../../$(ZIP_PATH_MAILER) .
+# SQS만 배포
+deploy-sqs:
+	@echo "🚀 Deploying only SQS..."
+	terraform apply -auto-approve -target=module.custodian_sqs -var-file=env/dev.tfvars
 
-# 2) custodian-cloudtrail 패키징
-build-cloudtrail:
-	@echo "🔧 Building custodian-cloudtrail.zip..."
-	rm -rf $(BUILD_DIR_CT)
-	mkdir -p $(BUILD_DIR_CT)
-	pip install c7n[boto3] -t $(BUILD_DIR_CT)
-	cp -r policies/cloudtrail $(BUILD_DIR_CT)/policies
-	cp custodian-lambda.py $(BUILD_DIR_CT)/custodian_lambda.py
-	cd $(BUILD_DIR_CT) && zip -r ../../$(ZIP_PATH_CT) .
+# 정책 배포 (템플릿 처리 + deploy)
+deploy-policies:
+	@echo "🔄 Processing policy templates..."
+	@if [ ! -f .env ]; then echo "❌ .env file not found, cannot process policies."; exit 1; fi
+	@. .env && \
+	mkdir -p policies/processed && \
+	for f in policies/*.yml; do \
+		if [ -f "$$f" ]; then \
+			echo "Processing $$f..."; \
+			envsubst < "$$f" > "policies/processed/$$(basename $$f)"; \
+		fi; \
+	done
+	@echo "🚀 Deploying policies..."
+	@. .env && custodian deploy --region $$AWS_REGION policies/processed/
 
-deploy: build
-	@echo "🚀 Deploying with Terraform..."
-	terraform apply -auto-approve -var-file=env/dev.tfvars
+# CloudTrail 기반 정책 수동 실행
+run-cloudtrail:
+	@echo "📋 Running CloudTrail-based Custodian policies..."
+	@if [ -d "policies/cloudtrail" ]; then \
+		for f in policies/cloudtrail/*.yml; do \
+			[ -f "$$f" ] || continue; \
+			echo "→ $$f"; custodian run -s out "$$f"; \
+		done; \
+	else \
+		echo "⚠️ No policies/cloudtrail directory found"; \
+	fi
 
+# Periodic 기반 정책 수동 실행
+run-periodic:
+	@echo "🕒 Running periodic Custodian policies..."
+	@if [ -d "policies/periodic" ]; then \
+		for f in policies/periodic/*.yml; do \
+			[ -f "$$f" ] || continue; \
+			echo "→ $$f"; custodian run -s out "$$f"; \
+		done; \
+	else \
+		echo "⚠️ No policies/periodic directory found"; \
+	fi
+
+# 처리된 정책 테스트
+test-policies:
+	@echo "🧪 Testing policies..."
+	@if [ ! -d "policies/processed" ]; then \
+		echo "⚠️ No processed policies found. Run 'make deploy-policies' first."; \
+		exit 1; \
+	fi
+	@. .env && custodian run --region $$AWS_REGION policies/processed/
+
+# Lambda 핸들러 zip 빌드
+build-lambda:
+	@echo "📦 Zipping custodian_lambda.py into custodian.zip..."
+	@if [ ! -f custodian_lambda.py ]; then echo "❌ custodian_lambda.py not found."; exit 1; fi
+	@zip -j custodian.zip custodian_lambda.py
+	@echo "✅ custodian.zip created"
+
+# 정리
 clean:
-	@echo "🧹 Cleaning build artifacts..."
-	rm -rf .build
-	rm -f $(ZIP_PATH_MAILER) $(ZIP_PATH_CT)
-
-# ──────────────────────────────────────────────────────
-# 디버깅 전용 타겟
-# ──────────────────────────────────────────────────────
-
-debug-build:
-	@echo "🔍 Inspecting mailer build…"    # TAB으로 들여쓰기
-	tree $(BUILD_DIR_MAILER) || echo "⚠️ tree not found"
-	unzip -l $(ZIP_PATH_MAILER)
-	@echo "🔍 Inspecting cloudtrail build…"
-	tree $(BUILD_DIR_CT)     || echo "⚠️ tree not found"
-	unzip -l $(ZIP_PATH_CT)
-
-debug-tf: plan validate
-	@echo "🔍 Terraform checks completed"
-
-debug: debug-build debug-tf
+	@echo "🧹 Cleaning..."
+	rm -rf .build out env/dev.tfvars custodian.zip policies/processed
