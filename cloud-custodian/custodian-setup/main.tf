@@ -1,8 +1,18 @@
 # custodian-setup\main.tf
 
 # ================================
-# Custodian Notification Queue (SQS)
-# → 다른 모듈들이 SQS ARN을 참조함
+# CloudTrail 설정
+# ================================
+
+module "custodian_trail" {
+  source            = "./modules/custodian-trail"
+  account_id        = var.account_id
+  aws_region        = var.aws_region
+  trail_bucket_name = var.trail_bucket_name
+}
+
+# ================================
+# SQS 큐 설정
 # ================================
 
 module "custodian_sqs" {
@@ -14,54 +24,29 @@ module "custodian_sqs" {
 }
 
 # ================================
-# IAM Role & Policies for Custodian / Mailer
+# IAM 역할 설정
 # ================================
 
 module "custodian_iam" {
-  source           = "./modules/custodian-iam"
-  aws_region       = var.aws_region
-  account_id       = var.account_id
-  lambda_role_name = var.lambda_role_name
-  mailer_role_name = var.mailer_role_name
-  sqs_queue_arn    = module.custodian_sqs.custodian_notify_queue_arn
-}
-
-# ================================
-# CloudTrail + S3 Logging for Custodian
-# ================================
-
-module "custodian_trail" {
-  source            = "./modules/custodian-trail"
-  account_id        = var.account_id
-  aws_region        = var.aws_region
-  trail_bucket_name = "whs3-cloudtrail-logs-${var.account_id}"
-}
-
-# ================================
-# c7n-mailer Lambda Function
-# ================================
-
-module "custodian_mailer" {
-  source             = "./modules/custodian-mailer"
-  aws_region         = var.aws_region
+  source             = "./modules/custodian-iam"
   account_id         = var.account_id
+  aws_region         = var.aws_region
+  lambda_role_name   = var.lambda_role_name
   mailer_role_name   = var.mailer_role_name
-  mailer_lambda_name = var.mailer_lambda_name
-  queue_url          = module.custodian_sqs.custodian_notify_queue_url
   sqs_queue_arn      = module.custodian_sqs.custodian_notify_queue_arn
-
-  good_slack    = var.good_slack
-  warning_slack = var.warning_slack
-  danger_slack  = var.danger_slack
 }
 
 # ================================
-# CloudTrail-based Custodian Lambda
+# EventBridge 기본 설정 (CloudTrail 이벤트용)
 # ================================
 
-module "custodian_cloudtrail" {
-  source          = "./modules/custodian-cloudtrail"
-  function_name = var.custodian_lambda_name
-  lambda_role_arn = module.custodian_iam.custodian_lambda_role_arn
-  queue_url       = module.custodian_sqs.custodian_notify_queue_url
+# CloudTrail 이벤트를 EventBridge로 전달하기 위한 기본 규칙
+resource "aws_cloudwatch_event_rule" "cloudtrail_events" {
+  name        = "custodian-cloudtrail-events"
+  description = "Capture CloudTrail events for Custodian CloudTrail-mode policies"
+  
+  event_pattern = jsonencode({
+    source = ["aws.cloudtrail"]
+    detail-type = ["AWS API Call via CloudTrail"]
+  })
 }
