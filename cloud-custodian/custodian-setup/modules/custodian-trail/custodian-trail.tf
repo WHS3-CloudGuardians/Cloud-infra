@@ -20,14 +20,8 @@ variable "trail_bucket_name" {
 # S3 Bucket for CloudTrail Logs
 # ================================
 
-resource "random_string" "suffix" {
-  length  = 6
-  upper   = false
-  special = false
-}
-
 resource "aws_s3_bucket" "trail_bucket" {
-  bucket        = "${var.trail_bucket_name}-${random_string.suffix.result}"
+  bucket        = var.trail_bucket_name  
   force_destroy = true
 }
 
