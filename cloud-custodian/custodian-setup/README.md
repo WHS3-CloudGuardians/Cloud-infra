@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 핵심 특징
+## 🚀 해용 특징
 
 * **CloudTrail 실시간 이벤트 감지** → Lambda 트리거
 * **Cloud Custodian 정책 자동 실행** → SQS 메시지 생성
@@ -33,7 +33,7 @@ terraform/
 ├── modules/
 │   ├── custodian-iam/        # Lambda 및 mailer IAM 역할
 │   ├── custodian-sqs/        # SQS + DLQ 구성
-│   └── custodian-trail/      # CloudTrail + 로그용 S3 버킷
+│   └── custodian-trail/      # CloudTrail + 로그용 S3 버트
 │
 ├── policies/
 │   ├── cloudtrail/           # mode: cloudtrail 정책
@@ -52,7 +52,9 @@ python3 --version   # >= 3.11
 make --version
 ```
 
-### 2. 환경변수 파일 생성
+### 2. 환경번수 파일 생성
+
+`.env 파일에 ACCOUNT_ID, AWS_REGION 그리고 3가지 slack webhook 주소를 입력해야 합니다.`
 
 `.env` 파일 작성 예시:
 
@@ -72,6 +74,9 @@ DANGER_SLACK=https://hooks.slack.com/services/T00000000/B00000000/DANGER
 # dev.tfvars 자동 생성
 ./generate-dev-tfvars.sh
 
+# .env 파일에 적은 것들이 제대로 반영되었는지 확인
+cat env/dev.tfvars
+
 # Terraform 초기화
 terraform init
 
@@ -81,27 +86,22 @@ make all
 
 ---
 
-## 🧪 정책 실행 방법
+## 🥪 정책 실행 방법
 
 ### ✅ Type: CloudTrail
 
-**예시 정책 경로**: `policies/cloudtrail/s3-public-access-block.yml`
+**예시 정책 경로**: `policies/cloudtrail/type:cloudtrail인 정책 파일 이름.yml`
 
 ```bash
-# 테스트 예시: S3 퍼블릭 접근 차단 해제
-aws s3api delete-public-access-block --bucket your-bucket-name
+custodian run -s out policies/cloudtrail/type:cloudtrail인 정책 파일 이름.yml
 ```
 
 ### ✅ Type: Periodic
 
-**예시 정책 경로**: `policies/periodic/alert-mfa-delete-disabled-s3.yml`
+**예시 정책 경로**: `policies/periodic/type:periodic인 정책 파일 이름.yml`
 
 ```bash
-# 구문 확인
-custodian validate policies/periodic/alert-mfa-delete-disabled-s3.yml
-
-# 실행
-custodian run -s out policies/periodic/alert-mfa-delete-disabled-s3.yml
+custodian run -s out policies/periodic/type:periodic인 정책 파일 이름.yml
 ```
 
 ---
@@ -111,7 +111,7 @@ custodian run -s out policies/periodic/alert-mfa-delete-disabled-s3.yml
 ```bash
 make all              # 전체 배포(tfvars + validate + apply)
 make tfvars           # .env → dev.tfvars 생성
-make build-lambda     # custodian_lambda.py → .zip 패키징
+make build-lambda     # custodian_lambda.py → .zip 패키지인
 make deploy-policies  # 모든 정책 deploy (envsubst)
 make run-cloudtrail   # cloudtrail 정책 직접 실행 (예외적 테스트용)
 make run-periodic     # periodic 정책 직접 실행
@@ -131,19 +131,6 @@ terraform output
 * `custodian_lambda_role_arn`
 * `eventbridge_rule_arn`
 
----
 
-## 📡 Slack 알림 연동 방법
-
-1. Slack 앱에서 "Incoming Webhook" 설치
-2. Webhook URL 3개 생성
-
-   * GOOD / WARNING / DANGER 채널 분리
-3. `.env`에 각각 환경변수로 입력
-
----
-
-## 📚 참고
-
-* [Cloud Custodian 공식 문서](https://cloudcustodian.io/docs/aws/index.html)
-* [c7n-mailer GitHub](https://github.com/cloud-custodian/cloud-custodian/tree/master/tools/c7n_mailer)
+> 작성자: **영민 나**
+> 배포 환경: AWS (001848367358 / ap-northeast-2)
