@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 해용 특징
+## 🚀 주요 특징
 
 * **CloudTrail 실시간 이벤트 감지** → Lambda 트리거
 * **Cloud Custodian 정책 자동 실행** → SQS 메시지 생성
@@ -71,6 +71,9 @@ DANGER_SLACK=https://hooks.slack.com/services/T00000000/B00000000/DANGER
 ### 3. Terraform 배포
 
 ```bash
+# ./generate-dev-tfvars.sh 실행 권한 부여
+chmod +x generate-dev-tfvars.sh
+
 # dev.tfvars 자동 생성
 ./generate-dev-tfvars.sh
 
