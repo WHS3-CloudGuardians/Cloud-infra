@@ -130,7 +130,3 @@ terraform output
 * `cloudtrail_arn`
 * `custodian_lambda_role_arn`
 * `eventbridge_rule_arn`
-
-
-> 작성자: **영민 나**
-> 배포 환경: AWS (001848367358 / ap-northeast-2)
