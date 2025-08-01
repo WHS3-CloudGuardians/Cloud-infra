@@ -54,15 +54,15 @@ make --version
 
 ### 2. 환경번수 파일 생성
 
-`.env 파일에 ACCOUNT_ID, AWS_REGION 그리고 3가지 slack webhook 주소를 입력해야 합니다.`
+`.env 파일에 ACCOUNT_ID, QUEUE_URL에 (ACCOUNT_ID), AWS_REGION 그리고 3가지 slack webhook 주소를 입력해야 합니다.`
 
 `.env` 파일 작성 예시:
 
 ```bash
-ACCOUNT_ID=001848367358
-AWS_REGION=ap-northeast-2
+ACCOUNT_ID=
+AWS_REGION=
 LAMBDA_ROLE=whs3-custodian-lambda-role
-QUEUE_URL=https://sqs.ap-northeast-2.amazonaws.com/123456789012/whs3-security-alert-queue
+QUEUE_URL=https://sqs.ap-northeast-2.amazonaws.com/(ACCOUNT_ID)/whs3-security-alert-queue
 GOOD_SLACK=https://hooks.slack.com/services/T00000000/B00000000/GOOD
 WARNING_SLACK=https://hooks.slack.com/services/T00000000/B00000000/WARNING
 DANGER_SLACK=https://hooks.slack.com/services/T00000000/B00000000/DANGER
