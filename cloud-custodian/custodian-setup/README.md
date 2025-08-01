@@ -1,169 +1,163 @@
-# 🛡️ Cloud Custodian 자동화 인프라
+# 🛡️ Cloud Custodian 자동화 인프라 (Terraform 기반)
 
-**실시간 AWS 보안 정책 자동화 시스템**
+이 프로젝트는 AWS 보안 정책을 자동으로 탐지하고 알림 및 대응하는 **Cloud Custodian 기반 자동화 인프라**입니다. Terraform으로 구성된 이 시스템은 CloudTrail 이벤트 발생 시 보안 위반 사항을 자동 감지하고, SQS를 통해 Slack 또는 이메일로 알림을 전송합니다.
 
-이 프로젝트는 **Cloud Custodian**과 **Terraform**을 결합하여 AWS 환경의 보안 정책을 실시간으로 모니터링하고 자동 조치를 취하는 완전 자동화 인프라입니다. CloudTrail 이벤트를 실시간으로 감지하여 정책을 실행하고, 결과를 Slack으로 알림합니다.
+---
 
-**핵심 특징:**
-- **실시간 감지**: AWS API 호출 즉시 정책 실행
-- **이벤트 드리븐**: CloudTrail → EventBridge → Lambda 자동화
-- **심각도별 알림**: 3단계 Slack 채널 분리 (Good/Warning/Danger)
-- **장애 대응**: Dead Letter Queue로 실패 메시지 보존
-- **모듈화**: 재사용 가능한 Terraform 모듈 구조
+## 🚀 핵심 특징
 
-## 📁 프로젝트 구조
+* **CloudTrail 실시간 이벤트 감지** → Lambda 트리거
+* **Cloud Custodian 정책 자동 실행** → SQS 메시지 생성
+* **c7n-mailer**로 Slack 알림 연동 (심각도별 Webhook 분리)
+* **Dead Letter Queue**로 메시지 유실 방지
+* **모듈화된 Terraform 코드**로 유연한 재사용 가능
+
+---
+
+## 📁 디렉토리 구조
 
 ```
 terraform/
-├── 🔧 main.tf                     # 메인 Terraform 구성 (모듈 조합)
-├── 📝 variables.tf                # 입력 변수 정의
-├── 📤 outputs.tf                  # 배포 결과 출력
-├── ⚙️ provider.tf                 # AWS Provider 설정
-├── 🛠️ Makefile                   # 빌드/배포 자동화
+├── main.tf                    # 전체 인프라 구성
+├── variables.tf              # 공통 변수 정의
+├── outputs.tf                # 결과 출력
+├── provider.tf               # AWS provider 정의
+├── Makefile                  # Lambda 빌드 및 Terraform 자동화
+├── custodian_lambda.py       # CloudTrail Lambda 핸들러
+├── c7n-mailer.yml            # c7n-mailer 설정 파일
+├── generate-dev-tfvars.sh    # .env → dev.tfvars 자동 생성
 │
-├── 📂 env/
-│   ├── 🌍 .env                    # 환경변수 중앙 관리
-│   └── 📋 dev.tfvars              # Terraform 변수 (.env 참조)
+├── env/
+│   └── dev.tfvars            # 환경별 변수 정의 (.env 기반 생성)
 │
-├── 📂 modules/                    # 모듈화된 Terraform 코드
-│   ├── 📬 custodian-sqs/          # SQS Queue + DLQ
-│   ├── 🔐 custodian-iam/          # IAM 역할 및 정책
-│   ├── 📋 custodian-trail/        # CloudTrail + S3 버킷
-│   ├── ⚡ custodian-cloudtrail/   # Custodian Lambda 함수
-│   └── 📧 custodian-mailer/       # 알림 발송 Lambda
+├── modules/
+│   ├── custodian-iam/        # Lambda 및 mailer IAM 역할
+│   ├── custodian-sqs/        # SQS + DLQ 구성
+│   └── custodian-trail/      # CloudTrail + 로그용 S3 버킷
 │
-├── 📂 policies/
-│   └── cloudtrail/                # Custodian 정책 파일들
-│
-├── 🐍 custodian-lambda.py         # Lambda 진입점 핸들러
-└── 📧 c7n-mailer.yml             # Mailer 설정 파일
+├── policies/
+│   ├── cloudtrail/           # mode: cloudtrail 정책
+│   └── periodic/             # mode: periodic 정책
 ```
 
-## 🚀 설치 및 배포 가이드
+---
 
-### 1️⃣ 사전 준비
+## ⚙️ 설치 및 실행 방법
+
+### 1. 필수 도구 설치
+
 ```bash
-# AWS CLI 설정
-aws configure
-
-# 필요한 도구 설치 확인
-terraform --version  # >= 1.0
-python3 --version    # >= 3.11
+terraform -v        # >= 1.0
+python3 --version   # >= 3.11
 make --version
 ```
 
-### 2️⃣ 환경 설정
-`terraform/.env` 파일을 환경에 맞게 수정:
+### 2. 환경변수 파일 생성
+
+`.env` 파일 작성 예시:
 
 ```bash
-# AWS 기본 설정
-ACCOUNT_ID=123456789012
+ACCOUNT_ID=001848367358
 AWS_REGION=ap-northeast-2
-
-# IAM 역할명 (기본값 사용 권장)
 LAMBDA_ROLE=whs3-custodian-lambda-role
-MAILER_ROLE=whs3-c7n-mailer-role
-
-# SQS 큐 URL
 QUEUE_URL=https://sqs.ap-northeast-2.amazonaws.com/123456789012/whs3-security-alert-queue
-
-# Slack Webhook URLs (필수 수정 항목)
-GOOD_SLACK=https://hooks.slack.com/services/T00000000/B00000000/YOUR-GOOD-WEBHOOK
-WARNING_SLACK=https://hooks.slack.com/services/T00000000/B00000000/YOUR-WARNING-WEBHOOK
-DANGER_SLACK=https://hooks.slack.com/services/T00000000/B00000000/YOUR-DANGER-WEBHOOK
+GOOD_SLACK=https://hooks.slack.com/services/T00000000/B00000000/GOOD
+WARNING_SLACK=https://hooks.slack.com/services/T00000000/B00000000/WARNING
+DANGER_SLACK=https://hooks.slack.com/services/T00000000/B00000000/DANGER
 ```
 
-### 3️⃣ Slack Webhook 설정
-1. Slack 워크스페이스에서 **Incoming Webhooks** 앱 설치
-2. 3개 채널별 Webhook URL 생성:
-   - `#security-good`: 정상 작업 알림
-   - `#security-warning`: 경고 수준 알림  
-   - `#security-danger`: 위험 수준 알림
+### 3. Terraform 배포
 
-### 4️⃣ 배포 실행
 ```bash
-# 프로젝트 디렉토리로 이동
-cd terraform/
-
-# 환경변수 로드
-set -a && source .env && set +a
+# dev.tfvars 자동 생성
+./generate-dev-tfvars.sh
 
 # Terraform 초기화
 terraform init
 
-# 전체 빌드 및 배포 (권장)
+# 전체 인프라 배포 (build + deploy)
 make all
-
-# 또는 단계별 실행
-make build      # Lambda 패키지 빌드
-make plan       # 배포 계획 확인
-make deploy     # 인프라 배포
 ```
 
+---
 
+## 🧪 정책 실행 방법
 
-## 📊 배포 결과 확인
+### ✅ Type: CloudTrail
 
-### Terraform 출력 정보
+**예시 정책 경로**: `policies/cloudtrail/s3-public-access-block.yml`
+
+```bash
+# 테스트 예시: S3 퍼블릭 접근 차단 해제
+aws s3api delete-public-access-block --bucket your-bucket-name
+```
+
+### ✅ Type: Periodic
+
+**예시 정책 경로**: `policies/periodic/alert-mfa-delete-disabled-s3.yml`
+
+```bash
+# 구문 확인
+custodian validate policies/periodic/alert-mfa-delete-disabled-s3.yml
+
+# 실행
+custodian run -s out policies/periodic/alert-mfa-delete-disabled-s3.yml
+```
+
+---
+
+## 📦 Makefile 주요 명령어
+
+```bash
+make all              # 전체 배포(tfvars + validate + apply)
+make tfvars           # .env → dev.tfvars 생성
+make build-lambda     # custodian_lambda.py → .zip 패키징
+make deploy-policies  # 모든 정책 deploy (envsubst)
+make run-cloudtrail   # cloudtrail 정책 직접 실행 (예외적 테스트용)
+make run-periodic     # periodic 정책 직접 실행
+```
+
+---
+
+## 📤 Terraform 출력값 예시
+
 ```bash
 terraform output
 ```
 
-**주요 출력값**:
-- `custodian_lambda_arn`: Custodian Lambda 함수 ARN
-- `mailer_lambda_arn`: Mailer Lambda 함수 ARN
-- `custodian_notify_queue_url`: SQS 큐 URL
-- `trail_bucket_name`: CloudTrail 로그 S3 버킷명
-- `cloudtrail_arn`: CloudTrail ARN
+* `custodian_notify_queue_url`
+* `trail_bucket_name`
+* `cloudtrail_arn`
+* `custodian_lambda_role_arn`
+* `eventbridge_rule_arn`
 
-## 🧪 정책 실행 방식
+---
 
-### 1. CloudTrail 정책 (자동 실행) ⚡
-`policies/cloudtrail/` 디렉토리의 정책들:
-- ✅ **완전 자동화**: AWS 리소스 변경 즉시 자동 실행
-- ❌ **수동 실행 불가**: `custodian run` 명령어 사용 불가
-- 🔍 **구문 검사만 가능**: `custodian validate policies/cloudtrail/`
+## 📡 Slack 알림 연동 방법
 
-**테스트 방법**: 실제 AWS 리소스 변경으로만 가능
-```bash
-# 예시: EC2 인스턴스 생성하여 정책 트리거
-aws ec2 run-instances --image-id ami-12345 --instance-type t2.micro
+1. Slack 앱에서 "Incoming Webhook" 설치
+2. Webhook URL 3개 생성
 
-# 로그 확인
-aws logs tail /aws/lambda/whs3-custodian-cloudtrail --follow
-```
+   * GOOD / WARNING / DANGER 채널 분리
+3. `.env`에 각각 환경변수로 입력
 
-### 2. Periodic 정책 (수동 실행) 🔧
-`policies/periodic/` 디렉토리에 정책을 만들면:
-- ✅ `custodian run` 수동 실행 가능
-- ✅ 드라이런 테스트 가능  
-- ✅ 언제든 개발자가 직접 실행
+---
 
-**사용법**:
-```bash
-# 정책 생성
-mkdir -p policies/periodic
-vi policies/periodic/my-policy.yml
+## 📚 참고
 
-# 구문 검사
-custodian validate policies/periodic/my-policy.yml
+* [Cloud Custodian 공식 문서](https://cloudcustodian.io/docs/aws/index.html)
+* [c7n-mailer GitHub](https://github.com/cloud-custodian/cloud-custodian/tree/master/tools/c7n_mailer)
 
-# 드라이런 (안전한 테스트)
-custodian run --dryrun -s out policies/periodic/my-policy.yml
+---
 
-# 실제 실행
-custodian run -s out policies/periodic/my-policy.yml
-```
-```bash
-# EC2 인스턴스 생성 (CloudTrail 이벤트 발생)
-aws ec2 run-instances --image-id ami-12345 --instance-type t2.micro
+## ✅ 프로젝트 상태
 
-# 로그 확인
-aws logs tail /aws/lambda/whs3-custodian-cloudtrail --follow
-aws logs tail /aws/lambda/whs3-c7n-mailer --follow
-```
+* [x] Terraform 모듈화 구성 완료
+* [x] CloudTrail → EventBridge → Lambda 연동
+* [x] SQS 및 c7n-mailer 알림 처리 검증
+* [x] 정책 수동 실행 (`custodian run`) 및 자동 실행 모두 구현
 
-### 3. Slack 알림 확인
-- 정책 실행 후 해당 심각도 채널에 알림 도착 확인
-- 메시지 포맷 및 내용 검증
+---
 
+> 작성자: **영민 나**
+> 배포 환경: AWS (001848367358 / ap-northeast-2)
