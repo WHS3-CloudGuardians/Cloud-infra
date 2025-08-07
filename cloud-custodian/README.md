@@ -6,7 +6,7 @@
 
 ## 📁 디렉토리 구성
 
-### [`custodian-terraform-02/`](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/cloud-custodian/custodian-terraform-02)
+### [`custodian-setup/`](https://github.com/WHS3-CloudGuardians/Cloud-infra/tree/main/cloud-custodian/custodian-setup)
 - Cloud Custodian 실행을 위한 AWS 환경 구성용 Terraform 코드
 - IAM Role, SQS 등 리소스 생성 포함
 
